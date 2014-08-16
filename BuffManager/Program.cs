@@ -71,8 +71,10 @@ namespace BuffMngr
 
         public delegate void OnGainBuffp(Obj_AI_Base target, Obj_AI_Base source, OnGainBuffArgs args);
         public delegate void OnLoseBuffp(Obj_AI_Base target, Obj_AI_Base source, OnGainBuffArgs args);
+        public delegate void OnUpdateBuffp(Obj_AI_Base target, Obj_AI_Base source, OnGainBuffArgs args);
         public static event OnGainBuffp OnGainBuff;
         public static event OnLoseBuffp OnLoseBuff;
+        public static event OnUpdateBuffp OnUpdateBuff;
         private static void PacketHandler(GamePacketEventArgs args)
         {
             if (OnGainBuff != null)
@@ -104,8 +106,40 @@ namespace BuffMngr
                     var targetbuff = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(BitConverter.ToInt32(args.PacketData, 24));
                     if (targetbuff == null) 
                         return;
-                    OnGainBuff(targetbuff, targetbuff,
+                    OnLoseBuff(targetbuff, targetbuff,
                         new OnGainBuffArgs { Slot = buffSlot + 1, Count = 0, BuffID = buffID});
+                }
+            }
+            if (OnUpdateBuff != null)
+            {
+                if (args.PacketData[0] == 0x30)
+                {
+
+                    int buffSlot = args.PacketData[5];
+                    int timeBuffAlreadyOnTarget = (BitConverter.ToInt32(args.PacketData, 6));
+                    int duration = (BitConverter.ToInt32(args.PacketData, 10));
+                    var source = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(BitConverter.ToInt32(args.PacketData, 14));
+                    var targetbuff = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(BitConverter.ToInt32(args.PacketData, 1));
+                    if (targetbuff == null)
+                        return;
+                    OnUpdateBuff(source, targetbuff,
+                        new OnGainBuffArgs { Slot = buffSlot + 1, Count = 1 });
+                }
+
+                if (args.PacketData[0] == 0x1D)
+                {
+
+                    int buffSlot = args.PacketData[5];
+                    int stackCount = args.PacketData[7];
+                    int time = (BitConverter.ToInt32(args.PacketData, 8));
+                    int timeBuffAlreadyOnTarget = (BitConverter.ToInt32(args.PacketData, 12));
+                    int duration = (BitConverter.ToInt32(args.PacketData, 10));
+                    var source = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(BitConverter.ToInt32(args.PacketData, 14));
+                    var targetbuff = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(BitConverter.ToInt32(args.PacketData, 1));
+                    if (targetbuff == null)
+                        return;
+                    OnUpdateBuff(source, targetbuff,
+                        new OnGainBuffArgs { Slot = buffSlot + 1, Count = stackCount, Timer = duration });
                 }
             }
         }
