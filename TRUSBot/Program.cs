@@ -52,7 +52,7 @@ namespace TRUSDominion
         private static GameObject shop;
         private static void Game_OnGameNotifyEvent(GameNotifyEventArgs args)
         {
-            if (args.EventId == GameEventId.OnCapturePointCaptured_A || args.EventId == GameEventId.OnCapturePointCaptured_B || args.EventId == GameEventId.OnCapturePointCaptured_C || args.EventId == GameEventId.OnCapturePointCaptured_D || args.EventId == GameEventId.OnCapturePointCaptured_E || args.EventId == GameEventId.OnCapturePointFiveCap);
+            if (args.EventId == GameEventId.OnCapturePointCaptured_A || args.EventId == GameEventId.OnCapturePointCaptured_B || args.EventId == GameEventId.OnCapturePointCaptured_C || args.EventId == GameEventId.OnCapturePointCaptured_D || args.EventId == GameEventId.OnCapturePointCaptured_E || args.EventId == GameEventId.OnCapturePointFiveCap)
             if (args.EventId == GameEventId.OnItemPurchased)
             {
                 buyitemdelay = false;
@@ -127,7 +127,7 @@ namespace TRUSDominion
             {
                 foreach (PointData curpoint in PointData2)
                 {
-                    if ((Vector3.Distance(m.ServerPosition, curpoint.Position) <= 500f) && (m.Name == "OdinNeutralGuardian"));
+                    if ((Vector3.Distance(m.ServerPosition, curpoint.Position) <= 500f) && (m.Name == "OdinNeutralGuardian"))
                     {
                         curpoint.Unit = m;
                         Game.PrintChat(curpoint.Unit.Team.ToString());

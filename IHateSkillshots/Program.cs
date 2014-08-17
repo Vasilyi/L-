@@ -25,8 +25,11 @@ namespace Skillshots
             {
                 Config = new Menu("Skillshots", "Skillshots", true);
                 Config.AddSubMenu(new Menu("Combo", "Combo"));
-                Config.SubMenu("Combo").AddItem(new MenuItem("Hitchance", "Hitchance").SetValue(new Slider(1,1, 5)));
+                Config.SubMenu("Combo").AddItem(new MenuItem("Hitchance", "Only High HitChance").SetValue(true));
                 Config.AddSubMenu(new Menu("Drawings", "Drawings"));
+                var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
+                SimpleTs.AddToMenu(targetSelectorMenu);
+                Config.AddSubMenu(targetSelectorMenu);
                 foreach (var spell in SpellDatabase.Spells)
                     if (spell.BaseSkinName == ObjectManager.Player.BaseSkinName)
                     {
@@ -106,9 +109,12 @@ namespace Skillshots
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
-            var hitchance = Config.Item("Hitchance").GetValue<Slider>().Value;
             if (Q.IsReady() && ObjectManager.Player.Distance(target) <= Q.Range)
-                Q.Cast(target, false);
+                if (!Config.Item("Hitchance").GetValue<bool>())
+                    Q.Cast(target, false);
+                if (Config.Item("Hitchance").GetValue<bool>())
+                    Q.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
+                //Q.Cast(target, false);
  
         }
         private static void ExecuteW()
