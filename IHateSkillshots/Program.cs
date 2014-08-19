@@ -124,8 +124,8 @@ namespace Skillshots
             if (W.IsReady() && ObjectManager.Player.Distance(target) <= W.Range)
                 if (!Config.Item("Hitchance").GetValue<bool>())
                     W.Cast(target, false);
-            if (Config.Item("Hitchance").GetValue<bool>())
-                W.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
+                if (Config.Item("Hitchance").GetValue<bool>())
+                    W.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
         }
         private static void ExecuteE()
         {
@@ -134,8 +134,8 @@ namespace Skillshots
             if (E.IsReady() && ObjectManager.Player.Distance(target) <= E.Range)
                 if (!Config.Item("Hitchance").GetValue<bool>())
                     E.Cast(target, false);
-            if (Config.Item("Hitchance").GetValue<bool>())
-                E.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
+                if (Config.Item("Hitchance").GetValue<bool>())
+                    E.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
         }
         private static void ExecuteR()
         {
@@ -144,8 +144,8 @@ namespace Skillshots
             if (R.IsReady() && ObjectManager.Player.Distance(target) <= R.Range)
                 if (!Config.Item("Hitchance").GetValue<bool>())
                     R.Cast(target, false);
-            if (Config.Item("Hitchance").GetValue<bool>())
-                R.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
+                if (Config.Item("Hitchance").GetValue<bool>())
+                    R.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
         }
     }
 }
