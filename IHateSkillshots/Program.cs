@@ -121,25 +121,31 @@ namespace Skillshots
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
-
             if (W.IsReady() && ObjectManager.Player.Distance(target) <= W.Range)
-                W.Cast(target, false);
+                if (!Config.Item("Hitchance").GetValue<bool>())
+                    W.Cast(target, false);
+            if (Config.Item("Hitchance").GetValue<bool>())
+                W.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
         }
         private static void ExecuteE()
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
-
             if (E.IsReady() && ObjectManager.Player.Distance(target) <= E.Range)
-                E.Cast(target, false);
+                if (!Config.Item("Hitchance").GetValue<bool>())
+                    E.Cast(target, false);
+            if (Config.Item("Hitchance").GetValue<bool>())
+                E.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
         }
         private static void ExecuteR()
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
-
             if (R.IsReady() && ObjectManager.Player.Distance(target) <= R.Range)
-                R.Cast(target, false);
+                if (!Config.Item("Hitchance").GetValue<bool>())
+                    R.Cast(target, false);
+            if (Config.Item("Hitchance").GetValue<bool>())
+                R.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance, false);
         }
     }
 }
