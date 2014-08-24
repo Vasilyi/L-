@@ -115,7 +115,7 @@ namespace Skillshots
                 if (!Config.Item("Hitchance").GetValue<bool>())
                     Q.Cast(target);
                 if (Config.Item("Hitchance").GetValue<bool>())
-                    Q.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance);
+                    Q.CastIfHitchanceEquals(target, HitChance.High);
                     //Q.Cast(target, false);
             }
  
@@ -129,7 +129,7 @@ namespace Skillshots
                 if (!Config.Item("Hitchance").GetValue<bool>())
                     W.Cast(target);
                 if (Config.Item("Hitchance").GetValue<bool>())
-                    W.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance);
+                    W.CastIfHitchanceEquals(target, HitChance.High);
             }
         }
         private static void ExecuteE()
@@ -141,7 +141,7 @@ namespace Skillshots
                 if (!Config.Item("Hitchance").GetValue<bool>())
                     E.Cast(target);
                 if (Config.Item("Hitchance").GetValue<bool>())
-                    E.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance);
+                    E.CastIfHitchanceEquals(target, HitChance.High);
             }
         }
         private static void ExecuteR()
@@ -153,7 +153,7 @@ namespace Skillshots
                 if (!Config.Item("Hitchance").GetValue<bool>())
                     R.Cast(target);
                 if (Config.Item("Hitchance").GetValue<bool>())
-                    R.CastIfHitchanceEquals(target, Prediction.HitChance.HighHitchance);
+                    R.CastIfHitchanceEquals(target, HitChance.High);
             }
         }
     }

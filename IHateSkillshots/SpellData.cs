@@ -26,7 +26,7 @@ namespace Skillshots
         public int DangerValue;
         public string ToggleParticleName = "";
         public string FromObject = "";
-        public Prediction.SkillshotType Type;
+        public SkillshotType Type;
         public bool DontAddExtraDuration;
         public bool Centered;
         public bool Invert;
@@ -44,7 +44,7 @@ namespace Skillshots
 
         }
 
-        public SpellData(string baseSkinName, string spellName, SpellSlot slot, Prediction.SkillshotType type, float delay, float range,
+        public SpellData(string baseSkinName, string spellName, SpellSlot slot, SkillshotType type, float delay, float range,
             float radius, float missileSpeed, bool addHitbox, bool fixedRange, int defaultDangerValue)
         {
             BaseSkinName = baseSkinName;
