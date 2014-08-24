@@ -25,7 +25,7 @@ namespace Skillshots
             {
                 Config = new Menu("Skillshots", "Skillshots", true);
                 Config.AddSubMenu(new Menu("Combo", "Combo"));
-                Config.SubMenu("Combo").AddItem(new MenuItem("HitChance", "Minimal Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High" })));
+                Config.SubMenu("Combo").AddItem(new MenuItem("HitChance", "Hitchance").SetValue(new StringList(new[] { "L", "M", "H" })));
                 Config.AddSubMenu(new Menu("Drawings", "Drawings"));
                 var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
                 SimpleTs.AddToMenu(targetSelectorMenu);
