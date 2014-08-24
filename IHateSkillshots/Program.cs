@@ -25,7 +25,7 @@ namespace Skillshots
             {
                 Config = new Menu("Skillshots", "Skillshots", true);
                 Config.AddSubMenu(new Menu("Combo", "Combo"));
-                Config.SubMenu("Combo").AddItem(new MenuItem("Hitchance", "Only High HitChance").SetValue(true));
+                Config.SubMenu("Combo").AddItem(new MenuItem("HitChance", "Minimal Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High" })));
                 Config.AddSubMenu(new Menu("Drawings", "Drawings"));
                 var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
                 SimpleTs.AddToMenu(targetSelectorMenu);
@@ -110,50 +110,84 @@ namespace Skillshots
             
             Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
+            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
             if (Q.IsReady() && ObjectManager.Player.Distance(target) <= Q.Range)
             {
-                if (!Config.Item("Hitchance").GetValue<bool>())
-                    Q.Cast(target);
-                if (Config.Item("Hitchance").GetValue<bool>())
-                    Q.CastIfHitchanceEquals(target, HitChance.High);
-                    //Q.Cast(target, false);
+                switch (rMode)
+                {
+                    case 1://Low
+                        Q.Cast(target);
+                        break;
+                    case 2://Medium
+                        Q.CastIfHitchanceEquals(target, HitChance.Medium);
+                        break;
+                    case 3://High
+                        Q.CastIfHitchanceEquals(target, HitChance.High);
+                        break;
+                }
             }
- 
         }
         private static void ExecuteW()
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
+            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
             if (W.IsReady() && ObjectManager.Player.Distance(target) <= W.Range)
             {
-                if (!Config.Item("Hitchance").GetValue<bool>())
-                    W.Cast(target);
-                if (Config.Item("Hitchance").GetValue<bool>())
-                    W.CastIfHitchanceEquals(target, HitChance.High);
+                switch (rMode)
+                {
+                    case 1://Low
+                        W.Cast(target);
+                        break;
+                    case 2://Medium
+                        W.CastIfHitchanceEquals(target, HitChance.Medium);
+                        break;
+                    case 3://High
+                        W.CastIfHitchanceEquals(target, HitChance.High);
+                        break;
+                }
             }
         }
         private static void ExecuteE()
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
+            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
             if (E.IsReady() && ObjectManager.Player.Distance(target) <= E.Range)
             {
-                if (!Config.Item("Hitchance").GetValue<bool>())
-                    E.Cast(target);
-                if (Config.Item("Hitchance").GetValue<bool>())
-                    E.CastIfHitchanceEquals(target, HitChance.High);
+                switch (rMode)
+                {
+                    case 1://Low
+                        E.Cast(target);
+                        break;
+                    case 2://Medium
+                        E.CastIfHitchanceEquals(target, HitChance.Medium);
+                        break;
+                    case 3://High
+                        E.CastIfHitchanceEquals(target, HitChance.High);
+                        break;
+                }
             }
         }
         private static void ExecuteR()
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
             if (target == null) return;
+            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
             if (R.IsReady() && ObjectManager.Player.Distance(target) <= R.Range)
             {
-                if (!Config.Item("Hitchance").GetValue<bool>())
-                    R.Cast(target);
-                if (Config.Item("Hitchance").GetValue<bool>())
-                    R.CastIfHitchanceEquals(target, HitChance.High);
+                switch (rMode)
+                {
+                    case 1://Low hitchance
+                        R.Cast(target);
+                        break;
+                    case 2://Medium
+                        R.CastIfHitchanceEquals(target, HitChance.Medium);
+                        break;
+                    case 3://High
+                        R.CastIfHitchanceEquals(target, HitChance.High);
+                        break;
+                }
             }
         }
     }
