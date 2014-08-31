@@ -21,7 +21,6 @@ namespace Vladimir
         public static Spell Q;
         public static Spell E;
         public static Spell R;
-        new public Vector3 ultipos;
         //Menu
         public static Menu Config;
 
@@ -45,6 +44,8 @@ namespace Vladimir
             SpellList.Add(Q);
             SpellList.Add(E);
             SpellList.Add(R);
+
+            R.SetSkillshot(0.25f, 175, 700, false, SkillshotType.SkillshotCircle);
 
             //Create the menu
             Config = new Menu(ChampionName, ChampionName, true);
@@ -108,12 +109,12 @@ namespace Vladimir
 
             if (target != null)
             {
-                if (Player.Distance(target) <= 600f && Q.IsReady())
+                if (Player.Distance(target) <= Q.Range && Q.IsReady())
                     Q.Cast(target);
-                if (Player.Distance(target) <= 600f && E.IsReady())
+                if (Player.Distance(target) <= E.Range && E.IsReady())
                     E.Cast();
-                if (Player.Distance(target) <= 600f & R.IsReady())
-                    R.Cast(Prediction.GetBestAOEPosition(target, 0.25f, 175f, float.MaxValue, Player.Position, 700f, false, Prediction.SkillshotType.SkillshotCircle).CastPosition, false);
+                if (Player.Distance(target) <= R.Range + R.Width && R.IsReady())
+                    R.Cast(target, true, true);
             }
         }
 
@@ -123,9 +124,9 @@ namespace Vladimir
 
             if (target != null)
             {
-                if (Player.Distance(target) <= 600 && Q.IsReady())
-                    Q.Cast(target,false);
-                if (Player.Distance(target) <= 600 && E.IsReady())
+                if (Player.Distance(target) <= Q.Range && Q.IsReady())
+                    Q.Cast(target, false);
+                if (Player.Distance(target) <= E.Range && E.IsReady())
                     E.Cast();
             }
         }
