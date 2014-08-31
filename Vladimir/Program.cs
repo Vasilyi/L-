@@ -44,6 +44,8 @@ namespace Vladimir
             SpellList.Add(Q);
             SpellList.Add(E);
             SpellList.Add(R);
+            
+            R.SetSkillshot(0.25f, 175, 700, false, SkillshotType.SkillshotCircle);
 
             R.SetSkillshot(0.25f, 175, 700, false, SkillshotType.SkillshotCircle);
 
