@@ -13,7 +13,37 @@ namespace BuffLib
 {
     public class BuffMngr
     {
-
+        public enum BuffTypes
+        {
+            BUFF_NONE = 0,
+            BUFF_GLOBAL = 1,
+            BUFF_BASIC = 2,
+            BUFF_DEBUFF = 3,
+            BUFF_STUN = 5,
+            BUFF_STEALTH = 6,
+            BUFF_SILENCE = 7,
+            BUFF_TAUNT = 8,
+            BUFF_SLOW = 10,
+            BUFF_ROOT = 11,
+            BUFF_DOT = 12,
+            BUFF_REGENERATION = 13,
+            BUFF_SPEED = 14,
+            BUFF_MAGIC_IMMUNE = 15,
+            BUFF_PHYSICAL_IMMUNE = 16,
+            BUFF_IMMUNE = 17,
+            BUFF_Vision_Reduce = 19,
+            BUFF_FEAR = 21,
+            BUFF_CHARM = 22,
+            BUFF_POISON = 23,
+            BUFF_SUPPRESS = 24,
+            BUFF_BLIND = 25,
+            BUFF_STATS_INCREASE = 26,
+            BUFF_STATS_DECREASE = 27,
+            BUFF_FLEE = 28,
+            BUFF_KNOCKUP = 29,
+            BUFF_KNOCKBACK = 30,
+            BUFF_DISARM = 31,
+        }
         public static void BuffMngrInit()
         {
             Console.WriteLine("BUFF MNGR LOADED");
