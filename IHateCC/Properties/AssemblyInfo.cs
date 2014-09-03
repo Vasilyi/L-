@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GX Auto Shield")]
-[assembly: AssemblyDescription("Will attempt to use one of the available shielding methods to shield the player or an ally")]
+[assembly: AssemblyTitle("IHateCC")]
+[assembly: AssemblyDescription("Auto Cleanse control spells")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GX Auto Shield")]
-[assembly: AssemblyCopyright("Copyright ©  2014 GXion")]
+[assembly: AssemblyProduct("IHateCC")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("22ee3f75-0b95-4512-ace0-8d5b95fbc87b")]
+[assembly: Guid("22ee3f95-0b95-4512-ace0-8d5b95fbc87b")]
 
 // Version information for an assembly consists of the following four values:
 //
