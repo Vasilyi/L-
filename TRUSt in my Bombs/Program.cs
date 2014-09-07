@@ -74,7 +74,7 @@ namespace TRUStInMyBombs
             R = new Spell(SpellSlot.R, Spells.rRange);
 
 
-            Q.SetSkillshot(0.25f, 60f, 1750, true, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(0.25f, 60f, 1750, false, SkillshotType.SkillshotCircle);
             Q2.SetSkillshot(0.7f, 60f, 1200, true, SkillshotType.SkillshotLine);
             //W.SetSkillshot(0.7f, 125f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.5f, 0f, 1750f, false, SkillshotType.SkillshotCircle);
@@ -149,7 +149,7 @@ namespace TRUStInMyBombs
             }
             if (Config.Item("HarassKey").GetValue<KeyBind>().Active)
             {
-                Console.WriteLine("DOING HARASS");
+                //Console.WriteLine("DOING HARASS");
                 Harass();
             }
             if (Config.Item("ksR").GetValue<bool>())
@@ -427,14 +427,16 @@ namespace TRUStInMyBombs
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var qTarget2 = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range + W.Width * 0.5f, SimpleTs.DamageType.Magical);
-
             if (useQ && Q.IsReady() && qTarget != null)
             {
                 Q.Cast(qTarget);
             }
             if (useQ && Q.IsReady() && qTarget2 != null)
             {
+                Vector3 frompos = ObjectManager.Player.ServerPosition.To2D().Extend(qTarget2.ServerPosition.To2D(), Q.Range).To3D();
+                Q2.UpdateSourcePosition(frompos);
                 Q2.Cast(qTarget2);
+                Q2.UpdateSourcePosition();
             }
 
             if (eTarget != null && useE && E.IsReady())
