@@ -8,7 +8,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows;
 using SharpDX;
-
+specially broke this assembly, so noobs will not ask what it doing
 namespace TRUSDominion
 {
     class Program
