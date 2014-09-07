@@ -51,14 +51,20 @@ namespace TRUStInMyBombs
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
-            Game.OnGameUpdate += Game_OnGameUpdate;
-            Console.WriteLine("TRUStInMyBombs LOADED");
-            Interrupter.OnPosibleToInterrupt += ZOnPosibleToInterrupt;
-            InitializeJumpSpots();
         }
 
         private static void Game_OnGameLoad(EventArgs args)
         {
+            if (ObjectManager.Player.BaseSkinName != "Ziggs")
+            {
+                return;
+            }
+            Console.WriteLine("TRUStInMyBombs LOADED");
+            InitializeJumpSpots();
+            Game.OnGameUpdate += Game_OnGameUpdate;
+            Interrupter.OnPosibleToInterrupt += ZOnPosibleToInterrupt;
+
+
             Player = ObjectManager.Player;
             IgniteSlot = ObjectManager.Player.GetSpellSlot("SummonerDot");
             Q = new Spell(SpellSlot.Q, Spells.qRange);
