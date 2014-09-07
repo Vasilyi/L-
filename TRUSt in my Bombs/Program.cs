@@ -1,5 +1,4 @@
 ﻿#region
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -39,33 +38,31 @@ namespace TRUStInMyBombs
         {
             foreach (JumpSpot Jumppos in Jump)
             {
-                var screenPos = Drawing.WorldToScreen(Jumppos.Jumppos);
+                Vector3 convertcoords = new Vector3(Jumppos.Jumppos.X, Jumppos.Jumppos.Z, Jumppos.Jumppos.Y);
                 var drawdistance = Config.Item("satchelDrawdistance").GetValue<Slider>().Value;
-                if (IsOnScreen(screenPos[0], screenPos[1]) && drawdistance > ObjectManager.Player.Distance(Jumppos.Jumppos))
+                var colordraw = Config.Item("satchelDraw").GetValue<Circle>();
+                if (drawdistance > ObjectManager.Player.Distance(convertcoords))
                 {
-                    Drawing.DrawCircle(Jumppos.Jumppos, 80, System.Drawing.Color.FromArgb(128, 178, 0, 0));
+                    Utility.DrawCircle(convertcoords, 80, colordraw.Color);
+                    
                 }
             }
-        }
-        public static bool IsOnScreen(float x, float y)
-        {
-            return (x >= 0 && x <= 1920 && y >= 0 && y <= 1020);
         }
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+            Game.OnGameUpdate += Game_OnGameUpdate;
             Console.WriteLine("TRUStInMyBombs LOADED");
-            Drawing.OnDraw += OnDraw;
-            Interrupter.OnPosibleToInterrupt += OnPosibleToInterrupt;
+            Interrupter.OnPosibleToInterrupt += ZOnPosibleToInterrupt;
             InitializeJumpSpots();
         }
-      
+
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
             IgniteSlot = ObjectManager.Player.GetSpellSlot("SummonerDot");
             Q = new Spell(SpellSlot.Q, Spells.qRange);
-            Q2 = new Spell(SpellSlot.Q, Spells.qRange+Spells.qBounceRange);
+            Q2 = new Spell(SpellSlot.Q, Spells.qRange + Spells.qBounceRange);
             W = new Spell(SpellSlot.W, Spells.wRange);
             E = new Spell(SpellSlot.E, Spells.eRange);
             R = new Spell(SpellSlot.R, Spells.rRange);
@@ -76,80 +73,94 @@ namespace TRUStInMyBombs
             //W.SetSkillshot(0.7f, 125f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.5f, 0f, 1750f, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(1f, 550f, 1750f, false, SkillshotType.SkillshotCircle);
+            try
+            {
+                //Create the menu
+                Config = new Menu("TRUStInMyBombs", "mainmenu", true);
 
-            //Create the menu
-            Config = new Menu("TRUStInMyBombs", "mainmenu", true);
-            
-            Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));
-            Config.SubMenu("hotkeys").AddItem(new MenuItem("ComboKey", "Combo!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
-            Config.SubMenu("hotkeys").AddItem(new MenuItem("HarassKey", "Harrass").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
-            Config.SubMenu("hotkeys").AddItem(new MenuItem("FarmKeyFreeze", "Farm Freeze").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
-            Config.SubMenu("hotkeys").AddItem(new MenuItem("FarmKeyClear", "Farm Clear").SetValue(new KeyBind("H".ToCharArray()[0], KeyBindType.Press)));
+                Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));
+                Config.SubMenu("hotkeys").AddItem(new MenuItem("ComboKey", "Combo!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+                Config.SubMenu("hotkeys").AddItem(new MenuItem("HarassKey", "Harrass").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+                Config.SubMenu("hotkeys").AddItem(new MenuItem("FarmKeyFreeze", "Farm Freeze").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
+                Config.SubMenu("hotkeys").AddItem(new MenuItem("FarmKeyClear", "Farm Clear").SetValue(new KeyBind("H".ToCharArray()[0], KeyBindType.Press)));
 
-            Config.AddSubMenu(new Menu("Auto Ultimate Logic:", "ultlogic"));
-            Config.SubMenu("ultlogic").AddItem(new MenuItem("useR", "Use - Mega Inferno Bomb (AUTO)").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
-            Config.SubMenu("ultlogic").AddItem(new MenuItem("enemysforR", "Minimal Enemys Amount")).SetValue(new Slider(3, 5, 1));
+                Config.AddSubMenu(new Menu("Auto Ultimate Logic:", "ultlogic"));
+                Config.SubMenu("ultlogic").AddItem(new MenuItem("useRauto", "Use - Mega Inferno Bomb (AUTO)").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
+                Config.SubMenu("ultlogic").AddItem(new MenuItem("enemysforR", "Minimal Enemys Amount")).SetValue(new Slider(3, 5, 1));
 
-            Config.AddSubMenu(new Menu("Misc:", "misc"));
-            Config.SubMenu("misc").AddItem(new MenuItem("interrupt", "Interrupt Spells").SetValue(true));
+                Config.AddSubMenu(new Menu("Misc:", "misc"));
+                Config.SubMenu("misc").AddItem(new MenuItem("interrupt", "Interrupt Spells").SetValue(true));
 
-            Config.AddSubMenu(new Menu("KillSteal:", "killsteal"));
-            Config.SubMenu("killsteal").AddItem(new MenuItem("ksR", "KS - Mega Inferno Bomb").SetValue(true));
-            Config.SubMenu("killsteal").AddItem(new MenuItem("ksRRange", "KS - Inferno Bomb Range")).SetValue(new Slider(1000, 5300, 1));
-            Config.SubMenu("killsteal").AddItem(new MenuItem("ksAll", "KS - Everything").SetValue(true));
+                Config.AddSubMenu(new Menu("KillSteal:", "killsteal"));
+                Config.SubMenu("killsteal").AddItem(new MenuItem("ksR", "KS - Mega Inferno Bomb").SetValue(true));
+                Config.SubMenu("killsteal").AddItem(new MenuItem("ksRRange", "KS - Inferno Bomb Range")).SetValue(new Slider(1000, 5300, 1));
+                Config.SubMenu("killsteal").AddItem(new MenuItem("ksAll", "KS - Everything").SetValue(true));
 
-            Config.AddSubMenu(new Menu("Auto Farm:", "autofarm"));
-            Config.SubMenu("autofarm").AddItem(new MenuItem("farmQ", "Use - Bouncing Bomb").SetValue(true));
-            Config.SubMenu("autofarm").AddItem(new MenuItem("farmE", "Use - Hexplosive Minefield").SetValue(true));
+                Config.AddSubMenu(new Menu("Auto Farm:", "autofarm"));
+                Config.SubMenu("autofarm").AddItem(new MenuItem("farmQ", "Use - Bouncing Bomb").SetValue(true));
+                Config.SubMenu("autofarm").AddItem(new MenuItem("farmE", "Use - Hexplosive Minefield").SetValue(true));
 
-            Config.AddSubMenu(new Menu("Satchel Jumping Options:", "satchel"));
-            Config.SubMenu("satchel").AddItem(new MenuItem("satchelDraw", "Draw satchel places").SetValue(true));
-            Config.SubMenu("satchel").AddItem(new MenuItem("satchelDrawdistance", "Don't draw circles if the distance >")).SetValue(new Slider(2000, 10000, 1));
-            Config.SubMenu("satchel").AddItem(new MenuItem("satchelJump", "Jump Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                Config.AddSubMenu(new Menu("Satchel Jumping Options:", "satchel"));
+                Config.SubMenu("satchel").AddItem(new MenuItem("satchelDraw", "Draw satchel places").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("satchel").AddItem(new MenuItem("satchelDrawdistance", "Don't draw circles if the distance >")).SetValue(new Slider(2000, 10000, 1));
+                Config.SubMenu("satchel").AddItem(new MenuItem("satchelJump", "Jump Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
 
-            Config.AddSubMenu(new Menu("Combo Options:", "combospells"));
-            Config.SubMenu("combospells").AddItem(new MenuItem("UseI", "Use Ignite if enemy is killable").SetValue(true));
-            //Config.SubMenu("combospells").AddItem(new MenuItem("dfg", "Use DFG in full combo").SetValue(true));
-            Config.SubMenu("combospells").AddItem(new MenuItem("useB", "Use - Bouncing Bomb").SetValue(true));
-            Config.SubMenu("combospells").AddItem(new MenuItem("useE", "Use - Hexplosive Minefield").SetValue(true));
-            Config.SubMenu("combospells").AddItem(new MenuItem("useR", "Use - Mega Inferno Bomb").SetValue(true));
-            Config.SubMenu("combospells").AddItem(new MenuItem("useRcombo", "Use - Bouncing Bomb").SetValue(true));
+                Config.AddSubMenu(new Menu("Combo Options:", "combospells"));
+                Config.SubMenu("combospells").AddItem(new MenuItem("UseI", "Use Ignite if enemy is killable").SetValue(true));
+                //Config.SubMenu("combospells").AddItem(new MenuItem("dfg", "Use DFG in full combo").SetValue(true));
+                Config.SubMenu("combospells").AddItem(new MenuItem("useB", "Use - Bouncing Bomb").SetValue(true));
+                Config.SubMenu("combospells").AddItem(new MenuItem("useE", "Use - Hexplosive Minefield").SetValue(true));
+                Config.SubMenu("combospells").AddItem(new MenuItem("useR", "Use - Mega Inferno Bomb").SetValue(true));
 
-            Config.AddSubMenu(new Menu("Harass Options:", "harassspells"));
-            Config.SubMenu("harassspells").AddItem(new MenuItem("useBHarass", "Use - Bouncing Bomb").SetValue(true));
-            Config.SubMenu("harassspells").AddItem(new MenuItem("useEHarass", "Use - Hexplosive Minefield").SetValue(true));
+                Config.AddSubMenu(new Menu("Harass Options:", "harassspells"));
+                Config.SubMenu("harassspells").AddItem(new MenuItem("useBHarass", "Use - Bouncing Bomb").SetValue(true));
+                Config.SubMenu("harassspells").AddItem(new MenuItem("useEHarass", "Use - Hexplosive Minefield").SetValue(true));
 
-            Config.AddSubMenu(new Menu("Draw Options:", "drawing"));
-            Config.SubMenu("drawing").AddItem(new MenuItem("noDraw", "Disable - Drawing").SetValue(true));
-            //Config.SubMenu("drawing").AddItem(new MenuItem("drawDmg", "Draw - Damage Marks").SetValue(true));
-            Config.SubMenu("drawing").AddItem(new MenuItem("drawF", "Draw - Furthest Spell Available").SetValue(true));
-            Config.SubMenu("drawing").AddItem(new MenuItem("drawB", "Draw - Bouncing Bomb").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
-            Config.SubMenu("drawing").AddItem(new MenuItem("drawQ", "Draw - Bomb (without bounce)").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
-            Config.SubMenu("drawing").AddItem(new MenuItem("drawW", "Draw - Satchel Charge").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
-            Config.SubMenu("drawing").AddItem(new MenuItem("drawE", "Draw - Hexplosive Minefield").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
-            Config.SubMenu("drawing").AddItem(new MenuItem("drawR", "Draw - Mega Inferno Bomb").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
-
+                Config.AddSubMenu(new Menu("Draw Options:", "drawing"));
+                Config.SubMenu("drawing").AddItem(new MenuItem("noDraw", "Disable - Drawing").SetValue(true));
+                //Config.SubMenu("drawing").AddItem(new MenuItem("drawDmg", "Draw - Damage Marks").SetValue(true));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawF", "Draw - Furthest Spell Available").SetValue(true));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawB", "Draw - Bouncing Bomb").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawQ", "Draw - Bomb (without bounce)").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawW", "Draw - Satchel Charge").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawE", "Draw - Hexplosive Minefield").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawR", "Draw - Mega Inferno Bomb").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.AddToMainMenu();
+                Drawing.OnDraw += OnDraw;
+            }
+            catch (Exception)
+            {
+                Game.PrintChat("Error found in bombs. Refused to load.");
+            }
         }
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
             if (Config.Item("ComboKey").GetValue<KeyBind>().Active)
             {
+               
                 Combo();
             }
             if (Config.Item("HarassKey").GetValue<KeyBind>().Active)
             {
+                Console.WriteLine("DOING HARASS");
                 Harass();
             }
-            if (Config.Item("ksR").GetValue<KeyBind>().Active)
+            if (Config.Item("ksR").GetValue<bool>())
             {
                 Ks();
             }
-            if (Config.Item("AutoUlt").GetValue<KeyBind>().Active)
+            if (Config.Item("useRauto").GetValue<KeyBind>().Active)
             {
                 AutoUlt();
             }
-            
+
+            if (Config.Item("satchelJump").GetValue<KeyBind>().Active)
+            {
+                Console.WriteLine("STARTING JUMP");
+                JumpProx();
+            }
+
             var lc = Config.Item("FarmKeyClear").GetValue<KeyBind>().Active;
             if (lc || Config.Item("FarmKeyFreeze").GetValue<KeyBind>().Active)
                 Farm(lc);
@@ -157,7 +168,7 @@ namespace TRUStInMyBombs
 
         private static void OnDraw(EventArgs args)
         {
-            if (Config.Item("satchelDraw").GetValue<bool>())
+            if (Config.Item("satchelDraw").GetValue<Circle>().Active)
             {
                 DrawJumpSpots();
             }
@@ -174,7 +185,10 @@ namespace TRUStInMyBombs
             if (Config.Item("drawF").GetValue<bool>())
             {
                 if (Q.IsReady())
+                {
                     Utility.DrawCircle(ObjectManager.Player.Position, Q2.Range, qValue.Color);
+                    Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color, 5, 30, true);
+            }
                 else if (W.IsReady())
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, W.Range, qValue.Color);
@@ -186,6 +200,7 @@ namespace TRUStInMyBombs
                 else if (R.IsReady())
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, R.Range, qValue.Color);
+                    Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color, 5, 30, true);
                 }
                 return;
             }
@@ -198,25 +213,26 @@ namespace TRUStInMyBombs
             {
                 Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, qValue.Color);
             }
-            
+
             if (wValue.Active)
             {
                 Utility.DrawCircle(ObjectManager.Player.Position, W.Range, wValue.Color);
             }
 
-            
+
             if (eValue.Active)
             {
                 Utility.DrawCircle(ObjectManager.Player.Position, E.Range, eValue.Color);
             }
 
-            
+
             if (rValue.Active)
             {
                 Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color);
+                Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color,5,30,true);
             }
 
-           
+
         }
 
         private static void AutoUlt()
@@ -237,10 +253,8 @@ namespace TRUStInMyBombs
                 ObjectManager.Player.ServerPosition, Q2.Range, MinionTypes.Ranged);
             var allMinions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q2.Range);
 
-            var useQi = Config.Item("farmQ").GetValue<StringList>().SelectedIndex;
-            var useEi = Config.Item("farmE").GetValue<StringList>().SelectedIndex;
-            var useQ = (laneClear && (useQi == 1 || useQi == 2)) || (!laneClear && (useQi == 0 || useQi == 2));
-            var useE = (laneClear && (useEi == 1 || useEi == 2)) || (!laneClear && (useEi == 0 || useEi == 2));
+            var useQ = Config.Item("farmQ").GetValue<bool>();
+            var useE = Config.Item("farmE").GetValue<bool>();
 
             if (laneClear)
             {
@@ -303,7 +317,7 @@ namespace TRUStInMyBombs
             }
         }
 
-        private static void OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        private static void ZOnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!Config.Item("interrupt").GetValue<bool>()) return;
 
@@ -320,18 +334,66 @@ namespace TRUStInMyBombs
             var qTarget2 = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range + W.Width * 0.5f, SimpleTs.DamageType.Magical);
             var ksAll = Config.Item("ksAll").GetValue<bool>();
-            if (Q.IsReady() && qTarget2 != null && qTarget2.Health < DamageLib.getDmg(qTarget2,DamageLib.SpellType.Q) && ksAll)
+            if (Q.IsReady() && qTarget2 != null && qTarget2.Health < DamageLib.getDmg(qTarget2, DamageLib.SpellType.Q) && ksAll)
             {
                 Q2.Cast(qTarget2);
             }
-            else if (R.IsReady() && rTarget != null && rTarget.Health < DamageLib.getDmg(rTarget,DamageLib.SpellType.R))
+            else if (R.IsReady() && rTarget != null && rTarget.Health < DamageLib.getDmg(rTarget, DamageLib.SpellType.R))
             {
                 R.Cast(rTarget);
             }
-            else if (Q.IsReady() && qTarget != null && qTarget.Health < (DamageLib.getDmg(qTarget,DamageLib.SpellType.Q)+DamageLib.getDmg(rTarget,DamageLib.SpellType.R)) && ksAll)
+            else if (Q.IsReady() && qTarget != null && qTarget.Health < (DamageLib.getDmg(qTarget, DamageLib.SpellType.Q) + DamageLib.getDmg(rTarget, DamageLib.SpellType.R)) && ksAll)
             {
-                UseSpells(true,false,true);
+                UseSpells(true, false, true);
             }
+        }
+        private static void JumpProx()
+        {
+            if (FindNearestJumpSpot() == null)
+            {
+                return;
+            }
+            JumpSpot nearestspot = FindNearestJumpSpot();
+            Vector3 nearestJump = new Vector3(nearestspot.Jumppos.X, nearestspot.Jumppos.Z, nearestspot.Jumppos.Y);
+            Vector3 moveposition = new Vector3(nearestspot.MovePosition.X, nearestspot.MovePosition.Z, nearestspot.MovePosition.Y);
+            Console.WriteLine(nearestJump.ToString());
+            if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "ZiggsW")
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, nearestJump);
+            }
+            else if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name != "ZiggsW" && ObjectManager.Player.Distance(moveposition) > 60)
+            {
+                Player.IssueOrder(GameObjectOrder.MoveTo, moveposition);
+            }
+            else if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name != "ZiggsW" && ObjectManager.Player.Distance(moveposition) < 60)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W);
+            }
+        }
+
+
+
+        public static JumpSpot FindNearestJumpSpot()
+        {
+            foreach (JumpSpot Jumppos in Jump)
+            {
+                Vector3 convertcoords = new Vector3(Jumppos.Jumppos.X, Jumppos.Jumppos.Z, Jumppos.Jumppos.Y);
+                Vector3 moveposition = new Vector3(Jumppos.MovePosition.X, Jumppos.MovePosition.Z, Jumppos.MovePosition.Y);
+                double cursorDistToWard = Math.Sqrt(Math.Pow(convertcoords.X - Game.CursorPos.X, 2) +
+                             Math.Pow(convertcoords.Y - Game.CursorPos.Y, 2) +
+                             Math.Pow(convertcoords.Z - Game.CursorPos.Z, 2));
+
+                double playerDistToWard = Math.Sqrt(Math.Pow(convertcoords.X - ObjectManager.Player.Position.X, 2) +
+                                                    Math.Pow(convertcoords.Y - ObjectManager.Player.Position.Y, 2) +
+                                                    Math.Pow(convertcoords.Z - ObjectManager.Player.Position.Z, 2));
+
+                if (cursorDistToWard <= 250.0 && playerDistToWard <= 900)
+                {
+                    return Jumppos;
+                }
+            }
+
+            return null;
         }
 
         private static void Combo()
