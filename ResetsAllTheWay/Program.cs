@@ -120,6 +120,15 @@ namespace ResetsAllTheWay
             Config.SubMenu("harassspells").AddItem(new MenuItem("useEHarass", "Use - Shunpo (E)").SetValue(true));
 
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
+            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after Combo").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit += hero => (float)CalculateDamage(hero);
+
+            Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
+            {
+                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+            };
+            Config.SubMenu("Drawings").AddItem(dmgAfterComboItem);
             Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
             Config.SubMenu("Drawings").AddItem(new MenuItem("WRange", "W range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
             Config.SubMenu("Drawings").AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
@@ -155,6 +164,7 @@ namespace ResetsAllTheWay
             public static float rStartTick;
             public static bool ulting;
             public static float wLastUse;
+            public static float qlastuse;
             public static bool usedfg;
             public static bool useignite;
         }
@@ -209,12 +219,13 @@ namespace ResetsAllTheWay
             if (Q.IsReady() && ObjectManager.Player.Distance(target) < Q.Range)
             {
                 Q.Cast(target, false);
+                tSpells.qlastuse = Environment.TickCount;
             }
             if (E.IsReady() && ObjectManager.Player.Distance(target) < E.Range)
             {
                 E.Cast(target);
             }
-            if (W.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target)))
+            if (W.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount  > tSpells.qlastuse + 100))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
@@ -235,9 +246,12 @@ namespace ResetsAllTheWay
             {
                 if (mark.unit == target.BaseSkinName)
                 {
+                    Console.WriteLine(mark.unit + " : marked");
                     return true;
+                    
                 }
             }
+            //Console.WriteLine(target.BaseSkinName + " : not marked");
             return false;
         }
 
@@ -290,7 +304,7 @@ namespace ResetsAllTheWay
                 totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
             }
             tSpells.usedfg = true;
-            tSpells.useignite = false;
+            tSpells.useignite = true;
             return totaldamage;
         }
         
@@ -300,7 +314,10 @@ namespace ResetsAllTheWay
             var wtarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
             var etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (qtarget != null && useQ && Q.IsReady())
+            {
                 Q.Cast(qtarget, false);
+                tSpells.qlastuse = Environment.TickCount;
+            }
             else if (wtarget != null && useW && W.IsReady() && (!Config.Item("wDelay").GetValue<bool>() || checkformark(wtarget)))
             {
                 W.Cast();
