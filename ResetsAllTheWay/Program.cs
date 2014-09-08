@@ -214,7 +214,7 @@ namespace ResetsAllTheWay
             {
                 E.Cast(target);
             }
-            if (W.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50)
+            if (W.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target)))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
@@ -228,17 +228,23 @@ namespace ResetsAllTheWay
                 ObjectManager.Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
             }
         }
-        private static double CalculateDamage(Obj_AI_Base target)
+
+        private static bool checkformark(Obj_AI_Base target)
         {
-            double totaldamage = 0;
-            bool marked = false;
             foreach (QMark mark in MarkList)
             {
                 if (mark.unit == target.BaseSkinName)
                 {
-                    marked = true;
+                    return true;
                 }
             }
+            return false;
+        }
+
+        private static double CalculateDamage(Obj_AI_Base target)
+        {
+            double totaldamage = 0;
+            bool marked = checkformark(target);
             if ((ObjectManager.Player.Distance(target) < Q.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
             {
                 totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.Q);
@@ -295,7 +301,7 @@ namespace ResetsAllTheWay
             var etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (qtarget != null && useQ && Q.IsReady())
                 Q.Cast(qtarget, false);
-            else if (wtarget != null && useW && W.IsReady())
+            else if (wtarget != null && useW && W.IsReady() && (!Config.Item("wDelay").GetValue<bool>() || checkformark(wtarget)))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
