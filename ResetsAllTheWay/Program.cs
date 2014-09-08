@@ -121,7 +121,7 @@ namespace ResetsAllTheWay
 
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after Combo").SetValue(true);
-            Utility.HpBarDamageIndicator.DamageToUnit += hero => (float)CalculateDamage(hero);
+            Utility.HpBarDamageIndicator.DamageToUnit += hero => (float)CalculateDamageDrawing(hero);
 
             Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
             dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
@@ -194,7 +194,7 @@ namespace ResetsAllTheWay
             var wtarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
             var etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rtarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
-            var curtarget = SimpleTs.GetTarget(0, SimpleTs.DamageType.Magical);;
+            var curtarget = SimpleTs.GetTarget(400, SimpleTs.DamageType.Magical);;
             if (E.IsReady())
                 curtarget = etarget;
             else if (Q.IsReady())
@@ -225,12 +225,12 @@ namespace ResetsAllTheWay
             {
                 E.Cast(target);
             }
-            if (W.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount  > tSpells.qlastuse + 100))
+            if (W.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
             }
-            if (R.IsReady() && ObjectManager.Player.Distance(target) < R.Range)
+            if (R.IsReady() && ObjectManager.Player.Distance(target) < R.Range && !tSpells.ulting)
             {
                 R.Cast();
             }
@@ -255,10 +255,12 @@ namespace ResetsAllTheWay
             return false;
         }
 
-        private static double CalculateDamage(Obj_AI_Base target)
+        public static double CalculateDamage(Obj_AI_Base target)
         {
             double totaldamage = 0;
             bool marked = checkformark(target);
+            tSpells.useignite = false;
+            tSpells.usedfg = false;
             if ((ObjectManager.Player.Distance(target) < Q.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
             {
                 totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.Q);
@@ -282,9 +284,7 @@ namespace ResetsAllTheWay
 
             if (totaldamage > target.Health)
             {
-                tSpells.usedfg = false;
-                tSpells.useignite = false;
-                return totaldamage;
+               return totaldamage;
             }
 
             if (Config.Item("dfg").GetValue<bool>() && Items.HasItem(3128) && Items.CanUseItem(3128))
@@ -295,19 +295,60 @@ namespace ResetsAllTheWay
             if (totaldamage > target.Health)
             {
                 tSpells.usedfg = true;
-                tSpells.useignite = false;
                 return totaldamage;
             }
             
             if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && ObjectManager.Player.Distance(target) < 600)
             {
-                totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
+                
+                if (totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.IGNITE) > target.Health)
+                {
+                    tSpells.useignite = true;
+                    totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
+                }
             }
             tSpells.usedfg = true;
-            tSpells.useignite = true;
+            
             return totaldamage;
         }
-        
+
+
+        public static double CalculateDamageDrawing(Obj_AI_Base target)
+        {
+            double totaldamage = 0;
+            bool marked = checkformark(target);
+            if (Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
+            {
+                totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.Q);
+            }
+            if (E.IsReady() && W.IsReady())
+            {
+                totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.W);
+            }
+            if (E.IsReady())
+            {
+                totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.E);
+            }
+            if (R.IsReady())
+            {
+                totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.R);
+            }
+            if (!Q.IsReady() && marked)
+            {
+                totaldamage = totaldamage + DamageLib.CalcMagicDmg(((ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 15)) + (0.15 * ObjectManager.Player.FlatMagicDamageMod), target);
+            }
+
+            if (Config.Item("dfg").GetValue<bool>() && Items.HasItem(3128) && Items.CanUseItem(3128))
+            {
+                totaldamage = (totaldamage * 1.2) + DamageLib.CalcMagicDmg(target.MaxHealth * 0.15, target);
+            }
+
+            if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            {
+                totaldamage = totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
+            }
+            return totaldamage;
+        }
         private static void Harass(bool useQ, bool useW, bool useE)
         {
             var qtarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
