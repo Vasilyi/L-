@@ -89,9 +89,9 @@ namespace BuffLib
                 if (args.PacketData[0] == 0x7B)
                 {
                     packet.Position = 1;
+					var targetbuff = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(packet.ReadInteger());
                     int buffSlot = packet.ReadByte();
                     int buffID = packet.ReadInteger();
-                    var targetbuff = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(packet.ReadInteger());
                     if (targetbuff == null)
                         return;
                     OnLoseBuff(targetbuff, targetbuff,
