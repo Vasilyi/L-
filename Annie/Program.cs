@@ -100,10 +100,10 @@ namespace Annie
 
             Config.AddSubMenu(targetSelectorMenu);
             Config.AddSubMenu(new Menu("Combo settings", "combo"));
-            Config.SubMenu("combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(Config.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            Config.SubMenu("combo").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(Config.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            Config.SubMenu("combo").AddItem(new MenuItem("autoult", "AutoUltimate!").SetValue(new KeyBind(Config.Item("ultiprox").GetValue<KeyBind>().Key, KeyBindType.Toggle)));
-
+            Config.SubMenu("combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+            Config.SubMenu("combo").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+            Config.SubMenu("combo").AddItem(new MenuItem("autoult", "AutoUltimate!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
+ 
             Config.SubMenu("combo").AddItem(new MenuItem("comboItems", "Use Items")).SetValue(true);
             Config.SubMenu("combo")
                 .AddItem(new MenuItem("flashCombo", "Targets needed to Flash -> R"))
@@ -190,28 +190,42 @@ namespace Annie
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var flashRtarget = SimpleTs.GetTarget(900, SimpleTs.DamageType.Magical);
-
             if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
             {
-                Combo(target, flashRtarget, 1);
-            };
+                Combo(target, flashRtarget, true);
+            }
             if (Config.Item("HarassActive").GetValue<KeyBind>().Active)
             {
-                Combo(target, flashRtarget, 0);
-            };
-            if ((GetEnemiesInRange(flashRtarget.ServerPosition, 250) >=
+                Combo(target, flashRtarget, false);
+            }
+            if ((flashRtarget != null && R.IsReady() && GetEnemiesInRange(flashRtarget.ServerPosition, 250) >=
                             Config.Item("flashCombo").GetValue<Slider>().Value) && (Config.Item("autoult").GetValue<KeyBind>().Active))
             {
-                Combo(target, flashRtarget, 1);
-            };
+                FlashUlt(flashRtarget);
+            }
         }
-
+        private static void FlashUlt(Obj_AI_Hero target)
+        {
+            var position = R1.GetPrediction(target, true).CastPosition;
+            if (StunCount == 3 && E.IsReady())
+            {
+                E.Cast();
+            }
+            else if (StunCount == 4)
+            {
+                if (ObjectManager.Player.Distance(position) > 600)
+                {
+                    ObjectManager.Player.SummonerSpellbook.CastSpell(FlashSlot, position);
+                }
+                R.Cast(target, false, true);
+            }
+        }
         private static void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
             args.Process = Environment.TickCount - DoingCombo > 500;
         }
 
-        private static void Combo(Obj_AI_Base target, Obj_AI_Base flashRtarget, int ulti)
+       private static void Combo(Obj_AI_Base target, Obj_AI_Base flashRtarget, bool ulti)
         {
             Console.WriteLine("[" + Game.Time + "]Combo started");
             if ((target == null && flashRtarget == null) || Environment.TickCount - DoingCombo < 500 ||
@@ -266,27 +280,7 @@ namespace Annie
                     break;
                 case 4:
                     Console.WriteLine("[" + Game.Time + "]Case 4");
-                    if (ObjectManager.Player.SummonerSpellbook.CanUseSpell(FlashSlot) == SpellState.Ready && R.IsReady() &&
-                        target == null)
-                    {
-                        var position = R1.GetPrediction(flashRtarget, true).CastPosition;
-
-                        if (ObjectManager.Player.Distance(position) > 600 &&
-                            GetEnemiesInRange(flashRtarget.ServerPosition, 250) >=
-                            Config.Item("flashCombo").GetValue<Slider>().Value)
-                        {
-                            ObjectManager.Player.SummonerSpellbook.CastSpell(FlashSlot, position);
-                        }
-
-                        Items.UseItem(3128, flashRtarget);
-                        R.Cast(flashRtarget, false, true);
-
-                        if (W.IsReady())
-                        {
-                            W.Cast(flashRtarget, false, true);
-                        }
-                    }
-                    else if (R.IsReady() && !(DamageLib.getDmg(target, DamageLib.SpellType.R) * 0.6 > target.Health) && ulti == 1)
+                    if (R.IsReady() && !(DamageLib.getDmg(target, DamageLib.SpellType.R) * 0.6 > target.Health) && ulti)
                     {
                         R.Cast(target, false, true);
                     }

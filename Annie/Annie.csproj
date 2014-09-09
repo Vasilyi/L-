@@ -57,7 +57,7 @@
       <HintPath>C:\Games\wpe\Dropbox\lsharp\lsharp\Assemblies\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>..\..\..\..\..\Assemblies\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>..\..\Assemblies\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
       <HintPath>C:\Games\wpe\Dropbox\lsharp\lsharp\Assemblies\System\SharpDX.dll</HintPath>
