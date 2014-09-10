@@ -44,7 +44,7 @@ namespace Humanizer
             Config = new Menu("Humanizer", "Humanizer", true);
 
             Config.AddSubMenu(new Menu("Config", "Config"));
-            Config.SubMenu("Config").AddItem(new MenuItem("delaytime", "Delay time")).SetValue(new Slider(0, 20, 0));
+            Config.SubMenu("Config").AddItem(new MenuItem("delaytime", "Delay time")).SetValue(new Slider(0, 10, 0));
            
         }
         private static void PacketHandler(GamePacketEventArgs args)
