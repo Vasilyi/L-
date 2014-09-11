@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
+using LeagueSharp.Common;
 using System.IO;
 using System.Diagnostics;
 using System.Windows;
@@ -35,21 +36,80 @@ namespace TRUSDominion
                 this.Name = name;
                 this.Position = position;
                 this.State = "Unknown";
+                this.Unit = Unit;
             }
         }
 
 
-        static readonly List<PointData> PointData2 = new List<PointData>()
+        static List<PointData> PointData2 = new List<PointData>()
         {
             new PointData("BotRight", new Vector3(9533f, 2519f, -142f)),
             new PointData("BotLeft", new Vector3(4342f, 2515f, -145f)),
             new PointData("Top", new Vector3(6941f, 10981f, -147f)),
-            new PointData("Middleleft", new Vector3(2519f, 7781f, -141f)),
+            new PointData("MiddleLeft", new Vector3(2519f, 7781f, -141f)),
             new PointData("MiddleRight", new Vector3(11401f, 7775f, -145f)),
         };
+
+
+        public class Enemies
+        {
+            public static int BotRight;
+            public static int BotLeft;
+            public static int Top;
+            public static int MiddleLeft;
+            public static int MiddleRight;
+        }
+
+        public class Team
+        {
+            public static string BotRight;
+            public static string BotLeft;
+            public static string Top;
+            public static string MiddleLeft;
+            public static string MiddleRight;
+        }
+
+        public class previouscoords
+        {
+            public static float X;
+            public static float X2;
+            public static float Y2;
+            public static float Y;
+        }
+
+        public class Allies
+        {
+            public static int BotRight;
+            public static int BotLeft;
+            public static int Top;
+            public static int MiddleLeft;
+            public static int MiddleRight;
+
+        }
+        public class Distance
+        {
+            public static float BotRight;
+            public static float BotLeft;
+            public static float Top;
+            public static float MiddleLeft;
+            public static float MiddleRight;
+            public static float Start;
+            public static float End;
+
+        }
+        private static Obj_AI_Hero Player;
+        private static double lasthelp;
+        private static double waittime10;
+private static double waittime1;
+        private static Obj_AI_Hero attackedhero;
         private static bool buyitemdelay = false;
+        public static GameObject cappedpoint = null;
+
         private static List<Obj_AI_Minion> capturePoints;
         private static GameObject shop;
+        public static double retreattimer = 0;
+
+
         private static void Game_OnGameNotifyEvent(GameNotifyEventArgs args)
         {
             if (args.EventId == GameEventId.OnCapturePointCaptured_A || args.EventId == GameEventId.OnCapturePointCaptured_B || args.EventId == GameEventId.OnCapturePointCaptured_C || args.EventId == GameEventId.OnCapturePointCaptured_D || args.EventId == GameEventId.OnCapturePointCaptured_E || args.EventId == GameEventId.OnCapturePointFiveCap)
@@ -58,12 +118,12 @@ namespace TRUSDominion
                 buyitemdelay = false;
             }
         }
-        private static int CountHeroes(string sTeam, Vector3 position, int distance)
+        private static int CountHeroes(bool myteam, Vector3 position, int distance)
         {
             int counter = 0;
             foreach (Obj_AI_Hero obj in ObjectManager.Get<Obj_AI_Hero>())
             {
-                if ((obj.Team.ToString()  == sTeam) && (Vector3.Distance(obj.ServerPosition, position) <= distance))
+                if (((obj.Team != Player.Team) || myteam) && (Vector3.Distance(obj.ServerPosition, position) <= distance))
                 {
                     counter++;
                 }
@@ -88,9 +148,12 @@ namespace TRUSDominion
                 BuyItem(2003);
             }
         }
-        private static void Game_OnGameUpdate(EventArgs args)
+
+
+        private static void MoveLogicOnTick()
         {
-            BuyItemsTick();
+            var Selector2000 = SimpleTs.GetTarget(2000f, SimpleTs.DamageType.True);
+            //// On game start move to mid-side point
             if (Game.Time < 30)
             {
                 if (ObjectManager.Player.Team == GameObjectTeam.Order)
@@ -98,12 +161,254 @@ namespace TRUSDominion
                 else
                     ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(13192f, 4388f, 0));
             }
+
+            ///check for rune ****
+
+
+#region points variables
+            foreach (PointData pointname in PointData2)
+            {
+                if (pointname.Name == "Top")
+                {
+                    Enemies.Top = CountHeroes(true, pointname.Position, 2000);
+                    Allies.Top = CountHeroes(true, pointname.Position, 2000);
+                    Distance.Top = ObjectManager.Player.Distance(pointname.Position);
+                    Team.Top = pointname.State;
+
+                }
+                else if (pointname.Name == "MiddleLeft")
+                {
+                    Enemies.MiddleLeft = CountHeroes(true, pointname.Position, 2000);
+                    Allies.MiddleLeft = CountHeroes(true, pointname.Position, 2000);
+                    Distance.MiddleLeft = ObjectManager.Player.Distance(pointname.Position);
+                    Team.MiddleLeft = pointname.State;
+                }
+                else if (pointname.Name == "MiddleRight")
+                {
+                    Enemies.MiddleRight = CountHeroes(true, pointname.Position, 2000);
+                    Allies.MiddleRight = CountHeroes(true, pointname.Position, 2000);
+                    Distance.MiddleRight = ObjectManager.Player.Distance(pointname.Position);
+                    Team.MiddleRight = pointname.State;
+                }
+                else if (pointname.Name == "BotRight")
+                {
+                    Enemies.BotRight = CountHeroes(true, pointname.Position, 2000);
+                    Allies.BotRight = CountHeroes(true, pointname.Position, 2000);
+                    Distance.BotRight = ObjectManager.Player.Distance(pointname.Position);
+                    Team.BotRight = pointname.State;
+
+                }
+                else if (pointname.Name == "BotLeft")
+                {
+                    Enemies.BotLeft = CountHeroes(true, pointname.Position, 2000);
+                    Allies.BotLeft = CountHeroes(true, pointname.Position, 2000);
+                    Distance.BotLeft = ObjectManager.Player.Distance(pointname.Position);
+                    Team.BotLeft = pointname.State;
+
+                }
+                else if (pointname.Name == "Start")
+                {
+                    Distance.Start = ObjectManager.Player.Distance(pointname.Position);
+                }
+                else if (pointname.Name == "End")
+                {
+                    Distance.End = ObjectManager.Player.Distance(pointname.Position);
+                }
+            }
+#endregion
+
+            if (Selector2000 != null && (ObjectManager.Player.Distance(Selector2000) > 1000) && (Distance.Start > 1500) || 
+                (Selector2000 != null && Distance.End < 3000))
+            {
+                Console.WriteLine("Bad idea to continue chasing, returning");
+                retreattimer = Environment.TickCount+5000;
+                return;
+            }
+            if (Player.IsDead)
+            {
+                Console.WriteLine("im dead");
+            }
+            if (Enemies.Top > Allies.Top + 1 && (Selector2000 == null || ObjectManager.Player.Distance(Selector2000.Position)>1000))
+            {
+                Console.WriteLine("Too much enemys near, changing position");
+                //return?
+            }
+
+            if (Selector2000 == null || ObjectManager.Player.Distance(Selector2000.Position)>1000)
+            {
+
+                // checks for recall
+                if (Player.Health/Player.MaxHealth < 0.5 && Selector2000 == null)
+                {
+                    if ((Distance.Top < 1000 && Team.Top == "Green") || 
+                        (Distance.BotLeft < 1000 && Team.BotLeft == "Green") || 
+                        (Distance.BotRight < 1000 && Team.BotRight == "Green") ||
+                        (Distance.MiddleLeft < 1000 && Team.MiddleLeft == "Green") ||
+                        (Distance.MiddleRight < 1000 && Team.MiddleRight == "Green"))
+                    {
+                        Console.WriteLine("Recall cause all fine and low hp");
+                        Player.Spellbook.CastSpell(SpellSlot.Recall);
+                    }
+                }
+
+                //---capture midleft if it near and enemy/uncaped
+                if (Team.MiddleLeft != "Green" && Player.Team == GameObjectTeam.Order)
+                {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "MiddleLeft"))
+                    {
+                    Capture(point.Unit);
+                        return;
+                    }
+                }
+                else if (Team.MiddleRight != "Green" && Player.Team == GameObjectTeam.Chaos)
+                {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "MiddleRight"))
+                    {
+                    Capture(point.Unit);
+                        return;
+                    }
+                }
+                else if (Team.MiddleRight != "Green" && Player.Team == GameObjectTeam.Order && Distance.MiddleRight < 1000)
+                {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "MiddleRight"))
+                    {
+                    Capture(point.Unit);
+                        return;
+                    }
+                }
+                else if (Team.MiddleLeft != "Green" && Player.Team == GameObjectTeam.Chaos && Distance.MiddleLeft < 1000)
+                {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "MiddleLeft"))
+                    {
+                    Capture(point.Unit);
+                        return;
+                    }
+                }
+                else if (Team.Top != "Green" && ((Player.Team == GameObjectTeam.Chaos && Team.MiddleRight == "Green") || Player.Team == GameObjectTeam.Order && Team.MiddleLeft == "Green"))
+                {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "Top"))
+                    {
+                    Capture(point.Unit);
+                        Console.WriteLine("Capturing top");
+                        return;
+                    }
+                }
+                else if (Team.Top == "Green" && ((Player.Team == GameObjectTeam.Chaos && Team.MiddleRight == "Green" && Team.BotRight != "Green") || Player.Team == GameObjectTeam.Order && Team.MiddleLeft == "Green" && Team.BotLeft != "Green"))
+                {
+                    if (Player.Team == GameObjectTeam.Chaos)
+                    {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "BotRight"))
+                    {
+                    Capture(point.Unit);
+                        Console.WriteLine("Capturing BotRight");
+                        return;
+                    }
+                    }
+                    else if (Player.Team == GameObjectTeam.Order)
+                        {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "BotLeft"))
+                    {
+                    Capture(point.Unit);
+                        Console.WriteLine("Capturing BotLeft");
+                        return;
+                    }
+                    }
+                }
+                else if (Team.BotRight != "Green" && Player.Team == GameObjectTeam.Order && Distance.BotRight < 1000)
+                {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "BotRight"))
+                    {
+                    Capture(point.Unit);
+                        Console.WriteLine("Capturing BotRight");
+                        return;
+                    }
+                }
+                else if (Team.BotLeft != "Green" && Player.Team == GameObjectTeam.Order && Distance.BotLeft < 1000)
+                {
+                    foreach (PointData point in PointData2.Where(point => point.Name == "BotLeft"))
+                    {
+                    Capture(point.Unit);
+                        Console.WriteLine("Capturing BotLeft");
+                        return;
+                    }
+                }
+
+                if (Enemies.Top == 0 && cappedpoint != null)
+                {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, cappedpoint.Position);
+                    Console.WriteLine("MOVE TO POINT WHICH CAPTURED");
+                    cappedpoint = null;
+                    return;
+                }
+
+                if (attackedhero != null && (Environment.TickCount > lasthelp + 500))
+                {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, attackedhero.Position);
+                    Console.WriteLine("MOVE TO ALLIED WHICH ATTACKED");
+                    lasthelp = Environment.TickCount;
+                    attackedhero = null;
+                    return;
+                }
+                if (Environment.TickCount > waittime10 + 10000 && previouscoords.X == Player.Position.X && previouscoords.Y == Player.Position.Y)
+                {
+                    waittime10 = Environment.TickCount;
+                    Console.WriteLine("10s recall");
+                    Player.Spellbook.CastSpell(SpellSlot.Recall);
+                    previouscoords.X = Player.Position.X;
+                    previouscoords.Y = Player.Position.Y;
+                }
+                if (Environment.TickCount > waittime1 + 1000) 
+                {
+                    Console.WriteLine("1s tick");
+                    waittime1 = Environment.TickCount;
+                    if (previouscoords.X2 == Player.Position.X && previouscoords.Y2 == Player.Position.Y && Player.Health/Player.MaxHealth > 0.4)
+                    {
+                        Console.WriteLine("Nothing to do, moving top");
+                        foreach (PointData point in PointData2.Where(point => point.Name == "Top"))
+                        {
+                        Player.IssueOrder(GameObjectOrder.MoveTo, point.Position);
+                        }
+                    }
+                    else
+                    {
+                        previouscoords.X2 = Player.Position.X;
+                        previouscoords.Y2 = Player.Position.Y;
+                    }
+                }
+                if (Enemies.Top > 1 && Allies.Top == 0 && Distance.Top <3000)
+                {
+                    if (Player.Team == GameObjectTeam.Order)
+                    {
+                        foreach (PointData point in PointData2.Where(point => point.Name == "MiddleLeft"))
+                        {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, point.Position);
+                        }
+
+                    }
+                    else
+                    {
+                        foreach (PointData point in PointData2.Where(point => point.Name == "MiddleRIght"))
+                        {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, point.Position);
+                        }
+                    }
+                    Console.WriteLine("Retiring :^)");
+                }
+            }
+
+        }
+
+        private static void Game_OnGameUpdate(EventArgs args)
+        {
+            BuyItemsTick();
+            MoveLogicOnTick();
+            
         }
         private static void GetShop()
         {
             foreach (GameObject obj in ObjectManager.Get<Obj_Shop>())
             {
-                Game.PrintChat("DONT FORGET TO PUT SHOP TEAM " + obj.Team);
+                Console.WriteLine("DONT FORGET TO PUT SHOP TEAM " + obj.Team);
                 GameObject shop = obj;
             }
         }
@@ -114,9 +419,13 @@ namespace TRUSDominion
                 foreach (PointData curpoint in PointData2)
                 if (Vector3.Distance(unit.Position, curpoint.Position) <= 1000f)
                 {
-                    GameObject cappedpoint = curpoint.Unit;
-                    Game.PrintChat("SOMEONE CAPTURING : " + curpoint.Name);
+                    cappedpoint = curpoint.Unit;
+                    Console.WriteLine("SOMEONE CAPTURING : " + curpoint.Name);
                 }
+            }
+            if (unit.Team != Player.Team && unit.Type == GameObjectType.obj_AI_Hero && Spell.Target && Spell.Target.Type == GameObjectType.obj_AI_Hero && Spell.Target.Team == Player.Team)
+            {
+                attackedhero = Spell.Target;
             }
         }
         private static void assignpoints()
@@ -130,7 +439,7 @@ namespace TRUSDominion
                     if ((Vector3.Distance(m.ServerPosition, curpoint.Position) <= 500f) && (m.Name == "OdinNeutralGuardian"))
                     {
                         curpoint.Unit = m;
-                        Game.PrintChat(curpoint.Unit.Team.ToString());
+                        Console.WriteLine(curpoint.Unit.Team.ToString());
                     }
 
                     foreach (GameObject obj in ObjectManager.Get<GameObject>())
@@ -142,18 +451,21 @@ namespace TRUSDominion
                             if (obj.Name == "OdinNeutralGuardian_Stone.troy")
                             {
                                 curpoint.State = "Neutral";
-                                Game.PrintChat(curpoint.Name.ToString() + " " + curpoint.State.ToString());
+                                curpoint.Unit = obj;
+                                Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
 
                             }
                             if (obj.Name == "OdinNeutralGuardian_Green.troy")
                             {
                                 curpoint.State = "Green";
-                                Game.PrintChat(curpoint.Name.ToString() + " " + curpoint.State.ToString());
+                                curpoint.Unit = obj;
+                                Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
                             }
                             if (obj.Name == "OdinNeutralGuardian_Red.troy")
                             {
                                 curpoint.State = "Red";
-                                Game.PrintChat(curpoint.Name.ToString() + " " + curpoint.State.ToString());
+                                curpoint.Unit = obj;
+                                Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
 
                             }
 
@@ -164,13 +476,27 @@ namespace TRUSDominion
         }
         private static void Game_OnGameStart(EventArgs args)
         {
-            Game.PrintChat("TRUSBot");
+            Console.WriteLine("TRUSBot");
             assignpoints();
             GameObject.OnCreate += OnCreate;
             Game.OnGameNotifyEvent += Game_OnGameNotifyEvent;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Game.OnGameEnd += Game_OnGameEnd;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
+            Player = ObjectManager.Player;
+            if (Player.Team == GameObjectTeam.Order)
+            {
+                new PointData("Start", new Vector3(400f, 4300f, -142f));
+                new PointData("End", new Vector3(13192f, 4388f, -142f));
+                Console.WriteLine("team green");
+            }
+            else
+            {
+                new PointData("Start", new Vector3(13192f, 4388f, -142f));
+                new PointData("End", new Vector3(400f, 4300f, -142f));
+                Console.WriteLine("team red");
+            }
+
         }
 
         static void Game_OnGameEnd(GameEndEventArgs args)
@@ -189,25 +515,25 @@ namespace TRUSDominion
                     if (obj.Name == "OdinNeutralGuardian_Stone.troy")
                     {
                         curpoint.State = "Neutral";
-                        Game.PrintChat(curpoint.Name.ToString() + " " + curpoint.State.ToString());
+                        Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
 
                     }
                     if (obj.Name == "OdinNeutralGuardian_Green.troy")
                     {
                         curpoint.State = "Green";
-                        Game.PrintChat(curpoint.Name.ToString() + " " + curpoint.State.ToString());
-                        Game.PrintChat(obj.Type.ToString());
+                        Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
+                        Console.WriteLine(obj.Type.ToString());
                     }
                     if (obj.Name == "OdinNeutralGuardian_Red.troy")
                     {
                         curpoint.State = "Red";
-                        Game.PrintChat(curpoint.Name.ToString() + " " + curpoint.State.ToString());
+                        Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
 
                     }
 
                 }
         }
-        private static void Capture(Obj_AI_Minion point)
+        private static void Capture(GameObject point)
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter bw = new BinaryWriter(ms);
