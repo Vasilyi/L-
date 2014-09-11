@@ -144,6 +144,7 @@ namespace ResetsAllTheWay
             //Add the events we are going to use:
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnGameSendPacket += GameOnOnGameSendPacket;
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -167,6 +168,7 @@ namespace ResetsAllTheWay
             public static float qlastuse;
             public static bool usedfg;
             public static bool useignite;
+
         }
 
         public static void Game_OnGameUpdate(EventArgs args)
@@ -210,6 +212,16 @@ namespace ResetsAllTheWay
                 DoCombo(curtarget);
             }
         }
+
+
+        private static void GameOnOnGameSendPacket(GamePacketEventArgs args)
+        {
+            if (args.PacketData[0] == Packet.C2S.Move.Header && tSpells.ulting && Environment.TickCount < tSpells.rStartTick + 100)
+            {
+                args.Process = false;
+            }
+        }
+
         private static void DoCombo(Obj_AI_Base target)
         {
             if (Config.Item("dfg").GetValue<bool>() && tSpells.usedfg && Items.HasItem(3128) && Items.CanUseItem(3128))
@@ -230,9 +242,11 @@ namespace ResetsAllTheWay
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
             }
-            if (R.IsReady() && ObjectManager.Player.Distance(target) < R.Range && !tSpells.ulting)
+            if (R.IsReady() && ObjectManager.Player.Distance(target) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 100)
             {
+                ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(Player.ServerPosition.X, Player.ServerPosition.Y, Player.ServerPosition.Z));
                 R.Cast();
+                tSpells.rStartTick = Environment.TickCount;
             }
             if (Config.Item("ignite").GetValue<bool>() && tSpells.useignite)
             {
