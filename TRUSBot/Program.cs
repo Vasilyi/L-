@@ -213,7 +213,11 @@ private static double waittime1;
                 }
             }
 #endregion
-
+            if (Player.IsDead)
+            {
+                Console.WriteLine("im dead");
+                return;
+            }
             if (Selector2000 != null && (ObjectManager.Player.Distance(Selector2000) > 1000) && (Distance.Start > 1500) ||
                 (Selector2000 != null && Distance.End < 3000) && retreattimer < Environment.TickCount)
             {
@@ -222,10 +226,7 @@ private static double waittime1;
                 return;
             }
             if (Player.IsDead)
-            {
-                Console.WriteLine("im dead");
-                return;
-            }
+
             if (Enemies.Top > Allies.Top + 1 && (Selector2000 == null || ObjectManager.Player.Distance(Selector2000.Position)>1000))
             {
                 Console.WriteLine("Too much enemys near, changing position");
@@ -463,6 +464,7 @@ private static double waittime1;
         }
         private static void Game_OnGameLoad(EventArgs args)
         {
+            Ryze.Program.Game_OnGameLoad(args);
             Console.WriteLine("TRUSBot");
             assignpoints();
             GameObject.OnCreate += OnCreate;
