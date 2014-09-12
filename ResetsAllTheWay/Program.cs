@@ -216,7 +216,7 @@ namespace ResetsAllTheWay
 
         private static void GameOnOnGameSendPacket(GamePacketEventArgs args)
         {
-            if (args.PacketData[0] == Packet.C2S.Move.Header && tSpells.ulting && Environment.TickCount < tSpells.rStartTick + 100)
+            if (args.PacketData[0] == Packet.C2S.Move.Header && Environment.TickCount < tSpells.rStartTick + 100)
             {
                 args.Process = false;
             }
