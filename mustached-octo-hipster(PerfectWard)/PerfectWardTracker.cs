@@ -14,8 +14,7 @@ namespace PerfectWard
     {
         private const int VK_LBUTTON = 1;
         private const int WM_KEYDOWN = 0x0100, WM_KEYUP = 0x0101, WM_CHAR = 0x0102, WM_SYSKEYDOWN = 0x0104, WM_SYSKEYUP = 0x0105, WM_MOUSEDOWN = 0x201;
-        private WardSpot _PutSafeWard;
-
+        public static LeagueSharp.Common.Menu Config;
         public class Wardspoting
         {
             public static WardSpot _PutSafeWard;
@@ -26,7 +25,17 @@ namespace PerfectWard
             Game.OnGameStart += OnGameStart;
             Game.OnWndProc += OnWndProc;
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Drawing.OnDraw += OnDraw; 
+            Drawing.OnDraw += OnDraw;
+
+
+            //Create the menu
+            Config = new LeagueSharp.Common.Menu("PerfectWard", "PerfectWard", true);
+
+            Config.AddSubMenu(new LeagueSharp.Common.Menu("Drawing:", "Drawing"));
+            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("drawplaces", "Draw ward places").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("drawDistance", "Don't draw if the distance >")).SetValue(new Slider(2000, 10000, 1));
+            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("placekey", "Place Key").SetValue(new KeyBind(16, KeyBindType.Press)));
+            Config.AddToMainMenu();
         }
 
         void Game_OnGameUpdate(EventArgs args)
@@ -52,7 +61,7 @@ namespace PerfectWard
         {
             if (args.Msg == WM_MOUSEDOWN)
             {
-                if (args.WParam == VK_LBUTTON)
+                if (args.WParam == VK_LBUTTON && Config.Item("placekey").GetValue<KeyBind>().Active)
                 {
                     Vector3? nearestWard = Ward.FindNearestWardSpot(Drawing.ScreenToWorld(Game.CursorPos.X, Game.CursorPos.Y));
 
@@ -95,8 +104,11 @@ namespace PerfectWard
 
         private void OnDraw(EventArgs args)
         {
-            Ward.DrawWardSpots();
-            Ward.DrawSafeWardSpots();
+            if (Config.Item("drawplaces").GetValue<Circle>().Active)
+            {
+                Ward.DrawWardSpots();
+                Ward.DrawSafeWardSpots();
+            }
         }
     }
 }

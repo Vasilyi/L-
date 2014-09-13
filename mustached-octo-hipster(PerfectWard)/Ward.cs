@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
 using LeagueSharp;
+using LeagueSharp.Common;
 
 namespace PerfectWard
 {
@@ -278,7 +279,7 @@ namespace PerfectWard
 
                 Vector2 screenPos = Drawing.WorldToScreen(wardPos);
 
-                if (IsOnScreen(screenPos[0], screenPos[1]))
+                if (IsOnScreen(screenPos[0], screenPos[1]) && ObjectManager.Player.Distance(wardPos) < PerfectWard.PerfectWardTracker.Config.Item("drawDistance").GetValue<Slider>().Value)
                 {
                     Drawing.DrawCircle(wardPos, WARD_INDICATOR_RADIUS, wardColor);
                 }
@@ -297,7 +298,7 @@ namespace PerfectWard
                                      Math.Pow(safeWardSpot.MagneticPosition.Z - Game.CursorPos.Z, 2)) <= 100.0) ? System.Drawing.Color.Green : System.Drawing.Color.FromArgb(0, 255, 255, 255);
 
                 Vector2 screenPos = Drawing.WorldToScreen(safeWardSpot.MagneticPosition);
-                if (IsOnScreen(screenPos[0], screenPos[1]))
+                if (IsOnScreen(screenPos[0], screenPos[1]) && ObjectManager.Player.Distance(safeWardSpot.MagneticPosition) < PerfectWard.PerfectWardTracker.Config.Item("drawDistance").GetValue<Slider>().Value)
                 {
                     Drawing.DrawCircle(safeWardSpot.WardPosition, 31.0f, wardColor);
                     Drawing.DrawCircle(safeWardSpot.WardPosition, 32.0f, wardColor);
