@@ -205,7 +205,7 @@ namespace ResetsAllTheWay
                 curtarget = wtarget;
             else if (R.IsReady())
                 curtarget = rtarget;
-            Console.WriteLine(CalculateDamage(curtarget).ToString());
+            //Console.WriteLine(CalculateDamage(curtarget).ToString());
 
             if (((CalculateDamage(curtarget)>curtarget.Health || rtarget == null) && tSpells.ulting == true) || tSpells.ulting == false)
             {
@@ -216,9 +216,10 @@ namespace ResetsAllTheWay
 
         private static void GameOnOnGameSendPacket(GamePacketEventArgs args)
         {
-            if (args.PacketData[0] == Packet.C2S.Move.Header && Environment.TickCount < tSpells.rStartTick + 100)
+            if (args.PacketData[0] == Packet.C2S.Move.Header && Environment.TickCount < tSpells.rStartTick + 300)
             {
                 args.Process = false;
+                Console.WriteLine("BLOCK PACKET");
             }
         }
 
@@ -237,16 +238,18 @@ namespace ResetsAllTheWay
             {
                 E.Cast(target);
             }
-            if (W.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
+            if (W.IsReady() && !Q.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
+                //Console.WriteLine("CAST W");
             }
-            if (R.IsReady() && ObjectManager.Player.Distance(target) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 100)
+            if (R.IsReady() && !W.IsReady() && ObjectManager.Player.Distance(target) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 300)
             {
-                ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(Player.ServerPosition.X, Player.ServerPosition.Y, Player.ServerPosition.Z));
+                ObjectManager.Player.IssueOrder(GameObjectOrder.HoldPosition, new Vector3(Player.ServerPosition.X, Player.ServerPosition.Y, Player.ServerPosition.Z));
                 R.Cast();
                 tSpells.rStartTick = Environment.TickCount;
+                Console.WriteLine("CAST ULT");
             }
             if (Config.Item("ignite").GetValue<bool>() && tSpells.useignite)
             {
