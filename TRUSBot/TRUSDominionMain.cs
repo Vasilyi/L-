@@ -98,29 +98,12 @@ namespace TRUSDominion
         private static double waittime10;
         private static double waittime1;
         private static GameObject attackedhero;
-        private static bool buyitemdelay = false;
+        private static float buyitemdelay = 0;
         public static GameObject cappedpoint = null;
         public static GameObject shop;
         public static double retreattimer = 0;
 
 
-        private static void Game_OnGameNotifyEvent(GameNotifyEventArgs args)
-        {
-            if (args.EventId == GameEventId.OnCapturePointCaptured_A || args.EventId == GameEventId.OnCapturePointCaptured_B || args.EventId == GameEventId.OnCapturePointCaptured_C || args.EventId == GameEventId.OnCapturePointCaptured_D || args.EventId == GameEventId.OnCapturePointCaptured_E || args.EventId == GameEventId.OnCapturePointFiveCap)
-            if (args.EventId == GameEventId.OnItemPurchased)
-            {
-                buyitemdelay = false;
-                foreach (ItemsList Item in ChampionsItems.ItemsToBuy)
-                {
-                        if (Items.HasItem(Item.ItemID))
-                        {
-                            ChampionsItems.ItemsToBuy.Remove(Item);
-                            Console.WriteLine("Full Item bought : " + Item.ItemName);
-                        }
-                        
-                }
-            }
-        }
         private static int CountHeroes(bool myteam, Vector3 position, int distance)
         {
             int counter = 0;
@@ -141,6 +124,27 @@ namespace TRUSDominion
           }
           return false;
         }
+
+        public static void InventoryCheck()
+        {
+            foreach (ItemsList Item in ChampionsItems.ItemsToBuy)
+            {
+                if (Items.HasItem(Item.ItemID))
+                {
+
+                    foreach (BuildsList ItemsToBuyz in ChampionsItems.Builds)
+                    {
+                        if (ItemsToBuyz.ItemName == Item.ItemName)
+                        {
+                            ChampionsItems.Builds.Remove(ItemsToBuyz);
+                            Console.WriteLine("Full Item bought : " + Item.ItemName);
+                        }
+                    }
+                }
+
+            }
+        }
+
         public static void HowToBuy(ItemsList Item)
         {
             Console.WriteLine("Buyting logic started");
@@ -166,17 +170,27 @@ namespace TRUSDominion
 
         public static void BuyItemsTick()
         {
-
-            if ((buyitemdelay == false) && (ObjectManager.Player.Distance(shop.Position) <= 1250f || ObjectManager.Player.IsDead))
+            
+            InventoryCheck();
+            if ((buyitemdelay < Environment.TickCount) && (ObjectManager.Player.Distance(shop.Position) <= 1250f || ObjectManager.Player.IsDead))
             {
-                Console.WriteLine("TRYING TO BUY");
+                
+                buyitemdelay = Environment.TickCount + 500;
+                
                 var count = 0;
-                foreach (ItemsList Item in ChampionsItems.ItemsToBuy)
+                foreach (BuildsList ItemsToBuyz in ChampionsItems.Builds)
                 {
-                    if (count == 0)
+                    Console.WriteLine(ItemsToBuyz.ItemName);
+                    foreach (ItemsList Item in ChampionsItems.ItemsToBuy)
                     {
-                        HowToBuy(Item);
+                        if (count == 0 && ItemsToBuyz.ItemName == Item.ItemName)
+                        {
+                            HowToBuy(Item);
+                           // Console.WriteLine("TRYING TO BUY");
+                        }
+                       
                     }
+
                     count++;
                 }
             }
@@ -525,7 +539,6 @@ namespace TRUSDominion
             Console.WriteLine("TRUSBot");
             assignpoints();
             GameObject.OnCreate += OnCreate;
-            Game.OnGameNotifyEvent += Game_OnGameNotifyEvent;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Game.OnGameEnd += Game_OnGameEnd;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
@@ -588,7 +601,6 @@ namespace TRUSDominion
             bw.Write(itemid);
 
             Game.SendPacket(ms.ToArray(), PacketChannel.C2S, PacketProtocolFlags.NoFlags);
-            buyitemdelay = true;
         }
     }
 }

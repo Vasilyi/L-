@@ -22,5 +22,16 @@ namespace TRUSDominion
             Part2 = part2;
             ItemCost = cost;
         }
+
+    }
+
+
+    public class BuildsList
+    {
+        public string ItemName { get; private set; }
+        public BuildsList(string itemname)
+        {
+            ItemName = itemname;
+        }
     }
 }
