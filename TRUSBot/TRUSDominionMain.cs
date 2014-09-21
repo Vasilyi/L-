@@ -133,17 +133,24 @@ namespace TRUSDominion
             }
             return counter;
         }
-
+        public static bool HasSlot()
+        {
+          foreach (var slot in ObjectManager.Player.InventoryItems.Where(slot => slot.Id == 0))
+          {
+              return true;
+          }
+          return false;
+        }
         public static void HowToBuy(ItemsList Item)
         {
             Console.WriteLine("Buyting logic started");
-            if (!Items.HasItem(Item.ItemID) && !Items.HasItem(Item.Part1))
+            if (!Items.HasItem(Item.ItemID) && !Items.HasItem(Item.Part1) && HasSlot())
             {
                 BuyItem(Item.Part1);
                 Console.WriteLine("Buyting  part1");
                 return;
             }
-            else if (!Items.HasItem(Item.ItemID) && Items.HasItem(Item.Part1) && Item.Part2 != null && !Items.HasItem(Item.Part2))
+            else if (!Items.HasItem(Item.ItemID) && Items.HasItem(Item.Part1) && Item.Part2 != null && !Items.HasItem(Item.Part2) && HasSlot())
             {
                 BuyItem(Item.Part2);
                 Console.WriteLine("Buyting  part2");

@@ -249,7 +249,6 @@ namespace TRUStInMyBombs
             if (R.IsReady() && (qTarget != null || rTarget != null))
             {
                 R.CastIfWillHit(qTarget, rTargetsamount);
-                R.CastIfWillHit(qTarget, rTargetsamount);
             }
         }
         private static void Farm(bool laneClear)
