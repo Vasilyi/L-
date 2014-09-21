@@ -183,6 +183,7 @@ namespace Skillshots
                         break;
                     case 2://Medium
                         R.CastIfHitchanceEquals(target, HitChance.Medium);
+                        R.CastIfHitchanceEquals(target, HitChance.High);
                         break;
                     case 3://High
                         R.CastIfHitchanceEquals(target, HitChance.High);

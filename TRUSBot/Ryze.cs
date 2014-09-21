@@ -9,9 +9,9 @@ using LeagueSharp.Common;
 
 #endregion
 
-namespace Ryze
+namespace TRUSDominion
 {
-    internal class Program
+    class Ryze
     {
         public const string ChampionName = "Ryze";
 
@@ -26,6 +26,10 @@ namespace Ryze
         public static Menu Config;
 
         private static Obj_AI_Hero Player;
+
+
+
+        
 
 
         public static void Game_OnGameLoad(EventArgs args)

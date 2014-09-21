@@ -57,7 +57,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LeagueSharp">
-      <HintPath>C:\Games\wpe\Dropbox\lsharp\lsharp\Assemblies\System\LeagueSharp.dll</HintPath>
+      <HintPath>..\..\Assemblies\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
       <HintPath>..\..\Assemblies\System\LeagueSharp.Common.dll</HintPath>
