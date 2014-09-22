@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LeagueSharp.Common;
 using System.Threading.Tasks;
 
 namespace TRUSDominion
@@ -10,7 +11,7 @@ namespace TRUSDominion
     {
         static void Main(string[] args)
         {
-            new TRUSDominionMain();
+                new TRUSDominionMain();
         }
     }
 }

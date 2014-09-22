@@ -27,11 +27,6 @@ namespace TRUSDominion
 
         private static Obj_AI_Hero Player;
 
-
-
-        
-
-
         public static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;

@@ -148,13 +148,13 @@ namespace TRUSDominion
         public static void HowToBuy(ItemsList Item)
         {
             Console.WriteLine("Buyting logic started");
-            if (!Items.HasItem(Item.ItemID) && !Items.HasItem(Item.Part1) && HasSlot())
+            if (!Items.HasItem(Item.ItemID) && Item.Part1 != 0  && !Items.HasItem(Item.Part1) && HasSlot())
             {
                 BuyItem(Item.Part1);
                 Console.WriteLine("Buyting  part1");
                 return;
             }
-            else if (!Items.HasItem(Item.ItemID) && Items.HasItem(Item.Part1) && Item.Part2 != null && !Items.HasItem(Item.Part2) && HasSlot())
+            else if (!Items.HasItem(Item.ItemID) && Items.HasItem(Item.Part1) && Item.Part2 != 0 && !Items.HasItem(Item.Part2) && HasSlot())
             {
                 BuyItem(Item.Part2);
                 Console.WriteLine("Buyting  part2");
@@ -230,7 +230,6 @@ namespace TRUSDominion
             RuneCheck();
             BuyItemsTick();
 
-           return;
 #region points variables
             foreach (PointData pointname in PointData2)
             {
@@ -239,8 +238,18 @@ namespace TRUSDominion
                     Enemies.Top = CountHeroes(false, pointname.Position, 2000);
                     Allies.Top = CountHeroes(true, pointname.Position, 2000);
                     Distance.Top = ObjectManager.Player.Distance(pointname.Position);
-                    Team.Top = pointname.State;
-                    
+                    if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Red")
+                    {
+                        Team.Top = "Green";
+                    }
+                    else if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Green")
+                    {
+                        Team.Top = "Red";
+                    }
+                    else
+                    {
+                        Team.Top = pointname.State;
+                    }
 
                 }
                 else if (pointname.Name == "MiddleLeft")
@@ -248,21 +257,56 @@ namespace TRUSDominion
                     Enemies.MiddleLeft = CountHeroes(false, pointname.Position, 2000);
                     Allies.MiddleLeft = CountHeroes(true, pointname.Position, 2000);
                     Distance.MiddleLeft = ObjectManager.Player.Distance(pointname.Position);
-                    Team.MiddleLeft = pointname.State;
+                    
+                    if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Red")
+                    {
+                        Team.MiddleLeft = "Green";
+                    }
+                    else if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Green")
+                    {
+                        Team.MiddleLeft = "Red";
+                    }
+                    else
+                    {
+                        Team.MiddleLeft = pointname.State;
+                    }
                 }
                 else if (pointname.Name == "MiddleRight")
                 {
                     Enemies.MiddleRight = CountHeroes(false, pointname.Position, 2000);
                     Allies.MiddleRight = CountHeroes(true, pointname.Position, 2000);
-                    Distance.MiddleRight = ObjectManager.Player.Distance(pointname.Position);
-                    Team.MiddleRight = pointname.State;
+
+                    if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Red")
+                    {
+                        Team.MiddleRight = "Green";
+                    }
+                    else if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Green")
+                    {
+                        Team.MiddleRight = "Red";
+                    }
+                    else
+                    {
+                        Team.MiddleRight = pointname.State;
+                    }
                 }
                 else if (pointname.Name == "BotRight")
                 {
                     Enemies.BotRight = CountHeroes(false, pointname.Position, 2000);
                     Allies.BotRight = CountHeroes(true, pointname.Position, 2000);
                     Distance.BotRight = ObjectManager.Player.Distance(pointname.Position);
-                    Team.BotRight = pointname.State;
+
+                    if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Red")
+                    {
+                        Team.BotRight = "Green";
+                    }
+                    else if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Green")
+                    {
+                        Team.BotRight = "Red";
+                    }
+                    else
+                    {
+                        Team.BotRight = pointname.State;
+                    }
 
                 }
                 else if (pointname.Name == "BotLeft")
@@ -270,7 +314,18 @@ namespace TRUSDominion
                     Enemies.BotLeft = CountHeroes(false, pointname.Position, 2000);
                     Allies.BotLeft = CountHeroes(true, pointname.Position, 2000);
                     Distance.BotLeft = ObjectManager.Player.Distance(pointname.Position);
-                    Team.BotLeft = pointname.State;
+                    if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Red")
+                    {
+                        Team.BotLeft = "Green";
+                    }
+                    else if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Green")
+                    {
+                        Team.BotLeft = "Red";
+                    }
+                    else
+                    {
+                        Team.BotLeft = pointname.State;
+                    }
 
                 }
                 else if (pointname.Name == "Start")
@@ -302,7 +357,7 @@ namespace TRUSDominion
                 Console.WriteLine("Too much enemys near, changing position");
                 //return?
             }
-           
+
             if (Selector2000 == null || ObjectManager.Player.Distance(Selector2000.Position)>1000)
             {
                
@@ -335,7 +390,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "MiddleRight"))
                     {
                     Capture(point.Unit);
-                    Console.WriteLine("Capture midright");
+                    //Console.WriteLine("Capture midright : " + Team.MiddleRight.ToString());
                         return;
                     }
                 }
@@ -344,7 +399,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "MiddleRight"))
                     {
                     Capture(point.Unit);
-                    Console.WriteLine("Capture midright");
+                    Console.WriteLine("Capture midright : " + Team.MiddleRight.ToString());
                         return;
                     }
                 }
@@ -353,7 +408,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "MiddleLeft"))
                     {
                     Capture(point.Unit);
-                    Console.WriteLine("Capture midleft");
+                    Console.WriteLine("Capture midright : " + Team.MiddleRight.ToString());
                         return;
                     }
                 }
@@ -479,7 +534,7 @@ namespace TRUSDominion
         {
             foreach (GameObject obj in ObjectManager.Get<Obj_Shop>())
             {
-                if (obj.Team == GameObjectTeam.Order)
+                if (obj.IsAlly)
                 {
                     shop = obj;
                     new PointData("Start", new Vector3(obj.Position.X,obj.Position.Y,obj.Position.Z));
@@ -534,17 +589,29 @@ namespace TRUSDominion
         }
         private static void Game_OnGameLoad(EventArgs args)
         {
-
-            Ryze.Game_OnGameLoad(args);
-            Console.WriteLine("TRUSBot");
-            assignpoints();
-            GameObject.OnCreate += OnCreate;
-            Game.OnGameUpdate += Game_OnGameUpdate;
-            Game.OnGameEnd += Game_OnGameEnd;
-            Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
-            Player = ObjectManager.Player;
+            if (Utility.Map.GetMap() == Utility.Map.MapType.CrystalScar)
+            {
+                Ryze.Game_OnGameLoad(args);
+                Console.WriteLine("TRUSBot");
+                assignpoints();
+                Game.OnGameUpdate += Game_OnGameUpdate;
+                Game.OnGameEnd += Game_OnGameEnd;
+                Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
+                Player = ObjectManager.Player;
+                Drawing.OnDraw += OnDraw;
+            }
+            else
+            {
+                Game.PrintChat("This map is not supported");
+            }
         }
 
+
+        private static void OnDraw(EventArgs args)
+        {
+            Vector2 playerpos = Drawing.WorldToScreen(Player.Position);
+            Drawing.DrawText(playerpos.X, playerpos.Y, System.Drawing.Color.White,"MOM PLZ");
+        }
         static void Game_OnGameEnd(GameEndEventArgs args)
         {
             Process[] processes = Process.GetProcessesByName("League of Legends");
@@ -552,32 +619,6 @@ namespace TRUSDominion
             {
                 p.CloseMainWindow();
             }
-        }
-        static void OnCreate(GameObject obj, EventArgs args)
-        {
-            foreach (PointData curpoint in PointData2)
-                if ((Vector3.Distance(obj.Position, curpoint.Position) <= 100f))
-                {
-                    if (obj.Name == "OdinNeutralGuardian_Stone.troy")
-                    {
-                        curpoint.State = "Neutral";
-                        Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
-
-                    }
-                    if (obj.Name == "OdinNeutralGuardian_Green.troy")
-                    {
-                        curpoint.State = "Green";
-                        Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
-                        Console.WriteLine(obj.Type.ToString());
-                    }
-                    if (obj.Name == "OdinNeutralGuardian_Red.troy")
-                    {
-                        curpoint.State = "Red";
-                        Console.WriteLine(curpoint.Name.ToString() + " " + curpoint.State.ToString());
-
-                    }
-
-                }
         }
         private static void Capture(GameObject point)
         {
