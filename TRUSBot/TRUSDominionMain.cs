@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using System.IO;
-using System.Diagnostics;
-using System.Windows;
 using SharpDX;
 //specially broke this assembly, so noobs will not ask what it doing
 namespace TRUSDominion
@@ -239,16 +235,18 @@ namespace TRUSDominion
         {
           
             assignpoints();
+            BuyItemsTick();
             var Selector2000 = SimpleTs.GetTarget(2000f, SimpleTs.DamageType.True);
             //// On game start move to mid-side point
-            if (Game.Time < 30)
+            if (Game.Time < 60)
             {
                 if (ObjectManager.Player.Team == GameObjectTeam.Order)
                     ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(647f, 4427f, 0));
                 else
                     ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(13192f, 4388f, 0));
+                return;
             }
-            BuyItemsTick();
+            
             if (Player.IsDead)
             {
                 Console.WriteLine("im dead");
@@ -261,7 +259,7 @@ namespace TRUSDominion
             }
             
 
-#region points variables
+            #region points variables
             foreach (PointData pointname in PointData2)
             {
                 if (pointname.Name == "Top")
@@ -625,33 +623,33 @@ namespace TRUSDominion
                 }
             }
         }
+        private static void GetChampion(EventArgs args)
+        {
+            switch (ObjectManager.Player.ChampionName)
+            {
+                case "Annie":
+                    Annie.Game_OnGameLoad(args);
+                    champ = true;
+                    break;
+                case "Katarina":
+                    Katarina.Game_OnGameLoad(args);
+                    champ = true;
+                    break;
+                case "Ryze":
+                    Ryze.Game_OnGameLoad(args);
+                    champ = true;
+                    break;
+                case "XinZhao":
+                    XinZhao.Game_OnGameLoad(args);
+                    champ = true;
+                    break;
+            }
+        }
         private static void Game_OnGameLoad(EventArgs args)
         {
             if (Utility.Map.GetMap() == Utility.Map.MapType.CrystalScar)
             {
-                switch (ObjectManager.Player.ChampionName)
-                {
-                    case "Annie":
-                        Annie.Game_OnGameLoad(args);
-                        champ = true;
-                        break;   
-                    case "Katarina":
-                        Katarina.Game_OnGameLoad(args);
-                        champ = true;
-                        break;   
-                    case "Ryze":
-                        Ryze.Game_OnGameLoad(args);
-                        champ = true;
-                        break;
-                    case "XinZhao":
-                        XinZhao.Game_OnGameLoad(args);
-                        champ = true;
-                        break;   
-                }
-                if (champ ==false)
-                {
-                    Unknown.Game_OnGameLoad(args);
-                }
+                
                 Summoners.summonersinit();
                 Console.WriteLine("TRUSBot");
                 assignpoints();
@@ -663,6 +661,11 @@ namespace TRUSDominion
                 Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
                 Player = ObjectManager.Player;
                 Drawing.OnDraw += OnDraw;
+                GetChampion(args);
+                if (champ == false)
+                {
+                    Unknown.Game_OnGameLoad(args);
+                }
             }
             else
             {
