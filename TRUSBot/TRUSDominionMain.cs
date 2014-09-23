@@ -631,6 +631,10 @@ namespace TRUSDominion
                     Annie.Game_OnGameLoad(args);
                     champ = true;
                     break;
+                case "Darius":
+                    Darius.Game_OnGameLoad(args);
+                    champ = true;
+                    break;
                 case "Katarina":
                     Katarina.Game_OnGameLoad(args);
                     champ = true;

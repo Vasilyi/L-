@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annie.cs" />
+    <Compile Include="Darius.cs" />
     <Compile Include="Katarina.cs" />
     <Compile Include="UnknownChamp.cs" />
     <Compile Include="XinZhao.cs" />
