@@ -24,6 +24,7 @@ namespace TRUStInMyBombs
         public static Spell R;
         public static SpellSlot IgniteSlot;
 
+        public static GameObject wBomb;
 
         public class Spells
         {
@@ -62,6 +63,8 @@ namespace TRUStInMyBombs
             Console.WriteLine("TRUStInMyBombs LOADED");
             InitializeJumpSpots();
             Game.OnGameUpdate += Game_OnGameUpdate;
+            GameObject.OnCreate += OnCreateObj;
+            GameObject.OnDelete += OnDeleteObj;
             Interrupter.OnPosibleToInterrupt += ZOnPosibleToInterrupt;
 
 
@@ -110,6 +113,7 @@ namespace TRUStInMyBombs
                 Config.SubMenu("satchel").AddItem(new MenuItem("satchelDraw", "Draw satchel places").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
                 Config.SubMenu("satchel").AddItem(new MenuItem("satchelDrawdistance", "Don't draw circles if the distance >")).SetValue(new Slider(2000, 10000, 1));
                 Config.SubMenu("satchel").AddItem(new MenuItem("satchelJump", "Jump Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                Config.SubMenu("satchel").AddItem(new MenuItem("satchelJumpMouseOver", "Jump To mouse Key").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
 
                 Config.AddSubMenu(new Menu("Combo Options:", "combospells"));
                 Config.SubMenu("combospells").AddItem(new MenuItem("UseI", "Use Ignite if enemy is killable").SetValue(true));
@@ -167,6 +171,11 @@ namespace TRUStInMyBombs
                 JumpProx();
             }
 
+            if (Config.Item("satchelJumpMouseOver").GetValue<KeyBind>().Active)
+            {
+                Console.WriteLine("STARTING JUMP TO MOUSE");
+                JumpProxMouse();
+            }
             var lc = Config.Item("FarmKeyClear").GetValue<KeyBind>().Active;
             if (lc || Config.Item("FarmKeyFreeze").GetValue<KeyBind>().Active)
                 Farm(lc);
@@ -352,6 +361,40 @@ namespace TRUStInMyBombs
                 UseSpells(true, false, true);
             }
         }
+
+        private static void JumpProxMouse()
+        {
+            if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "ZiggsW")
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, Player.Position);
+            }
+            else if (wBomb != null && ObjectManager.Player.Distance(wBomb.Position) > 100 && ObjectManager.Player.Distance(wBomb.Position) < 300)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W);
+                Console.WriteLine("Jump on bomb");
+            }
+
+        }
+
+        public static void OnCreateObj(GameObject obj, EventArgs args)
+        {
+            if (obj.Name == "ZiggsW_mis_ground.troy")
+            {
+                wBomb = obj;
+                Console.WriteLine("Bomb created");
+            }
+        }
+
+        public static void OnDeleteObj(GameObject obj, EventArgs args)
+        {
+            if (obj.Name == "ZiggsW_mis_ground.troy")
+            {
+                wBomb = null;
+                Console.WriteLine("Bomb deleted");
+            }
+        }
+
+
         private static void JumpProx()
         {
             if (FindNearestJumpSpot() == null)

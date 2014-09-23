@@ -213,7 +213,7 @@ namespace TRUSDominion
         public static bool RuneCheck()
         {
 
-            if (Player.Health / Player.MaxHealth < 0.9 && CountHeroes(false, Player.Position, 2000) == 0)
+            if (Player.Health / Player.MaxHealth < 0.5 && CountHeroes(false, Player.Position, 2000) == 0)
             {
                 foreach (GameObject obj in ObjectManager.Get<GameObject>())
                 {
@@ -590,7 +590,7 @@ namespace TRUSDominion
         private static bool MinionAround()
         {
             var allMinions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 600,MinionTypes.All,MinionTeam.Enemy);
-            if (allMinions.Count > 1)
+            if (allMinions.Count > 0)
             {
                 return true;
             }
