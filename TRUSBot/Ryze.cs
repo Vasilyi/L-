@@ -23,7 +23,6 @@ namespace TRUSDominion
         public static Spell E;
         public static Spell R;
         //Menu
-        public static Menu Config;
 
         private static Obj_AI_Hero Player;
 
@@ -54,7 +53,15 @@ namespace TRUSDominion
             {
                 if (Player.Distance(target) <= 600)
                 {
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                    if (Player.Distance(target) <= 550)
+                    {
+                        Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                    }
+                    else
+                    {
+                        Player.IssueOrder(GameObjectOrder.MoveTo, target.Position);
+                    }
+
                     if (Player.Distance(target) >= 575 && W.IsReady() && target.Path.Count() > 0 &&
                         target.Path[0].Distance(Player.ServerPosition) >
                         Player.Distance(target))
@@ -69,17 +76,17 @@ namespace TRUSDominion
                     {
                         if (qCd > 1.25f)
                         {
-                            if (W.IsReady())
+                            if (R.IsReady())
+                            {
+                                R.Cast();
+                            }
+                            else if (W.IsReady())
                             {
                                 W.CastOnUnit(target);
                             }
                             else if (E.IsReady())
                             {
                                 E.CastOnUnit(target);
-                            }
-                            else if (R.IsReady())
-                            {
-                                R.Cast();
                             }
                         }
                     }

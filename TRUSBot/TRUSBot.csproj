@@ -35,15 +35,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuffManagerLib">
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp - копия\System\BuffManagerLib.dll</HintPath>
+    </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp - копия\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp - копия\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="SharpDX">
-      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp - копия\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,8 +60,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Annie.cs" />
+    <Compile Include="Katarina.cs" />
+    <Compile Include="UnknownChamp.cs" />
+    <Compile Include="XinZhao.cs" />
     <Compile Include="ItemList.cs" />
     <Compile Include="List.cs" />
+    <Compile Include="SpellsLeveling.cs" />
+    <Compile Include="Summoners.cs" />
     <Compile Include="TRUSDominionMain.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

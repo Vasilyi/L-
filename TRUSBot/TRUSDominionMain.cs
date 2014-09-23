@@ -96,11 +96,13 @@ namespace TRUSDominion
         private static Obj_AI_Hero Player;
         private static double lasthelp;
         private static double waittime10;
+        private static bool champ = false;
         private static double waittime1;
         private static GameObject attackedhero;
         private static float buyitemdelay = 0;
         public static GameObject cappedpoint = null;
         public static GameObject shop;
+        public static string currentstatus = "";
         public static double retreattimer = 0;
 
 
@@ -118,11 +120,25 @@ namespace TRUSDominion
         }
         public static bool HasSlot()
         {
-          foreach (var slot in ObjectManager.Player.InventoryItems.Where(slot => slot.Id == 0))
+            var itemscount = 0;
+          foreach (var slot in ObjectManager.Player.InventoryItems)
           {
-              return true;
+              if (slot.Id != 0)
+              {
+                  itemscount++;
+              }
           }
-          return false;
+          if (itemscount < 6)
+          {
+              Console.WriteLine("Have free slot");
+              return true;
+              
+          }
+          else
+          {
+              Console.WriteLine("No free slot");
+              return false;
+          }
         }
 
         public static void InventoryCheck()
@@ -137,7 +153,7 @@ namespace TRUSDominion
                         if (ItemsToBuyz.ItemName == Item.ItemName)
                         {
                             ChampionsItems.Builds.Remove(ItemsToBuyz);
-                            Console.WriteLine("Full Item bought : " + Item.ItemName);
+                            //Console.WriteLine("Full Item bought : " + Item.ItemName);
                         }
                     }
                 }
@@ -147,7 +163,7 @@ namespace TRUSDominion
 
         public static void HowToBuy(ItemsList Item)
         {
-            Console.WriteLine("Buyting logic started");
+            //Console.WriteLine("Buyting logic started");
             if (!Items.HasItem(Item.ItemID) && Item.Part1 != 0  && !Items.HasItem(Item.Part1) && HasSlot())
             {
                 BuyItem(Item.Part1);
@@ -163,7 +179,7 @@ namespace TRUSDominion
             else if (!Items.HasItem(Item.ItemID) && Item.ItemCost < Player.Gold)
             {
                 BuyItem(Item.ItemID);
-                Console.WriteLine("Buyting  full item");
+                //Console.WriteLine("Buyting  full item");
                 return;
             }
         }
@@ -180,7 +196,7 @@ namespace TRUSDominion
                 var count = 0;
                 foreach (BuildsList ItemsToBuyz in ChampionsItems.Builds)
                 {
-                    Console.WriteLine(ItemsToBuyz.ItemName);
+                    //Console.WriteLine(ItemsToBuyz.ItemName);
                     foreach (ItemsList Item in ChampionsItems.ItemsToBuy)
                     {
                         if (count == 0 && ItemsToBuyz.ItemName == Item.ItemName)
@@ -198,20 +214,26 @@ namespace TRUSDominion
             
         }
 
-        public static void RuneCheck()
+        public static bool RuneCheck()
         {
 
             if (Player.Health / Player.MaxHealth < 0.9 && CountHeroes(false, Player.Position, 2000) == 0)
             {
                 foreach (GameObject obj in ObjectManager.Get<GameObject>())
                 {
-                    if (obj.Name == "odin_heal_rune.troy")
+                    if (obj.Name == "odin_heal_rune.troy" && ObjectManager.Player.Distance(obj.Position) < 2000)
                     {
                         ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(obj.Position.X, obj.Position.Y, obj.Position.Z));
-                        Console.WriteLine("NO enemies around, eating rune");
+                        StatusUpdate("NO enemies around, eating rune");
+                        return true;
                     }
                 }
             }
+            return false;
+        }
+        public static void StatusUpdate(string status)
+        {
+            currentstatus = status;
         }
         public static void MoveLogicOnTick()
         {
@@ -226,9 +248,18 @@ namespace TRUSDominion
                 else
                     ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(13192f, 4388f, 0));
             }
-            ///check for rune
-            RuneCheck();
             BuyItemsTick();
+            if (Player.IsDead)
+            {
+                Console.WriteLine("im dead");
+                return;
+            }
+            ///check for rune
+            if (RuneCheck())
+            {
+                return;
+            }
+            
 
 #region points variables
             foreach (PointData pointname in PointData2)
@@ -275,7 +306,7 @@ namespace TRUSDominion
                 {
                     Enemies.MiddleRight = CountHeroes(false, pointname.Position, 2000);
                     Allies.MiddleRight = CountHeroes(true, pointname.Position, 2000);
-
+                    Distance.MiddleRight = ObjectManager.Player.Distance(pointname.Position);
                     if (Player.Team == GameObjectTeam.Chaos && pointname.State == "Red")
                     {
                         Team.MiddleRight = "Green";
@@ -338,23 +369,18 @@ namespace TRUSDominion
                 }
             }
 #endregion
-            if (Player.IsDead)
-            {
-                Console.WriteLine("im dead");
-                return;
-            }
+            
             if (Selector2000 != null && (ObjectManager.Player.Distance(Selector2000) > 1000) && (Distance.Start > 1500) ||
                 (Selector2000 != null && Distance.End < 3000) && retreattimer < Environment.TickCount)
             {
-                Console.WriteLine("Bad idea to continue chasing, returning");
+                StatusUpdate("Bad idea to continue chasing, returning");
                 retreattimer = Environment.TickCount+5000;
                 return;
             }
-            if (Player.IsDead)
 
             if (Enemies.Top > Allies.Top + 1 && (Selector2000 == null || ObjectManager.Player.Distance(Selector2000.Position)>1000))
             {
-                Console.WriteLine("Too much enemys near, changing position");
+                StatusUpdate("Too much enemys near, changing position");
                 //return?
             }
 
@@ -362,7 +388,7 @@ namespace TRUSDominion
             {
                
                 // checks for recall
-                if (Player.Health/Player.MaxHealth < 0.5 && Selector2000 == null)
+                if (Player.Health / Player.MaxHealth < 0.5 && Selector2000 == null && !MinionAround())
                 {
                     if ((Distance.Top < 1000 && Team.Top == "Green") || 
                         (Distance.BotLeft < 1000 && Team.BotLeft == "Green") || 
@@ -370,8 +396,9 @@ namespace TRUSDominion
                         (Distance.MiddleLeft < 1000 && Team.MiddleLeft == "Green") ||
                         (Distance.MiddleRight < 1000 && Team.MiddleRight == "Green"))
                     {
-                        Console.WriteLine("Recall cause all fine and low hp");
+                        StatusUpdate("Recall cause all fine and low hp");
                         Player.Spellbook.CastSpell(SpellSlot.Recall);
+                        return;
                     }
                 }
 
@@ -380,7 +407,7 @@ namespace TRUSDominion
                 {
                     foreach (PointData point in PointData2.Where(point => point.Name == "MiddleLeft"))
                     {
-                        Console.WriteLine("Capture midleft : " + Team.MiddleLeft.ToString());
+                        StatusUpdate("Capture midleft : " + Team.MiddleLeft.ToString());
                     Capture(point.Unit);
                         return;
                     }
@@ -390,7 +417,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "MiddleRight"))
                     {
                     Capture(point.Unit);
-                    //Console.WriteLine("Capture midright : " + Team.MiddleRight.ToString());
+                    StatusUpdate("Capture midright : " + Team.MiddleRight.ToString());
                         return;
                     }
                 }
@@ -399,7 +426,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "MiddleRight"))
                     {
                     Capture(point.Unit);
-                    Console.WriteLine("Capture midright : " + Team.MiddleRight.ToString());
+                    StatusUpdate("Capture midright : " + Team.MiddleRight.ToString());
                         return;
                     }
                 }
@@ -408,7 +435,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "MiddleLeft"))
                     {
                     Capture(point.Unit);
-                    Console.WriteLine("Capture midright : " + Team.MiddleRight.ToString());
+                    StatusUpdate("Capture midright : " + Team.MiddleRight.ToString());
                         return;
                     }
                 }
@@ -417,7 +444,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "Top"))
                     {
                     Capture(point.Unit);
-                        Console.WriteLine("Capturing top");
+                    StatusUpdate("Capturing top");
                         return;
                     }
                 }
@@ -428,7 +455,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "BotRight"))
                     {
                     Capture(point.Unit);
-                        Console.WriteLine("Capturing BotRight");
+                    StatusUpdate("Capturing BotRight");
                         return;
                     }
                     }
@@ -437,7 +464,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "BotLeft"))
                     {
                     Capture(point.Unit);
-                        Console.WriteLine("Capturing BotLeft");
+                    StatusUpdate("Capturing BotLeft");
                         return;
                     }
                     }
@@ -447,7 +474,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "BotRight"))
                     {
                     Capture(point.Unit);
-                        Console.WriteLine("Capturing BotRight");
+                    StatusUpdate("Capturing BotRight");
                         return;
                     }
                 }
@@ -456,7 +483,7 @@ namespace TRUSDominion
                     foreach (PointData point in PointData2.Where(point => point.Name == "BotLeft"))
                     {
                     Capture(point.Unit);
-                        Console.WriteLine("Capturing BotLeft");
+                    StatusUpdate("Capturing BotLeft");
                         return;
                     }
                 }
@@ -464,7 +491,7 @@ namespace TRUSDominion
                 if (Enemies.Top == 0 && cappedpoint != null)
                 {
                     Player.IssueOrder(GameObjectOrder.MoveTo, cappedpoint.Position);
-                    Console.WriteLine("MOVE TO POINT WHICH CAPTURED");
+                    StatusUpdate("MOVE TO POINT WHICH CAPTURED");
                     cappedpoint = null;
                     return;
                 }
@@ -472,7 +499,7 @@ namespace TRUSDominion
                 if (attackedhero != null && (Environment.TickCount > lasthelp + 500))
                 {
                     Player.IssueOrder(GameObjectOrder.MoveTo, attackedhero.Position);
-                    Console.WriteLine("MOVE TO ALLIED WHICH ATTACKED");
+                    StatusUpdate("MOVE TO ALLIED WHICH ATTACKED");
                     lasthelp = Environment.TickCount;
                     attackedhero = null;
                     return;
@@ -480,18 +507,19 @@ namespace TRUSDominion
                 if (Environment.TickCount > waittime10 + 10000 && previouscoords.X == Player.Position.X && previouscoords.Y == Player.Position.Y)
                 {
                     waittime10 = Environment.TickCount;
-                    Console.WriteLine("10s recall");
+                    StatusUpdate("10s recall");
                     Player.Spellbook.CastSpell(SpellSlot.Recall);
                     previouscoords.X = Player.Position.X;
                     previouscoords.Y = Player.Position.Y;
                 }
                 if (Environment.TickCount > waittime1 + 1000) 
                 {
+ 
                     Console.WriteLine("1s tick");
                     waittime1 = Environment.TickCount;
                     if (previouscoords.X2 == Player.Position.X && previouscoords.Y2 == Player.Position.Y && Player.Health/Player.MaxHealth > 0.4)
                     {
-                        Console.WriteLine("Nothing to do, moving top");
+                        StatusUpdate("Nothing to do, moving top");
                         foreach (PointData point in PointData2.Where(point => point.Name == "Top"))
                         {
                         Player.IssueOrder(GameObjectOrder.MoveTo, point.Position);
@@ -520,7 +548,7 @@ namespace TRUSDominion
                     Player.IssueOrder(GameObjectOrder.MoveTo, point.Position);
                         }
                     }
-                    Console.WriteLine("Retiring :^)");
+                    StatusUpdate("Retiring :^)");
                 }
             }
 
@@ -561,6 +589,16 @@ namespace TRUSDominion
                 attackedhero = Spell.Target;
             }
         }
+        private static bool MinionAround()
+        {
+            var allMinions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 600,MinionTypes.All,MinionTeam.Enemy);
+            if (allMinions.Count > 1)
+            {
+                return true;
+            }
+            else 
+                return false;
+        }
         private static void assignpoints()
         {
             GetShop();
@@ -591,10 +629,36 @@ namespace TRUSDominion
         {
             if (Utility.Map.GetMap() == Utility.Map.MapType.CrystalScar)
             {
-                Ryze.Game_OnGameLoad(args);
+                switch (ObjectManager.Player.ChampionName)
+                {
+                    case "Annie":
+                        Annie.Game_OnGameLoad(args);
+                        champ = true;
+                        break;   
+                    case "Katarina":
+                        Katarina.Game_OnGameLoad(args);
+                        champ = true;
+                        break;   
+                    case "Ryze":
+                        Ryze.Game_OnGameLoad(args);
+                        champ = true;
+                        break;
+                    case "XinZhao":
+                        XinZhao.Game_OnGameLoad(args);
+                        champ = true;
+                        break;   
+                }
+                if (champ ==false)
+                {
+                    Unknown.Game_OnGameLoad(args);
+                }
+                Summoners.summonersinit();
                 Console.WriteLine("TRUSBot");
                 assignpoints();
+                Leveling.LevelingUpdate();
                 Game.OnGameUpdate += Game_OnGameUpdate;
+                Game.OnGameUpdate += Summoners.SummonersTick;
+                Game.OnGameUpdate += Leveling.LevelingTick;
                 Game.OnGameEnd += Game_OnGameEnd;
                 Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
                 Player = ObjectManager.Player;
@@ -606,19 +670,14 @@ namespace TRUSDominion
             }
         }
 
-
         private static void OnDraw(EventArgs args)
         {
             Vector2 playerpos = Drawing.WorldToScreen(Player.Position);
-            Drawing.DrawText(playerpos.X, playerpos.Y, System.Drawing.Color.White,"MOM PLZ");
+            Drawing.DrawText(playerpos.X, playerpos.Y, System.Drawing.Color.White, currentstatus);
         }
         static void Game_OnGameEnd(GameEndEventArgs args)
         {
-            Process[] processes = Process.GetProcessesByName("League of Legends");
-            foreach (Process p in processes)
-            {
-                p.CloseMainWindow();
-            }
+
         }
         private static void Capture(GameObject point)
         {

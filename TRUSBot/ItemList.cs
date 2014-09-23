@@ -232,7 +232,7 @@ namespace TRUSDominion
 	_ItemsToBuy.Add(new ItemsList(3082, "Warden's Mail", 500,1029, 1029));
 	_ItemsToBuy.Add(new ItemsList(3083, "Warmog's Armor", 995,1011, 1028));
 	_ItemsToBuy.Add(new ItemsList(3122, "Wicked Hatchet", 710,1018, 1036));
-	_ItemsToBuy.Add(new ItemsList(3152, "Will of the Ancients", 440,1026, 3145));
+	_ItemsToBuy.Add(new ItemsList(3152, "Will of the Ancients", 440,3108, 3145));
 	_ItemsToBuy.Add(new ItemsList(3091, "Wit's End", 850,1043, 1033));
 	_ItemsToBuy.Add(new ItemsList(3090, "Wooglet's Witchcap", 1920,1031, 1026));
 	//_ItemsToBuy.Add(new ItemsList(3154] =100,3106, 1053));
@@ -1023,7 +1023,7 @@ _Builds.Add(new BuildsList("Glacial Shroud"));
 _Builds.Add(new BuildsList("Hextech Revolver"));
 _Builds.Add(new BuildsList("Archangel's Staff"));
 _Builds.Add(new BuildsList("Will of the Ancients"));
-_Builds.Add(new BuildsList("Banshee's Veil"));
+_Builds.Add(new BuildsList("Spirit Visage"));
 _Builds.Add(new BuildsList("Frozen Heart"));
 }
 #endregion

@@ -194,7 +194,7 @@ namespace TRUStInMyBombs
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, Q2.Range, qValue.Color);
                     Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color, 5, 30, true);
-            }
+                }
                 else if (W.IsReady())
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, W.Range, qValue.Color);
