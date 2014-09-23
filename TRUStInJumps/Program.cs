@@ -115,7 +115,7 @@ namespace ProJumper
                 if (ObjectManager.Player.Distance(posforward) < 600)
                 {
                     Obj_AI_Minion[] nearstobj = { null };
-                    foreach (var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => obj.IsAlly && obj.Position.Distance(posforward) <= 200).Where(obj => nearstobj[0] == null || nearstobj[0].Position.Distance(posforward) > obj.Position.Distance(posforward)))
+                    foreach (var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => (Player.ChampionName == "Jax" || Player.ChampionName == "Katarina" || obj.IsAlly) && obj.Position.Distance(posforward) <= 200).Where(obj => nearstobj[0] == null || nearstobj[0].Position.Distance(posforward) > obj.Position.Distance(posforward)))
                     {
                         nearstobj[0] = obj;
                     }

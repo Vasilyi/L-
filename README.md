@@ -6,6 +6,7 @@ Assemblies
 <br><b>TRUSt in my Bombs:</b> : Some complex <b>Ziggs</b> assembly with many functions.
 <br><b>ResetsAllTheWay:</b> : <b>Katarina</b> assembly with damage drawing, overkill prevention smart combo and such :^)
 <br><b>mustached-octo-hipster(PerfectWard):</b> :  Makes warding a no-brainer.
+<br><b>TRUStInJumps:</b> : Using combo of ward+spells or J4 one to fast-move. 
 <br><b>Humanizer:</b> : assembly which adds a ms delay based on distance to previous spell cast location. 
 
 [![PayPayl donate button](http://img.shields.io/paypal/donate.png?color=blue)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BVTNXZ6JWDZES "Im hungry little boy, donate me so ill buy food:(")
