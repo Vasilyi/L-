@@ -34,7 +34,7 @@ namespace PerfectWard
             Config.AddSubMenu(new LeagueSharp.Common.Menu("Drawing:", "Drawing"));
             Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("drawplaces", "Draw ward places").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
             Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("drawDistance", "Don't draw if the distance >")).SetValue(new Slider(2000, 10000, 1));
-            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("placekey", "Place Key").SetValue(new KeyBind(16, KeyBindType.Press)));
+            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("placekey", "Place Key").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
             Config.AddToMainMenu();
         }
 
