@@ -65,7 +65,7 @@ namespace TRUStInMyBombs
             Game.OnGameUpdate += Game_OnGameUpdate;
             GameObject.OnCreate += OnCreateObj;
             GameObject.OnDelete += OnDeleteObj;
-            Interrupter.OnPosibleToInterrupt += ZOnPosibleToInterrupt;
+            Interrupter.OnPossibleToInterrupt += ZOnPosibleToInterrupt;
 
 
             Player = ObjectManager.Player;
@@ -306,7 +306,7 @@ namespace TRUStInMyBombs
                     {
                         if (!Orbwalking.InAutoAttackRange(minion))
                         {
-                            var Qdamage = DamageLib.getDmg(minion, DamageLib.SpellType.Q) * 0.75;
+                            var Qdamage = Player.GetSpellDamage(minion, SpellSlot.Q) * 0.75;
 
                             if (Qdamage > Q.GetHealthPrediction(minion))
                             {
@@ -348,15 +348,15 @@ namespace TRUStInMyBombs
             var qTarget2 = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range + W.Width * 0.5f, SimpleTs.DamageType.Magical);
             var ksAll = Config.Item("ksAll").GetValue<bool>();
-            if (Q.IsReady() && qTarget2 != null && qTarget2.Health < DamageLib.getDmg(qTarget2, DamageLib.SpellType.Q) && ksAll)
+            if (Q.IsReady() && qTarget2 != null && qTarget2.Health < Player.GetSpellDamage(qTarget2, SpellSlot.Q) && ksAll)
             {
                 Q2.Cast(qTarget2);
             }
-            else if (R.IsReady() && rTarget != null && rTarget.Health < DamageLib.getDmg(rTarget, DamageLib.SpellType.R))
+            else if (R.IsReady() && rTarget != null && rTarget.Health < Player.GetSpellDamage(rTarget, SpellSlot.R))
             {
                 R.Cast(rTarget);
             }
-            else if (Q.IsReady() && qTarget != null && qTarget.Health < (DamageLib.getDmg(qTarget, DamageLib.SpellType.Q) + DamageLib.getDmg(rTarget, DamageLib.SpellType.R)) && ksAll)
+            else if (Q.IsReady() && qTarget != null && qTarget.Health < (Player.GetSpellDamage(qTarget, SpellSlot.Q) + Player.GetSpellDamage(rTarget, SpellSlot.R)) && ksAll)
             {
                 UseSpells(true, false, true);
             }
@@ -452,7 +452,7 @@ namespace TRUStInMyBombs
             if (IgniteSlot != SpellSlot.Unknown &&
                 ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
                 ObjectManager.Player.Distance(qTarget) < 600 &&
-                DamageLib.getDmg(qTarget, DamageLib.SpellType.IGNITE) > qTarget.Health)
+                Player.GetSummonerSpellDamage(qTarget, Damage.SummonerSpell.Ignite) > qTarget.Health)
             {
                 ObjectManager.Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
             }
