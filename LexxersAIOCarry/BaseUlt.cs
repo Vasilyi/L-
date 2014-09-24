@@ -105,7 +105,7 @@ namespace UltimateCarry
 
 			_enemySpawnPos = ObjectManager.Get<GameObject>().First(x => x.Type == GameObjectType.obj_SpawnPoint && x.Team != ObjectManager.Player.Team).Position;
 
-			Map = Utility.Map.GetMap();
+			Map = Utility.Map.GetMap()._MapType;
 
 			_ult = new Spell(SpellSlot.R, 20000f);
 

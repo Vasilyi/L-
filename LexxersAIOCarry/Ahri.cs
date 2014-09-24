@@ -50,7 +50,7 @@ namespace UltimateCarry
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw Combo Damage").SetValue(true); //copied from esk0r Syndra
             drawMenu.AddItem(dmgAfterComboItem);
 
-            _itemDFG = Utility.Map.GetMap() == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+            _itemDFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
 
             _spellQ = new Spell(SpellSlot.Q, 990);
             _spellW = new Spell(SpellSlot.W, 795 - 95);
