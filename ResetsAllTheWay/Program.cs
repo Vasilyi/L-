@@ -280,23 +280,23 @@ namespace ResetsAllTheWay
             tSpells.usedfg = false;
             if ((ObjectManager.Player.Distance(target) < Q.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.Q);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.Q);
             }
             if ((ObjectManager.Player.Distance(target) < W.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && W.IsReady())
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.W);
+                totaldamage += Player.GetSpellDamage(target,SpellSlot.W);
             }
             if (ObjectManager.Player.Distance(target) < E.Range && E.IsReady())
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.E);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.E);
             }
             if ((ObjectManager.Player.Distance(target) < R.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && R.IsReady())
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.R);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.R);
             }
             if (!Q.IsReady() && marked)
             {
-                totaldamage += DamageLib.CalcMagicDmg(((ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 15)) + (0.15 * ObjectManager.Player.FlatMagicDamageMod), target);
+                totaldamage += Player.CalcDamage(target,Damage.DamageType.Magical, (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 15) + (0.15 * ObjectManager.Player.FlatMagicDamageMod));
             }
 
             if (totaldamage > target.Health)
@@ -306,7 +306,7 @@ namespace ResetsAllTheWay
 
             if (Config.Item("dfg").GetValue<bool>() && Items.HasItem(3128) && Items.CanUseItem(3128))
             {
-                totaldamage = (totaldamage * 1.2) + DamageLib.CalcMagicDmg(target.MaxHealth * 0.15,target);
+                totaldamage += (totaldamage * 1.2) + Player.CalcDamage(target, Damage.DamageType.Magical, target.MaxHealth * 0.15);
             }
 
             if (totaldamage > target.Health)
@@ -318,10 +318,10 @@ namespace ResetsAllTheWay
             if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && ObjectManager.Player.Distance(target) < 600)
             {
                 
-                if (totaldamage + DamageLib.getDmg(target, DamageLib.SpellType.IGNITE) > target.Health)
+                if (totaldamage + Player.GetSummonerSpellDamage(target,Damage.SummonerSpell.Ignite) > target.Health)
                 {
                     tSpells.useignite = true;
-                    totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
+                    totaldamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
                 }
             }
             tSpells.usedfg = true;
@@ -336,33 +336,33 @@ namespace ResetsAllTheWay
             bool marked = checkformark(target);
             if (Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.Q);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.Q);
             }
             if (E.IsReady() && W.IsReady())
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.W);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.W);
             }
             if (E.IsReady())
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.E);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.E);
             }
             if (R.IsReady())
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.R);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.R);
             }
             if (!Q.IsReady() && marked)
             {
-                totaldamage += DamageLib.CalcMagicDmg(((ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 15)) + (0.15 * ObjectManager.Player.FlatMagicDamageMod), target);
+                totaldamage += Player.CalcDamage(target, Damage.DamageType.Magical, (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 15) + (0.15 * ObjectManager.Player.FlatMagicDamageMod));
             }
 
             if (Config.Item("dfg").GetValue<bool>() && Items.HasItem(3128) && Items.CanUseItem(3128))
             {
-                totaldamage = (totaldamage * 1.2) + DamageLib.CalcMagicDmg(target.MaxHealth * 0.15, target);
+                totaldamage += (totaldamage * 1.2) + Player.CalcDamage(target, Damage.DamageType.Magical, target.MaxHealth * 0.15);
             }
 
             if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
             {
-                totaldamage += DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
+                totaldamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
             }
             return totaldamage;
         }

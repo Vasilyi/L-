@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <PreBuildEvent />
     <PostBuildEvent />
+    <OutputPath>bin\Release</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -28,24 +29,24 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BuffManagerLib">
-      <HintPath>..\..\Assemblies\System\BuffManagerLib.dll</HintPath>
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp\System\BuffManagerLib.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>C:\Games\wpe\Dropbox\lsharp\lsharp\Assemblies\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>C:\Games\wpe\Dropbox\lsharp\lsharp\Assemblies\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Games\wpe\Dropbox\lsharp\lsharp\Assemblies\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Games\wpe\Dropbox\lsharp\LeagueSharp\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
