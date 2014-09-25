@@ -238,7 +238,7 @@ namespace ResetsAllTheWay
             {
                 E.Cast(target);
             }
-            if (W.IsReady() && !Q.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 50 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
+            if (W.IsReady() && !Q.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 250 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;

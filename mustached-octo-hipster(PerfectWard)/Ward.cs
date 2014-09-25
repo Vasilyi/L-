@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SharpDX;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -24,6 +25,15 @@ namespace PerfectWard
 
                 return _WardSpots;
             }
+        }
+
+        public static InventorySlot GetPinkSlot()
+        {
+            var wardIds = new[] { 2043, 3362 };
+            return (from wardId in wardIds
+                    where Items.CanUseItem(wardId)
+                    select ObjectManager.Player.InventoryItems.FirstOrDefault(slot => slot.Id == (ItemId)wardId))
+                .FirstOrDefault();
         }
 
         public static List<WardSpot> SafeWardSpots

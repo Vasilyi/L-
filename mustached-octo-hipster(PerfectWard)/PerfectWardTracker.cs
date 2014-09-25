@@ -29,7 +29,8 @@ namespace PerfectWard
             Config.AddSubMenu(new LeagueSharp.Common.Menu("Drawing:", "Drawing"));
             Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("drawplaces", "Draw ward places").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
             Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("drawDistance", "Don't draw if the distance >")).SetValue(new Slider(2000, 10000, 1));
-            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("placekey", "Place Key").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
+            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("placekey", "NormalWard Key").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
+            Config.SubMenu("Drawing").AddItem(new LeagueSharp.Common.MenuItem("placekeypink", "PinkWard Key").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
             Config.AddToMainMenu();
         }
 
@@ -37,53 +38,65 @@ namespace PerfectWard
         {
             if (Wardspoting._PutSafeWard != null)
             {
-
+                InventorySlot wardSpellSlot = Items.GetWardSlot();
                 if (Math.Sqrt(Math.Pow(Wardspoting._PutSafeWard.ClickPosition.X - ObjectManager.Player.Position.X, 2) + Math.Pow(Wardspoting._PutSafeWard.ClickPosition.Y - ObjectManager.Player.Position.Y, 2)) <= 640.0)
                 {
-                    InventorySlot wardSpellSlot = Items.GetWardSlot();
-
-                    if (wardSpellSlot != null)
+                    if (Config.Item("placekey").GetValue<KeyBind>().Active)
                     {
-                        wardSpellSlot.UseItem((Vector3)Wardspoting._PutSafeWard.ClickPosition);
-                        
+                        wardSpellSlot = Items.GetWardSlot();
                     }
-                    Wardspoting._PutSafeWard = null;
+                    else if (Config.Item("placekeypink").GetValue<KeyBind>().Active)
+                    {
+                        wardSpellSlot = Ward.GetPinkSlot();
+                    }
+                        if (wardSpellSlot != null)
+                        {
+                            wardSpellSlot.UseItem((Vector3)Wardspoting._PutSafeWard.ClickPosition);
+
+                        }
+                        Wardspoting._PutSafeWard = null;
                 }
             }
         }
 
         public void OnWndProc(WndEventArgs args)
         {
-            if (args.Msg == WM_MOUSEDOWN)
+            InventorySlot wardSpellSlot = null;
+            if (Config.Item("placekey").GetValue<KeyBind>().Active)
             {
-                if (args.WParam == VK_LBUTTON && Config.Item("placekey").GetValue<KeyBind>().Active)
+                wardSpellSlot = Items.GetWardSlot();
+            }
+            else if (Config.Item("placekeypink").GetValue<KeyBind>().Active)
+            {
+                wardSpellSlot = Ward.GetPinkSlot();
+            }
+            {
+                if (wardSpellSlot == null)
                 {
-                    Vector3? nearestWard = Ward.FindNearestWardSpot(Drawing.ScreenToWorld(Game.CursorPos.X, Game.CursorPos.Y));
+                    return;
+                }
+                Vector3? nearestWard = Ward.FindNearestWardSpot(Drawing.ScreenToWorld(Game.CursorPos.X, Game.CursorPos.Y));
 
-                    if (nearestWard != null)
+                if (nearestWard != null)
+                {
+                    if (wardSpellSlot != null)
                     {
-                        InventorySlot wardSpellSlot = Items.GetWardSlot();
-                         
-                         if (wardSpellSlot != null)
-                         {
-                             wardSpellSlot.UseItem((Vector3)nearestWard);
-                         } 
+                        wardSpellSlot.UseItem((Vector3)nearestWard);
                     }
+                }
 
-                    WardSpot nearestSafeWard = Ward.FindNearestSafeWardSpot(Drawing.ScreenToWorld(Game.CursorPos.X, Game.CursorPos.Y));
+                WardSpot nearestSafeWard = Ward.FindNearestSafeWardSpot(Drawing.ScreenToWorld(Game.CursorPos.X, Game.CursorPos.Y));
 
-                    if (nearestSafeWard != null)
+                if (nearestSafeWard != null)
+                {
+                    if (wardSpellSlot != null)
                     {
-                        InventorySlot wardSpellSlot = Items.GetWardSlot();
-
-                        if (wardSpellSlot != null)
-                        {
-                            ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, nearestSafeWard.MovePosition);
-                            Wardspoting._PutSafeWard = nearestSafeWard;
-                        }
+                        ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, nearestSafeWard.MovePosition);
+                        Wardspoting._PutSafeWard = nearestSafeWard;
                     }
                 }
             }
+
         }
 
         private void OnGameStart(EventArgs args)
