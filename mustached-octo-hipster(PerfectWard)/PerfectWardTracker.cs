@@ -10,6 +10,7 @@ namespace PerfectWard
         private const int VK_LBUTTON = 1;
         private const int WM_KEYDOWN = 0x0100, WM_KEYUP = 0x0101, WM_CHAR = 0x0102, WM_SYSKEYDOWN = 0x0104, WM_SYSKEYUP = 0x0105, WM_MOUSEDOWN = 0x201;
         public static LeagueSharp.Common.Menu Config;
+        public static float lastuseward = 0;
         public class Wardspoting
         {
             public static WardSpot _PutSafeWard;
@@ -36,7 +37,7 @@ namespace PerfectWard
 
         void Game_OnGameUpdate(EventArgs args)
         {
-            if (Wardspoting._PutSafeWard != null)
+            if (Wardspoting._PutSafeWard != null && lastuseward + 1000 < Environment.TickCount)
             {
                 InventorySlot wardSpellSlot = Items.GetWardSlot();
                 if (Math.Sqrt(Math.Pow(Wardspoting._PutSafeWard.ClickPosition.X - ObjectManager.Player.Position.X, 2) + Math.Pow(Wardspoting._PutSafeWard.ClickPosition.Y - ObjectManager.Player.Position.Y, 2)) <= 640.0)
@@ -52,6 +53,7 @@ namespace PerfectWard
                         if (wardSpellSlot != null)
                         {
                             wardSpellSlot.UseItem((Vector3)Wardspoting._PutSafeWard.ClickPosition);
+                            lastuseward = Environment.TickCount;
 
                         }
                         Wardspoting._PutSafeWard = null;
@@ -71,7 +73,7 @@ namespace PerfectWard
                 wardSpellSlot = Ward.GetPinkSlot();
             }
             {
-                if (wardSpellSlot == null)
+                if (wardSpellSlot == null || lastuseward + 1000 > Environment.TickCount)
                 {
                     return;
                 }
@@ -82,6 +84,7 @@ namespace PerfectWard
                     if (wardSpellSlot != null)
                     {
                         wardSpellSlot.UseItem((Vector3)nearestWard);
+                        lastuseward = Environment.TickCount;
                     }
                 }
 
