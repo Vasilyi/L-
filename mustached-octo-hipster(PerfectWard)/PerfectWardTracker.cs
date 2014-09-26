@@ -19,7 +19,6 @@ namespace PerfectWard
         public PerfectWardTracker()
         {
             Game.OnGameStart += OnGameStart;
-            Game.OnWndProc += OnWndProc;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += OnDraw;
 
@@ -37,32 +36,7 @@ namespace PerfectWard
 
         void Game_OnGameUpdate(EventArgs args)
         {
-            if (Wardspoting._PutSafeWard != null && lastuseward + 1000 < Environment.TickCount)
-            {
-                InventorySlot wardSpellSlot = Items.GetWardSlot();
-                if (Math.Sqrt(Math.Pow(Wardspoting._PutSafeWard.ClickPosition.X - ObjectManager.Player.Position.X, 2) + Math.Pow(Wardspoting._PutSafeWard.ClickPosition.Y - ObjectManager.Player.Position.Y, 2)) <= 640.0)
-                {
-                    if (Config.Item("placekey").GetValue<KeyBind>().Active)
-                    {
-                        wardSpellSlot = Items.GetWardSlot();
-                    }
-                    else if (Config.Item("placekeypink").GetValue<KeyBind>().Active)
-                    {
-                        wardSpellSlot = Ward.GetPinkSlot();
-                    }
-                        if (wardSpellSlot != null)
-                        {
-                            wardSpellSlot.UseItem((Vector3)Wardspoting._PutSafeWard.ClickPosition);
-                            lastuseward = Environment.TickCount;
 
-                        }
-                        Wardspoting._PutSafeWard = null;
-                }
-            }
-        }
-
-        public void OnWndProc(WndEventArgs args)
-        {
             InventorySlot wardSpellSlot = null;
             if (Config.Item("placekey").GetValue<KeyBind>().Active)
             {
@@ -100,7 +74,31 @@ namespace PerfectWard
                 }
             }
 
+
+            if (Wardspoting._PutSafeWard != null && lastuseward + 1000 < Environment.TickCount)
+            {
+                wardSpellSlot = Items.GetWardSlot();
+                if (Math.Sqrt(Math.Pow(Wardspoting._PutSafeWard.ClickPosition.X - ObjectManager.Player.Position.X, 2) + Math.Pow(Wardspoting._PutSafeWard.ClickPosition.Y - ObjectManager.Player.Position.Y, 2)) <= 640.0)
+                {
+                    if (Config.Item("placekey").GetValue<KeyBind>().Active)
+                    {
+                        wardSpellSlot = Items.GetWardSlot();
+                    }
+                    else if (Config.Item("placekeypink").GetValue<KeyBind>().Active)
+                    {
+                        wardSpellSlot = Ward.GetPinkSlot();
+                    }
+                        if (wardSpellSlot != null)
+                        {
+                            wardSpellSlot.UseItem((Vector3)Wardspoting._PutSafeWard.ClickPosition);
+                            lastuseward = Environment.TickCount;
+
+                        }
+                        Wardspoting._PutSafeWard = null;
+                }
+            }
         }
+
 
         private void OnGameStart(EventArgs args)
         {
