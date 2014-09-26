@@ -94,6 +94,7 @@ namespace Skillshots
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
+            
             if (Config.Item("Spell1") != null && Config.Item("Spell1").GetValue<KeyBind>().Active)
                 ExecuteQ();
             if (Config.Item("Spell2") != null && Config.Item("Spell2").GetValue<KeyBind>().Active)
@@ -107,29 +108,32 @@ namespace Skillshots
 
         private static void ExecuteQ()
         {
-            
-            Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            if (target == null) return;
-            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
-            if (Q.IsReady() && ObjectManager.Player.Distance(target) <= Q.Range)
-            {
-                switch (rMode)
+                Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+
+                if (target == null) return;
+                var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
+                if (Q.IsReady() && ObjectManager.Player.Distance(target) <= Q.Range)
                 {
-                    case 1://Low
-                        Q.Cast(target);
-                        break;
-                    case 2://Medium
-                        Q.CastIfHitchanceEquals(target, HitChance.Medium);
-                        break;
-                    case 3://High
-                        Q.CastIfHitchanceEquals(target, HitChance.High);
-                        break;
+                    switch (rMode)
+                    {
+                        case 1://Low
+                            Q.Cast(target);
+                            break;
+                        case 2://Medium
+                            Q.CastIfHitchanceEquals(target, HitChance.Medium);
+                            break;
+                        case 3://High
+                            Q.CastIfHitchanceEquals(target, HitChance.High);
+                            break;
+                    }
                 }
-            }
+           
+
         }
         private static void ExecuteW()
         {
             Obj_AI_Hero target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+           
             if (target == null) return;
             var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
             if (W.IsReady() && ObjectManager.Player.Distance(target) <= W.Range)

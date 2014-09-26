@@ -15,7 +15,7 @@ namespace Humanizer
     {
 
         public static Menu Config;
-
+        public static float lastmovement;
 
         public class LatestCast
         {
@@ -35,7 +35,7 @@ namespace Humanizer
             Console.WriteLine("Humanizer LOADED");
             LeagueSharp.Game.OnGameProcessPacket += PacketHandler;
         }
-  
+
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
@@ -44,7 +44,8 @@ namespace Humanizer
             Config = new Menu("Humanizer", "Humanizer", true);
 
             Config.AddSubMenu(new Menu("Config", "Config"));
-            Config.SubMenu("Config").AddItem(new MenuItem("delaytime", "Delay time")).SetValue(new Slider(0, 10, 0));
+            Config.SubMenu("Config").AddItem(new MenuItem("delaytime", "Delay time for casts")).SetValue(new Slider(0, 10, 0));
+            Config.SubMenu("Config").AddItem(new MenuItem("delaytimem", "Delay time for movements")).SetValue(new Slider(0, 10, 0));
             Config.AddToMainMenu();
         }
         private static void PacketHandler(GamePacketEventArgs args)
@@ -71,6 +72,21 @@ namespace Humanizer
                 }
             }
 
+
+            else if (Packetc.Header == Packet.C2S.Move.Header)
+            {
+                var decodedpacket = Packet.C2S.Cast.Decoded(args.PacketData);
+                if (LatestCast.Tick + Config.Item("delaytime").GetValue<Slider>().Value*50 < Environment.TickCount)
+                {
+                    args.Process = false;
+                }
+                else
+                {
+                    args.Process = true;
+                    lastmovement = Environment.TickCount;
+
+                }
+            }
         }
     }
 }
