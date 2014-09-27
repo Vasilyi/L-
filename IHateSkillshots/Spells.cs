@@ -1218,7 +1218,7 @@ namespace Skillshots
             #region KogMaw
             Spells.Add(new SpellData
             {
-                BaseSkinName = "KogMaw",
+                BaseSkinName = "Kogmaw",
                 SpellName = "KogMawQ",
                 Slot = SpellSlot.Q,
                 Type = SkillshotType.SkillshotLine,
@@ -1237,7 +1237,7 @@ namespace Skillshots
 
             Spells.Add(new SpellData
             {
-                BaseSkinName = "KogMaw",
+                BaseSkinName = "Kogmaw",
                 SpellName = "KogMawVoidOoze",
                 Slot = SpellSlot.E,
                 Type = SkillshotType.SkillshotLine,
@@ -1255,7 +1255,7 @@ namespace Skillshots
 
             Spells.Add(new SpellData
             {
-                BaseSkinName = "KogMaw",
+                BaseSkinName = "Kogmaw",
                 SpellName = "KogMawLivingArtillery",
                 Slot = SpellSlot.R,
                 Type = SkillshotType.SkillshotCircle,
@@ -1869,6 +1869,26 @@ namespace Skillshots
                 CanBeRemoved = true,
 
             });
+			
+			Spells.Add(
+                new SpellData
+                {
+                    BaseSkinName = "Soraka",
+                    SpellName = "SorakaQ",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotCircle,
+                    Delay = 500,
+                    Range = 950,
+                    Radius = 300,
+                    MissileSpeed = 1750,
+                    FixedRange = false,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "",
+                });
+			
+			
             #endregion Shen
             #region Shen
             Spells.Add(new SpellData
