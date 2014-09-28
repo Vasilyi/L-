@@ -33,7 +33,7 @@ namespace Humanizer
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
             Console.WriteLine("Humanizer LOADED");
-            LeagueSharp.Game.OnGameProcessPacket += PacketHandler;
+            LeagueSharp.Game.OnGameSendPacket += PacketHandler;
         }
 
         private static void Game_OnGameLoad(EventArgs args)
