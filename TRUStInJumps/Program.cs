@@ -97,8 +97,8 @@ namespace ProJumper
             {
                 return;
             }
-            
-            if (JumpSpell.IsReady() && (Player.ChampionName != "LeeSin" || ObjectManager.Player.Spellbook.GetSpell(JumpSlot).Name == "BlindMonkWOne"))
+
+            if (JumpSpell.IsReady() && Player.ChampionName != "JarvanIV" && (Player.ChampionName != "LeeSin" || ObjectManager.Player.Spellbook.GetSpell(JumpSlot).Name == "BlindMonkWOne"))
             {
                 var mouse = Game.CursorPos;
                 var newpos = mouse - Player.Position;
