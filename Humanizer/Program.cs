@@ -45,8 +45,8 @@ namespace Humanizer
 
             Config.AddSubMenu(new Menu("Casts delay", "Castsdelay"));
             Config.AddSubMenu(new Menu("Movements delay", "Movementdelay"));
-            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytime", "Delay time")).SetValue(new Slider(0, 20, 0));
-            Config.SubMenu("Movementdelay").AddItem(new MenuItem("delaytimem", "Delay time")).SetValue(new Slider(0, 20, 0));
+            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytime", "Delay time")).SetValue(new Slider(0, 100, 0));
+            Config.SubMenu("Movementdelay").AddItem(new MenuItem("delaytimem", "Delay time")).SetValue(new Slider(0, 100, 0));
             Config.AddToMainMenu();
         }
         private static void PacketHandler(GamePacketEventArgs args)
@@ -57,7 +57,7 @@ namespace Humanizer
                 var decodedpacket = Packet.C2S.Cast.Decoded(args.PacketData);
                 LatestCast.Timepass = Environment.TickCount - LatestCast.Tick;
                 LatestCast.Distance = Math.Sqrt(Math.Pow(decodedpacket.ToX - LatestCast.X, 2) + Math.Pow(decodedpacket.ToY - LatestCast.Y, 2));
-                LatestCast.Delay = (LatestCast.Distance * 0.1 * Config.Item("delaytime").GetValue<Slider>().Value);
+                LatestCast.Delay = (LatestCast.Distance * 0.01 * Config.Item("delaytime").GetValue<Slider>().Value);
                 if (Environment.TickCount < LatestCast.Tick + LatestCast.Delay)
                 {
                     args.Process = false;
@@ -74,7 +74,7 @@ namespace Humanizer
             {
                 //Console.WriteLine("Last movement : " + lastmovement.ToString() + "\n DelayTime : " + (Config.Item("delaytimem").GetValue<Slider>().Value * 25).ToString() + "\n Tick : " + Environment.TickCount.ToString());
                 var decodedpacket = Packet.C2S.Cast.Decoded(args.PacketData);
-                if (lastmovement + Config.Item("delaytimem").GetValue<Slider>().Value * 15 > Environment.TickCount)
+                if (lastmovement + Config.Item("delaytimem").GetValue<Slider>().Value * 5 > Environment.TickCount)
                 {
                     args.Process = false;
                     Console.WriteLine("delayed");
