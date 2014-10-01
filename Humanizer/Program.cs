@@ -73,7 +73,11 @@ namespace Humanizer
             else if (Packetc.Header == Packet.C2S.Move.Header)
             {
                 //Console.WriteLine("Last movement : " + lastmovement.ToString() + "\n DelayTime : " + (Config.Item("delaytimem").GetValue<Slider>().Value * 25).ToString() + "\n Tick : " + Environment.TickCount.ToString());
-                var decodedpacket = Packet.C2S.Cast.Decoded(args.PacketData);
+                var decodedpacket = Packet.C2S.Move.Decoded(args.PacketData);
+                if (decodedpacket.MoveType != 2)
+                {
+                    return;
+                }
                 if (lastmovement + Config.Item("delaytimem").GetValue<Slider>().Value * 5 > Environment.TickCount)
                 {
                     args.Process = false;
