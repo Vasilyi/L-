@@ -45,7 +45,8 @@ namespace Humanizer
 
             Config.AddSubMenu(new Menu("Casts delay", "Castsdelay"));
             Config.AddSubMenu(new Menu("Movements delay", "Movementdelay"));
-            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytime", "Delay time")).SetValue(new Slider(0, 100, 0));
+            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytime", "Delay time for distance")).SetValue(new Slider(0, 100, 0));
+            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytimecasts", "Delay time between casts")).SetValue(new Slider(0, 100, 0));
             Config.SubMenu("Movementdelay").AddItem(new MenuItem("delaytimem", "Delay time")).SetValue(new Slider(0, 100, 0));
             Config.AddToMainMenu();
         }
@@ -54,10 +55,11 @@ namespace Humanizer
             var Packetc = new GamePacket(args.PacketData);
             if (Packetc.Header == Packet.C2S.Cast.Header)
             {
+                
                 var decodedpacket = Packet.C2S.Cast.Decoded(args.PacketData);
                 LatestCast.Timepass = Environment.TickCount - LatestCast.Tick;
                 LatestCast.Distance = Math.Sqrt(Math.Pow(decodedpacket.ToX - LatestCast.X, 2) + Math.Pow(decodedpacket.ToY - LatestCast.Y, 2));
-                LatestCast.Delay = (LatestCast.Distance * 0.01 * Config.Item("delaytime").GetValue<Slider>().Value);
+                LatestCast.Delay = (LatestCast.Distance * 0.01 * Config.Item("delaytime").GetValue<Slider>().Value + Config.Item("delaytimecasts").GetValue<Slider>().Value);
                 if (Environment.TickCount < LatestCast.Tick + LatestCast.Delay)
                 {
                     args.Process = false;
