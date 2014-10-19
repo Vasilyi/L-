@@ -61,10 +61,10 @@ namespace TRUStinmyKarthus
                 Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("ComboKey", "Combo!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("HarassKey", "Harrass").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
-                Config.SubMenu("hotkeys").AddItem(new MenuItem("FarmKeyFreeze", "Farm LastHit").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
+                Config.SubMenu("hotkeys").AddItem(new MenuItem("FarmKeyFreeze", "LastHit with Q").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("LaneClear", "Lane Clear with Q").SetValue(new KeyBind("H".ToCharArray()[0], KeyBindType.Press)));
 
-                Config.AddSubMenu(new Menu("Auto Ultimate Logic:", "ultlogic"));
+                Config.AddSubMenu(new Menu("Ultimate notify Logic:", "ultlogic"));
                 Config.SubMenu("ultlogic").AddItem(new MenuItem("useRauto", "Ping on killable").SetValue(true));
 
                 Config.AddSubMenu(new Menu("Combo Options:", "combospells"));
@@ -73,7 +73,6 @@ namespace TRUStinmyKarthus
                 Config.SubMenu("combospells").AddItem(new MenuItem("useQ", "Use - Q").SetValue(true));
                 Config.SubMenu("combospells").AddItem(new MenuItem("useW", "Use - W").SetValue(true));
                 Config.SubMenu("combospells").AddItem(new MenuItem("useE", "Use - E").SetValue(true));
-                Config.SubMenu("combospells").AddItem(new MenuItem("useR", "Use - R").SetValue(true));
 
                 Config.AddSubMenu(new Menu("Harass Options:", "harassspells"));
                 Config.SubMenu("harassspells").AddItem(new MenuItem("useQHarass", "Use - Q").SetValue(true));
@@ -117,7 +116,7 @@ namespace TRUStinmyKarthus
                 {
                     Farm();
                 }
-if (Config.Item("LaneClear").GetValue<KeyBind>().Active)
+                if (Config.Item("LaneClear").GetValue<KeyBind>().Active)
                 {
                     LaneClear();
                 }
@@ -210,9 +209,9 @@ if (Config.Item("LaneClear").GetValue<KeyBind>().Active)
         {
             Console.WriteLine("Searching hit position");
             int multihit = 0;
-            for (int i = -100; i < 100; i = i + 20)
+            for (int i = -100; i < 100; i = i + 10)
             {
-                for (int a = -100; a < 100; a = a + 20)
+                for (int a = -100; a < 100; a = a + 10)
                 {
                     Vector3 tempposition = new Vector3(minion.UnitPosition.X + i, minion.UnitPosition.Y + a, minion.UnitPosition.Z);
                     multihit = CheckMultiHit(tempposition);

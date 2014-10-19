@@ -136,6 +136,103 @@ namespace PerfectWard
             _WardSpots.Add(new Vector3(4749.79f, 5890.76f, 53.559f));   // Blue Mid T1
             _WardSpots.Add(new Vector3(5983.58f, 1547.98f, 52.99f));    // Blue Bot T2
             _WardSpots.Add(new Vector3(1213.70f, 5324.73f, 58.77f));    // Blue Top T2
+
+
+            //new
+            _WardSpots.Add(new Vector3(9641.6591796875f, 6368.748046875f, 53.01416015625f));
+            _WardSpots.Add(new Vector3(8081.4360351563f, 4683.443359375f, 55.9482421875f));
+            _WardSpots.Add(new Vector3(5943.51953125f, 9792.4091796875f, 53.189331054688f));
+            _WardSpots.Add(new Vector3(4379.513671875f, 8093.740234375f, 42.734619140625f));
+            _WardSpots.Add(new Vector3(4222.724609375f, 7038.5805664063f, 53.612548828125f));
+            _WardSpots.Add(new Vector3(9068.0224609375f, 11186.685546875f, 53.22705078125f));
+            _WardSpots.Add(new Vector3(7970.822265625f, 10005.072265625f, 53.527709960938f));
+            _WardSpots.Add(new Vector3(4978.1943359375f, 3042.6975097656f, 54.343017578125f));
+            _WardSpots.Add(new Vector3(7907.6357421875f, 11629.322265625f, 49.947143554688f));
+            _WardSpots.Add(new Vector3(7556.0654296875f, 11739.625f, 50.61547851625f));
+            _WardSpots.Add(new Vector3(5973.4853515625f, 11115.6875f, 54.348999023438f));
+            _WardSpots.Add(new Vector3(5732.8198242188f, 10289.76953125f, 53.397827148438f));
+            //_WardSpots.Add(new Vector3(7969.15625f, 3307.5673828125f, 56.940795898438f));
+            _WardSpots.Add(new Vector3(12073.184570313f, 4795.50390625f, 52.322265625f));
+            _WardSpots.Add(new Vector3(4044.1313476563f, 11600.502929688f, 48.591918945313f));
+            _WardSpots.Add(new Vector3(5597.6669921875f, 12491.047851563f, 39.739379882813f));
+            _WardSpots.Add(new Vector3(10070.202148438f, 4132.4536132813f, -60.332153320313f));
+            _WardSpots.Add(new Vector3(8320.2890625f, 4292.8090820313f, 56.473876953125f));
+            _WardSpots.Add(new Vector3(9603.5205078125f, 7872.2368164063f, 54.713745117188f));
+
+            //new2
+            _WardSpots.Add(new Vector3(7812f, 5177f, 56f));
+            //_WardSpots.Add(new Vector3(9623f, 6358f, 2f));
+            _WardSpots.Add(new Vector3(11653f, 9408f, 50f));
+            _WardSpots.Add(new Vector3(8748f, 2038f, 54f));
+            _WardSpots.Add(new Vector3(7909f, 3282f, 56f));
+            _WardSpots.Add(new Vector3(6222f, 2852f, 53f));
+            _WardSpots.Add(new Vector3(6033f, 4484f, 51f));
+            _WardSpots.Add(new Vector3(8274f, 4259f, 56f));
+            //_WardSpots.Add(new Vector3(9127f, 5416f, -64f));
+            _WardSpots.Add(new Vector3(5035f, 3233f, 54f));
+            _WardSpots.Add(new Vector3(5314f, 3360f, 54f));
+            _WardSpots.Add(new Vector3(2364f, 7234f, 54f));
+            _WardSpots.Add(new Vector3(1917f, 9663f, 53f));
+            _WardSpots.Add(new Vector3(2720f, 10591f, -63f));
+            _WardSpots.Add(new Vector3(2519f, 11176f, -64f));
+            _WardSpots.Add(new Vector3(5325f, 12470f, 39f));
+            _WardSpots.Add(new Vector3(7989f, 6222f, -64f));
+            _WardSpots.Add(new Vector3(7721f, 6026f, -64f));
+            _WardSpots.Add(new Vector3(11748f, 1119f, 48f));
+            _WardSpots.Add(new Vector3(6382f, 8300f, -63f));
+            _WardSpots.Add(new Vector3(6105f, 8049f, -57f));
+            _WardSpots.Add(new Vector3(4747f, 8954f, -63f));
+            _WardSpots.Add(new Vector3(6372f, 11253f, 54f));
+            _WardSpots.Add(new Vector3(6063f, 11148f, 54f));
+            _WardSpots.Add(new Vector3(7531f, 11706f, 50f));
+            _WardSpots.Add(new Vector3(7822f, 11537f, 49f));
+            _WardSpots.Add(new Vector3(8634f, 11139f, 52f));
+            _WardSpots.Add(new Vector3(9008f, 11194f, 55f));
+            _WardSpots.Add(new Vector3(11631f, 7265f, 55f));
+           // _WardSpots.Add(new Vector3(12197f, 4912f, 55f));
+            _WardSpots.Add(new Vector3(11393f, 3835f, -54f));
+            _WardSpots.Add(new Vector3(11483f, 3458f, -55f));
+            _WardSpots.Add(new Vector3(5839f, 9843f, 53f));
+            _WardSpots.Add(new Vector3(5733f, 10202f, 53f));
+            _WardSpots.Add(new Vector3(966f, 12358f, 40f));
+            _WardSpots.Add(new Vector3(1533f, 12934f, 34f));
+            _WardSpots.Add(new Vector3(2296f, 13323f, 29f));
+            _WardSpots.Add(new Vector3(2388f, 5078f, 55f));
+            _WardSpots.Add(new Vector3(7965f, 10001f, 53f));
+            _WardSpots.Add(new Vector3(12327f, 1565f, 48f));
+            _WardSpots.Add(new Vector3(12775f, 2076f, 48f));
+            _WardSpots.Add(new Vector3(13217f, 2793f, 48f));
+            _WardSpots.Add(new Vector3(7022f, 7065f, 54f));
+            _WardSpots.Add(new Vector3(6308f, 6591f, 55f));
+            _WardSpots.Add(new Vector3(3982f, 4424f, 53f));
+            _WardSpots.Add(new Vector3(5085f, 5437f, 54f));
+            _WardSpots.Add(new Vector3(7714f, 7764f, 53f));
+            _WardSpots.Add(new Vector3(6119f, 9442f, 55f));
+            _WardSpots.Add(new Vector3(426f, 7946f, 47f));
+            _WardSpots.Add(new Vector3(7417f, 659f, 52f));
+            _WardSpots.Add(new Vector3(8978f, 9013f, 54f));
+            _WardSpots.Add(new Vector3(10002f, 10141f, 51f));
+            _WardSpots.Add(new Vector3(9237f, 13256f, 80f));
+            _WardSpots.Add(new Vector3(13012f, 9449f, 50f));
+            _WardSpots.Add(new Vector3(1109f, 5111f, 57f));
+            _WardSpots.Add(new Vector3(4917f, 1240f, 53f));
+            _WardSpots.Add(new Vector3(5550f, 1317f, 53f));
+            _WardSpots.Add(new Vector3(8428f, 13214f, 46f));
+            _WardSpots.Add(new Vector3(9909f, 11533f, 106f));
+            _WardSpots.Add(new Vector3(9833f, 12533f, 106f));
+            _WardSpots.Add(new Vector3(11448f, 10277f, 106f));
+            _WardSpots.Add(new Vector3(12307f, 10041f, 106f));
+            _WardSpots.Add(new Vector3(11418f, 11703f, 106f));
+            _WardSpots.Add(new Vector3(1775f, 4411f, 108f));
+            _WardSpots.Add(new Vector3(2643f, 4229f, 105f));
+            _WardSpots.Add(new Vector3(4102f, 2895f, 110f));
+            _WardSpots.Add(new Vector3(4206f, 1948f, 108f));
+            _WardSpots.Add(new Vector3(2563f, 2717f, 130f));
+            _WardSpots.Add(new Vector3(12039f, 1336f, 48f));
+            _WardSpots.Add(new Vector3(13018f, 2433f, 48f));
+            //_WardSpots.Add(new Vector3(8147f, 4666f, 55f));
+            _WardSpots.Add(new Vector3(6495f, 2789f, 55f));
+            _WardSpots.Add(new Vector3(7672f, 3211f, 54f));
         }
 
         private static void InitializeSafeWardSpots()
@@ -260,6 +357,7 @@ namespace PerfectWard
                 if (IsOnScreen(screenPos[0], screenPos[1]) && ObjectManager.Player.Distance(wardPos) < PerfectWard.PerfectWardTracker.Config.Item("drawDistance").GetValue<Slider>().Value)
                 {
                     Drawing.DrawCircle(wardPos, WARD_INDICATOR_RADIUS, wardColor);
+                    //Console.WriteLine(wardPos.X);
                 }
             }
         }
