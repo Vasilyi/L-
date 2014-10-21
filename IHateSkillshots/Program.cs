@@ -116,13 +116,13 @@ namespace Skillshots
                 {
                     switch (rMode)
                     {
-                        case 1://Low
+                        case 0://Low
                             Q.Cast(target);
                             break;
-                        case 2://Medium
+                        case 1://Medium
                             Q.CastIfHitchanceEquals(target, HitChance.Medium);
                             break;
-                        case 3://High
+                        case 2://High
                             Q.CastIfHitchanceEquals(target, HitChance.High);
                             break;
                     }
@@ -140,13 +140,13 @@ namespace Skillshots
             {
                 switch (rMode)
                 {
-                    case 1://Low
+                    case 0://Low
                         W.Cast(target);
                         break;
-                    case 2://Medium
+                    case 1://Medium
                         W.CastIfHitchanceEquals(target, HitChance.Medium);
                         break;
-                    case 3://High
+                    case 2://High
                         W.CastIfHitchanceEquals(target, HitChance.High);
                         break;
                 }
@@ -161,13 +161,13 @@ namespace Skillshots
             {
                 switch (rMode)
                 {
-                    case 1://Low
+                    case 0://Low
                         E.Cast(target);
                         break;
-                    case 2://Medium
+                    case 1://Medium
                         E.CastIfHitchanceEquals(target, HitChance.Medium);
                         break;
-                    case 3://High
+                    case 2://High
                         E.CastIfHitchanceEquals(target, HitChance.High);
                         break;
                 }
@@ -182,14 +182,13 @@ namespace Skillshots
             {
                 switch (rMode)
                 {
-                    case 1://Low hitchance
+                    case 0://Low hitchance
                         R.Cast(target);
                         break;
-                    case 2://Medium
+                    case 1://Medium
                         R.CastIfHitchanceEquals(target, HitChance.Medium);
-                        R.CastIfHitchanceEquals(target, HitChance.High);
                         break;
-                    case 3://High
+                    case 2://High
                         R.CastIfHitchanceEquals(target, HitChance.High);
                         break;
                 }
