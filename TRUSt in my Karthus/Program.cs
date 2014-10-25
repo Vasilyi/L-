@@ -276,7 +276,7 @@ namespace TRUStinmyKarthus
             }
             if (eTarget != null && useE && E.IsReady() && ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).ToggleState == 1)
             {
-                E.Cast(eTarget);
+                E.Cast();
             }
             else if (eTarget == null && ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).ToggleState != 1)
             {
