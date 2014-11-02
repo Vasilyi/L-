@@ -1215,7 +1215,7 @@ namespace Skillshots
             });
 
             #endregion Khazix
-            #region KogMaw
+            #region Kogmaw
             Spells.Add(new SpellData
             {
                 BaseSkinName = "Kogmaw",
