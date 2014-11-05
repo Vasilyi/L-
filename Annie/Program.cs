@@ -248,16 +248,17 @@ namespace Annie
                     {
                         DoingCombo = Environment.TickCount;
                         Q.CastOnUnit(target, Config.Item("PCast").GetValue<bool>());
-                        Utility.DelayAction.Add(
-                            (int)(ObjectManager.Player.Distance(target) / Q.Speed * 1000 - 100 - Game.Ping / 2.0),
+                         Utility.DelayAction.Add(
+                            (int) (ObjectManager.Player.Distance(target) / Q.Speed * 1000 - Game.Ping / 2.0)+250,
                             () =>
                             {
                                 if (R.IsReady() &&
-                                    !(DamageLib.getDmg(target, DamageLib.SpellType.R) * 0.6 > target.Health))
+                                    !(ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health))
                                 {
                                     R.Cast(target, false, true);
                                 }
                             });
+
                     }
                     else if (W.IsReady())
                     {
@@ -266,25 +267,14 @@ namespace Annie
 
                     W.Cast(target, false, true); //stack only goes up after 650 secs
 
-                    Utility.DelayAction.Add(
-                        650 - 100 - Game.Ping / 2, () =>
-                        {
-                            if (R.IsReady() && !(DamageLib.getDmg(target, DamageLib.SpellType.R) * 0.6 > target.Health))
-                            {
-                                R.Cast(target, false, true);
-                            }
-
-                            DoingCombo = Environment.TickCount;
-                        });
 
                     break;
                 case 4:
                     Console.WriteLine("[" + Game.Time + "]Case 4");
-                    if (R.IsReady() && !(DamageLib.getDmg(target, DamageLib.SpellType.R) * 0.6 > target.Health) && ulti)
-                    {
-                        R.Cast(target, false, true);
-                    }
-
+                    if (R.IsReady() && ulti && !(ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) * 0.6 > target.Health))
+                        {
+                            R.Cast(target, false, true);
+                        }
                     if (W.IsReady())
                     {
                         W.Cast(target, false, true);
@@ -311,47 +301,51 @@ namespace Annie
                     break;
             }
 
-            if (IgniteSlot != SpellSlot.Unknown &&
+            if (IgniteSlot != SpellSlot.Unknown && target != null &&
                 ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
                 ObjectManager.Player.Distance(target) < 600 &&
-                DamageLib.getDmg(target, DamageLib.SpellType.IGNITE) > target.Health)
+                ObjectManager.Player.GetSpellDamage(target, IgniteSlot) > target.Health)
+
             {
                 ObjectManager.Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
             }
         }
 
-        private static void Farm(bool laneclear)
-        {
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
-            var jungleMinions = MinionManager.GetMinions(
-                ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
-            minions.AddRange(jungleMinions);
+       private static void Farm(bool laneclear)
+       {
+           var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
+           var jungleMinions = MinionManager.GetMinions(
+               ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
+           minions.AddRange(jungleMinions);
 
-            if (laneclear && Config.Item("wFarm").GetValue<bool>() && W.IsReady())
-            {
-                if (minions.Count > 0)
-                {
-                    W.Cast(W.GetLineFarmLocation(minions).Position.To3D());
-                }
-            }
+           if (laneclear && Config.Item("wFarm").GetValue<bool>() && W.IsReady())
+           {
+               if (minions.Count > 0)
+               {
+                   W.Cast(W.GetLineFarmLocation(minions).Position.To3D());
+               }
+           }
+           if (((!Config.Item("qFarm").GetValue<bool>() ||
+                 !Orbwalker.ActiveMode.Equals(Orbwalking.OrbwalkingMode.LastHit)) &&
+                (!Config.Item("qFarmHarass").GetValue<bool>() ||
+                 !Orbwalker.ActiveMode.Equals(Orbwalking.OrbwalkingMode.Mixed)) &&
+                !Orbwalker.ActiveMode.Equals(Orbwalking.OrbwalkingMode.LaneClear)) ||
+               Config.Item("saveqStun").GetValue<bool>() && StunCount == 4 || !Q.IsReady())
+           {
+               return;
+           }
+           foreach (var minion in
+               from minion in
+                   minions.OrderByDescending(Minions => Minions.MaxHealth)
+                       .Where(minion => minion.IsValidTarget(Q.Range))
+               let predictedHealth = Q.GetHealthPrediction(minion)
+               where predictedHealth < ObjectManager.Player.GetSpellDamage(minion, SpellSlot.Q) * 0.85 && predictedHealth > 0
+               select minion)
+           {
+               Q.CastOnUnit(minion, Config.Item("PCast").GetValue<bool>());
+           }
+       }
 
-            if (!Config.Item("qFarm").GetValue<bool>() || (Config.Item("saveqStun").GetValue<bool>() && StunCount == 4) ||
-                !Q.IsReady())
-            {
-                return;
-            }
-
-            foreach (var minion in
-                from minion in
-                    minions.OrderByDescending(Minions => Minions.MaxHealth)
-                        .Where(minion => minion.IsValidTarget(Q.Range))
-                let predictedHealth = Q.GetHealthPrediction(minion)
-                where predictedHealth < DamageLib.getDmg(minion, DamageLib.SpellType.Q) * 0.9 && predictedHealth > 0
-                select minion)
-            {
-                Q.CastOnUnit(minion, Config.Item("PCast").GetValue<bool>());
-            }
-        }
 
         private static int GetEnemiesInRange(Vector3 pos, float range)
         {
