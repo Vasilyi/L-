@@ -3,6 +3,7 @@ using LeagueSharp.Common;
 using SharpDX;
 using System;
 using System.Reflection;
+using System.Linq;
 namespace PerfectWard
 {
     internal class PerfectWardTracker
@@ -57,6 +58,7 @@ namespace PerfectWard
                 {
                     if (wardSpellSlot != null)
                     {
+                        Console.WriteLine("putting ward");
                         wardSpellSlot.UseItem((Vector3)nearestWard);
                         lastuseward = Environment.TickCount;
                     }
@@ -90,6 +92,7 @@ namespace PerfectWard
                     }
                         if (wardSpellSlot != null)
                         {
+                            Console.WriteLine("putting ward2");
                             wardSpellSlot.UseItem((Vector3)Wardspoting._PutSafeWard.ClickPosition);
                             lastuseward = Environment.TickCount;
 

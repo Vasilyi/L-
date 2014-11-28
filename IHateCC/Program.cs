@@ -7,7 +7,6 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using BuffLib;
 #endregion
 
 namespace IHateCC
@@ -30,42 +29,48 @@ namespace IHateCC
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
             Console.WriteLine("I HATE CC LOADED");
-            BuffMngr.BuffMngrInit();
-            BuffMngr.OnGainBuff += BuffGained;
         }
-        private static void BuffGained(Obj_AI_Base target, Obj_AI_Base source,  BuffMngr.OnGainBuffArgs args)
-        {
-            
-            Checks(target,source,args);
+
+
+         private static void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        {     
+            var packet = new GamePacket(args.PacketData);
+            if (packet.Header != 0xB7) 
+                return;
+
+            var buff = Packet.S2C.GainBuff.Decoded(args.PacketData);
+            Checks(buff.Target, buff.Source, buff);
         }
-        private static void Checks(Obj_AI_Base target, Obj_AI_Base source,  BuffMngr.OnGainBuffArgs args)
+
+
+         private static void Checks(Obj_AI_Base target, Obj_AI_Base source, Packet.S2C.GainBuff.Struct args)
         {
             if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active) && target.IsMe && args.Duration > 0)
             {
-                if ((args.Type == (int)BuffMngr.BuffTypes.BUFF_STUN || args.Type == (int)BuffMngr.BuffTypes.BUFF_TAUNT || args.Type == (int)BuffMngr.BuffTypes.BUFF_FEAR || args.Type == (int)BuffMngr.BuffTypes.BUFF_CHARM))
+                if ((args.Type == BuffType.Stun || args.Type == BuffType.Taunt || args.Type == BuffType.Fear || args.Type == BuffType.Charm))
                 {
-                    Console.WriteLine(args.BuffID + " CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : " + target.IsMe);
-                    CleanseChecks(false, args.Duration, args.EndTime);
+                    Console.WriteLine(args.BuffId + " CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : " + target.IsMe);
+                    CleanseChecks(false, args.Duration);
                 };
-                if (args.Type == (int)BuffMngr.BuffTypes.BUFF_SILENCE && Config.Item("silence").GetValue<KeyBind>().Active)
+                if (args.Type == BuffType.Silence && Config.Item("silence").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, args.Duration, args.EndTime);
+                    CleanseChecks(false, args.Duration);
                 };
-                if (args.Type == (int)BuffMngr.BuffTypes.BUFF_SUPPRESS && Config.Item("supress").GetValue<KeyBind>().Active)
+                if (args.Type == BuffType.Suppression && Config.Item("supress").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(true, args.Duration, args.EndTime);
+                    CleanseChecks(false, args.Duration);
                 };
-                if (args.Type == (int)BuffMngr.BuffTypes.BUFF_DISARM && Config.Item("disarm").GetValue<KeyBind>().Active)
+                if (args.Type == BuffType.Disarm && Config.Item("disarm").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, args.Duration, args.EndTime);
+                    CleanseChecks(false, args.Duration);
                 };
-                if (args.Type == (int)BuffMngr.BuffTypes.BUFF_BLIND && Config.Item("blind").GetValue<KeyBind>().Active)
+                if (args.Type == BuffType.Blind && Config.Item("blind").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, args.Duration, args.EndTime);
+                    CleanseChecks(false, args.Duration);
                 };
-                if (args.Type == (int)BuffMngr.BuffTypes.BUFF_ROOT && Config.Item("root").GetValue<KeyBind>().Active)
+                if (args.Type == BuffType.Snare && Config.Item("root").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, args.Duration, args.EndTime);
+                    CleanseChecks(false, args.Duration);
                 };
                 //if (args.BuffID == "???" && Config.Item("exhaust").GetValue<KeyBind>().Active)
                 //{
@@ -75,36 +80,34 @@ namespace IHateCC
         }
 
 
-        private static void Checks(Obj_AI_Base target, Obj_AI_Base source,  int Type, float endtimer)
+        private static void Checks(Obj_AI_Base target, Obj_AI_Base source,  BuffType Type)
         {
-            if (Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
-            {  
-                if ((Type == (int)BuffMngr.BuffTypes.BUFF_STUN 
-                    || Type == (int)BuffMngr.BuffTypes.BUFF_TAUNT 
-                    || Type == (int)BuffMngr.BuffTypes.BUFF_FEAR 
-                    || Type == (int)BuffMngr.BuffTypes.BUFF_CHARM) && Config.Item("HardCC").GetValue<KeyBind>().Active)
+            if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active) && target.IsMe)
+            {
+                if ((Type == BuffType.Stun || Type == BuffType.Taunt || Type == BuffType.Fear || Type == BuffType.Charm))
                 {
-                    CleanseChecks(true, 0, endtimer);
+                    Console.WriteLine("CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : " + target.IsMe);
+                    CleanseChecks(false, 0);
                 };
-                if (Type == (int)BuffMngr.BuffTypes.BUFF_SILENCE && Config.Item("silence").GetValue<KeyBind>().Active)
+                if (Type == BuffType.Silence && Config.Item("silence").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, 0, endtimer);
+                    CleanseChecks(false, 0);
                 };
-                if (Type == (int)BuffMngr.BuffTypes.BUFF_SUPPRESS && Config.Item("supress").GetValue<KeyBind>().Active)
+                if (Type == BuffType.Suppression && Config.Item("supress").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, 0, endtimer);
+                    CleanseChecks(true, 0);
                 };
-                if (Type == (int)BuffMngr.BuffTypes.BUFF_DISARM && Config.Item("disarm").GetValue<KeyBind>().Active)
+                if (Type == BuffType.Disarm && Config.Item("disarm").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, 0, endtimer);
+                    CleanseChecks(false, 0);
                 };
-                if (Type == (int)BuffMngr.BuffTypes.BUFF_BLIND && Config.Item("blind").GetValue<KeyBind>().Active)
+                if (Type == BuffType.Blind && Config.Item("blind").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, 0, endtimer);
+                    CleanseChecks(false, 0);
                 };
-                if (Type == (int)BuffMngr.BuffTypes.BUFF_ROOT && Config.Item("root").GetValue<KeyBind>().Active)
+                if (Type == BuffType.Snare && Config.Item("root").GetValue<KeyBind>().Active)
                 {
-                    CleanseChecks(false, 0, endtimer);
+                    CleanseChecks(false,0);
                 };
                 //if (args.BuffID == "???" && Config.Item("exhaust").GetValue<KeyBind>().Active)
                 //{
@@ -152,28 +155,28 @@ namespace IHateCC
         {
             if (Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
             {
-
-                foreach (var buff in
-                    ObjectManager.Player.Buffs.Where(
-                        buff => Game.Time - buff.EndTime > Config.Item("minimaltime").GetValue<Slider>().Value/10))
-                        {         
-                    Checks(Player,Player, (int)buff.Type, buff.EndTime);
+                foreach (var buff in ObjectManager.Player.Buffs)
+                {
+                    if (Game.Time > Config.Item("minimaltime").GetValue<Slider>().Value / 10)
+                    {
+                        Checks(Player, Player, buff.Type);
+                    }
                 };
             };
         }
 
-        private static void CleanseChecks(bool supress, float duration, float endtime)
+        private static void CleanseChecks(bool supress, float duration)
         {
             Console.WriteLine("Checking duration " + (duration > Config.Item("minimaltime").GetValue<Slider>().Value / 10));
             if (duration > Config.Item("minimaltime").GetValue<Slider>().Value/10 || duration == 0)
             {
                 CleanseSLot();
-                CastCleanse(false, endtime);
+                CastCleanse(false);
             }
         }
-        private static void CastCleanse(bool supress, float endtimer)
+        private static void CastCleanse(bool supress)
         {
-            if (itemslots.lastcleanse == endtimer)
+            if (itemslots.lastcleanse == Environment.TickCount)
             {
                 return;
             };
@@ -181,6 +184,7 @@ namespace IHateCC
             if (supress && itemslots.QSSslot != 0)
             {
                 Items.UseItem(itemslots.QSSslot);
+                itemslots.lastcleanse = Environment.TickCount;
             };
             if (!supress)
             {
@@ -189,19 +193,19 @@ namespace IHateCC
                 {
                     Console.WriteLine("Found QSS");
                     Items.UseItem(itemslots.QSSslot);
-                    itemslots.lastcleanse = endtimer;
+                    itemslots.lastcleanse = Environment.TickCount;
                 }
                 else if (itemslots.spellslot != SpellSlot.Q && ObjectManager.Player.SummonerSpellbook.CanUseSpell(itemslots.CleanseSlot) == SpellState.Ready)
                 {
                     ObjectManager.Player.SummonerSpellbook.CastSpell(itemslots.CleanseSlot);
                     Console.WriteLine("Found Summoner");
-                    itemslots.lastcleanse = endtimer;
+                    itemslots.lastcleanse = Environment.TickCount;
                 }
                 else if (itemslots.spellslot != SpellSlot.Q && ObjectManager.Player.Spellbook.CanUseSpell(itemslots.spellslot) == SpellState.Ready)
                 {
                     Console.WriteLine("Found Spell");
                     ObjectManager.Player.Spellbook.CastSpell(itemslots.spellslot);
-                    itemslots.lastcleanse = endtimer;
+                    itemslots.lastcleanse = Environment.TickCount;
                 };
             }
         }

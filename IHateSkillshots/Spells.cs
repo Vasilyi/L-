@@ -2014,7 +2014,7 @@ namespace Skillshots
             Spells.Add(new SpellData
             {
                 BaseSkinName = "Sona",
-                SpellName = "SonaCrescendo",
+                SpellName = "SonaR",
                 Slot = SpellSlot.R,
                 Type = SkillshotType.SkillshotLine,
                 Delay = 250,
@@ -2025,7 +2025,7 @@ namespace Skillshots
                 AddHitbox = true,
                 DangerValue = 5,
                 IsDangerous = true,
-                MissileSpellName = "SonaCrescendo",
+                MissileSpellName = "Sona_Base_R_Missile",
 
             });
 
