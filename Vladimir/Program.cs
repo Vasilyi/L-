@@ -67,7 +67,7 @@ namespace Vladimir
             Config = new Menu(ChampionName, ChampionName, true);
 
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             Config.AddSubMenu(targetSelectorMenu);
 
             Config.AddSubMenu(new Menu("Combo", "Combo"));
@@ -159,28 +159,28 @@ namespace Vladimir
 
         private static void Combo()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
 
             if (target != null)
             {
-                if (Player.Distance(target) <= Q.Range && Q.IsReady())
+                if (Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
                     Q.Cast(target);
-                if (Player.Distance(target) <= E.Range && E.IsReady())
+                if (Player.Distance(target.ServerPosition) <= E.Range && E.IsReady())
                     E.Cast();
-                if (Player.Distance(target) <= R.Range + R.Width && R.IsReady())
+                if (Player.Distance(target.ServerPosition) <= R.Range + R.Width && R.IsReady())
                     R.Cast(target, true, true);
             }
         }
 
         private static void Harass()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
 
             if (target != null)
             {
-                if (Player.Distance(target) <= Q.Range && Q.IsReady())
+                if (Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
                     Q.Cast(target, false);
-                if (Player.Distance(target) <= E.Range && E.IsReady())
+                if (Player.Distance(target.ServerPosition) <= E.Range && E.IsReady())
                     E.Cast();
             }
         }

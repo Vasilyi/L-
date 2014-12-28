@@ -248,13 +248,13 @@ namespace TRUStinmyKarthus
         {
             UseSpells(Config.Item("useQ").GetValue<bool>(), Config.Item("useE").GetValue<bool>(),
                 Config.Item("useW").GetValue<bool>());
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
             if (IgniteSlot != SpellSlot.Unknown &&
-                ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
-                ObjectManager.Player.Distance(qTarget) < 600 &&
+                ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                ObjectManager.Player.Distance(qTarget.ServerPosition) < 600 &&
                 Player.GetSummonerSpellDamage(qTarget, Damage.SummonerSpell.Ignite) > qTarget.Health)
             {
-                ObjectManager.Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
+                ObjectManager.Player.Spellbook.CastSpell(IgniteSlot, qTarget);
             }
         }
 
@@ -267,9 +267,9 @@ namespace TRUStinmyKarthus
         private static void UseSpells(bool useQ, bool useE, bool useW)
         {
             
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            var wTarget = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
+            var eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             if (useQ && Q.IsReady() && qTarget != null)
             {
                 Q.Cast(qTarget);

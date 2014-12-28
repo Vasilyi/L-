@@ -33,13 +33,16 @@ namespace IHateCC
 
 
          private static void Game_OnGameProcessPacket(GamePacketEventArgs args)
-        {     
-            var packet = new GamePacket(args.PacketData);
-            if (packet.Header != 0xB7) 
-                return;
+        {
+            if (!Config.Item("nonpackets").GetValue<KeyBind>().Active)
+            {
+                var packet = new GamePacket(args.PacketData);
+                if (packet.Header != 0xB7)
+                    return;
 
-            var buff = Packet.S2C.GainBuff.Decoded(args.PacketData);
-            Checks(buff.Target, buff.Source, buff);
+                var buff = Packet.S2C.GainBuff.Decoded(args.PacketData);
+                Checks(buff.Target, buff.Source, buff);
+            }
         }
 
 
@@ -133,6 +136,7 @@ namespace IHateCC
             Config.SubMenu("Types").AddItem(new MenuItem("exhaust", "Cleanse exhaust").SetValue(true));
 
             Config.AddSubMenu(new Menu("HotKey", "HotKey"));
+            Config.SubMenu("HotKey").AddItem(new MenuItem("nonpackets", "Non-packet mode").SetValue(true));
             Config.SubMenu("HotKey")
                 .AddItem(new MenuItem("ccactive", "Auto Cleanse").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("HotKey")
@@ -153,7 +157,7 @@ namespace IHateCC
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
+            if ((Config.Item("nonpackets").GetValue<KeyBind>().Active) && Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
             {
                 foreach (var buff in ObjectManager.Player.Buffs)
                 {
@@ -195,9 +199,9 @@ namespace IHateCC
                     Items.UseItem(itemslots.QSSslot);
                     itemslots.lastcleanse = Environment.TickCount;
                 }
-                else if (itemslots.spellslot != SpellSlot.Q && ObjectManager.Player.SummonerSpellbook.CanUseSpell(itemslots.CleanseSlot) == SpellState.Ready)
+                else if (itemslots.spellslot != SpellSlot.Q && ObjectManager.Player.Spellbook.CanUseSpell(itemslots.CleanseSlot) == SpellState.Ready)
                 {
-                    ObjectManager.Player.SummonerSpellbook.CastSpell(itemslots.CleanseSlot);
+                    ObjectManager.Player.Spellbook.CastSpell(itemslots.CleanseSlot);
                     Console.WriteLine("Found Summoner");
                     itemslots.lastcleanse = Environment.TickCount;
                 }

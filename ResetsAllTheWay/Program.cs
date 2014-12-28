@@ -105,7 +105,7 @@ namespace ResetsAllTheWay
             Config = new Menu(ChampionName, ChampionName, true);
 
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             Config.AddSubMenu(targetSelectorMenu);
 
 
@@ -192,11 +192,11 @@ namespace ResetsAllTheWay
 
         private static void Combo()
         {
-            var qtarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wtarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            var rtarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
-            var curtarget = SimpleTs.GetTarget(400, SimpleTs.DamageType.Magical);;
+            var qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            var wtarget = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
+            var etarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
+            var rtarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
+            var curtarget = TargetSelector.GetTarget(400, TargetSelector.DamageType.Magical);;
             if (E.IsReady())
                 curtarget = etarget;
             else if (Q.IsReady())
@@ -229,22 +229,22 @@ namespace ResetsAllTheWay
             {
                 Items.UseItem(3128, target);
             }
-            if (Q.IsReady() && ObjectManager.Player.Distance(target) < Q.Range)
+            if (Q.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < Q.Range)
             {
                 Q.Cast(target, false);
                 tSpells.qlastuse = Environment.TickCount;
             }
-            if (E.IsReady() && ObjectManager.Player.Distance(target) < E.Range)
+            if (E.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < E.Range)
             {
                 E.Cast(target);
             }
-            if (W.IsReady() && !Q.IsReady() && ObjectManager.Player.Distance(target) < W.Range && Environment.TickCount > tSpells.wLastUse + 250 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
+            if (W.IsReady() && !Q.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < W.Range && Environment.TickCount > tSpells.wLastUse + 250 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
                 //Console.WriteLine("CAST W");
             }
-            if (R.IsReady() && !W.IsReady() && ObjectManager.Player.Distance(target) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 300)
+            if (R.IsReady() && !W.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 300)
             {
                 ObjectManager.Player.IssueOrder(GameObjectOrder.HoldPosition, new Vector3(Player.ServerPosition.X, Player.ServerPosition.Y, Player.ServerPosition.Z));
                 R.Cast();
@@ -253,7 +253,7 @@ namespace ResetsAllTheWay
             }
             if (Config.Item("ignite").GetValue<bool>() && tSpells.useignite)
             {
-                ObjectManager.Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                ObjectManager.Player.Spellbook.CastSpell(IgniteSlot, target);
             }
         }
 
@@ -278,21 +278,21 @@ namespace ResetsAllTheWay
             bool marked = checkformark(target);
             tSpells.useignite = false;
             tSpells.usedfg = false;
-            if ((ObjectManager.Player.Distance(target) < Q.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
+            if ((ObjectManager.Player.Distance(target.ServerPosition) < Q.Range || ObjectManager.Player.Distance(target.ServerPosition) < E.Range && E.IsReady()) && Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
             {
                 totaldamage += Player.GetSpellDamage(target, SpellSlot.Q);
             }
-            if ((ObjectManager.Player.Distance(target) < W.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && W.IsReady())
+            if ((ObjectManager.Player.Distance(target.ServerPosition) < W.Range || ObjectManager.Player.Distance(target.ServerPosition) < E.Range && E.IsReady()) && W.IsReady())
             {
                 totaldamage += Player.GetSpellDamage(target,SpellSlot.W);
             }
-            if (ObjectManager.Player.Distance(target) < E.Range && E.IsReady())
+            if (ObjectManager.Player.Distance(target.ServerPosition) < E.Range && E.IsReady())
             {
                 totaldamage += Player.GetSpellDamage(target, SpellSlot.E);
             }
-            if ((ObjectManager.Player.Distance(target) < R.Range || ObjectManager.Player.Distance(target) < E.Range && E.IsReady()) && R.IsReady())
+            if ((ObjectManager.Player.Distance(target.ServerPosition) < R.Range || ObjectManager.Player.Distance(target.ServerPosition) < E.Range && E.IsReady()) && R.IsReady())
             {
-                totaldamage += Player.GetSpellDamage(target, SpellSlot.R);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.R)*3;
             }
             if (!Q.IsReady() && marked)
             {
@@ -315,7 +315,7 @@ namespace ResetsAllTheWay
                 return totaldamage;
             }
             
-            if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && ObjectManager.Player.Distance(target) < 600)
+            if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && ObjectManager.Player.Distance(target.ServerPosition) < 600)
             {
                 
                 if (totaldamage + Player.GetSummonerSpellDamage(target,Damage.SummonerSpell.Ignite) > target.Health)
@@ -348,7 +348,7 @@ namespace ResetsAllTheWay
             }
             if (R.IsReady())
             {
-                totaldamage += Player.GetSpellDamage(target, SpellSlot.R);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.R) * 3;
             }
             if (!Q.IsReady() && marked)
             {
@@ -360,7 +360,7 @@ namespace ResetsAllTheWay
                 totaldamage += (totaldamage * 1.2) + Player.CalcDamage(target, Damage.DamageType.Magical, target.MaxHealth * 0.15);
             }
 
-            if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
             {
                 totaldamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
             }
@@ -368,9 +368,9 @@ namespace ResetsAllTheWay
         }
         private static void Harass(bool useQ, bool useW, bool useE)
         {
-            var qtarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wtarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            var wtarget = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
+            var etarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             if (qtarget != null && useQ && Q.IsReady())
             {
                 Q.Cast(qtarget, false);

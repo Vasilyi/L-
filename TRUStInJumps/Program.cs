@@ -125,7 +125,7 @@ namespace ProJumper
                     }
                     else if (Items.GetWardSlot() != null)
                     {
-                        Items.GetWardSlot().UseItem(posforward);
+                        Player.Spellbook.CastSpell(Items.GetWardSlot().SpellSlot, posforward);
                         casted = true;
                         lastward = Items.GetWardSlot();
                         oldstacks = lastward.Stacks;
@@ -133,8 +133,9 @@ namespace ProJumper
                 }
                     
             }
-            else if (JumpSpell.IsReady() && Jslot.IsReady() && (Player.Spellbook.GetManaCost(SpellSlot.Q)+Player.Spellbook.GetManaCost(SpellSlot.E))<Player.Mana)
+            else if (JumpSpell.IsReady() && Jslot.IsReady() && (ObjectManager.Player.Spellbook.Spells.First(s => s.Slot == SpellSlot.Q).ManaCost + ObjectManager.Player.Spellbook.Spells.First(s => s.Slot == SpellSlot.E).ManaCost) < Player.Mana)
                 {
+                
                 var mouse = Game.CursorPos;
                 var newpos = mouse - Player.Position;
                 newpos.Normalize();

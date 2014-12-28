@@ -28,7 +28,7 @@ namespace Skillshots
                 Config.SubMenu("Combo").AddItem(new MenuItem("HitChance", "Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High" })));
                 Config.AddSubMenu(new Menu("Drawings", "Drawings"));
                 var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-                SimpleTs.AddToMenu(targetSelectorMenu);
+                TargetSelector.AddToMenu(targetSelectorMenu);
                 Config.AddSubMenu(targetSelectorMenu);
                 foreach (var spell in SpellDatabase.Spells)
                     if (spell.BaseSkinName == ObjectManager.Player.BaseSkinName)
@@ -108,11 +108,11 @@ namespace Skillshots
 
         private static void ExecuteQ()
         {
-                Obj_AI_Hero target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Base target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
 
                 if (target == null) return;
                 var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
-                if (Q.IsReady() && ObjectManager.Player.Distance(target) <= Q.Range)
+                if (Q.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= Q.Range)
                 {
                     switch (rMode)
                     {
@@ -132,11 +132,11 @@ namespace Skillshots
         }
         private static void ExecuteW()
         {
-            Obj_AI_Hero target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
            
             if (target == null) return;
             var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
-            if (W.IsReady() && ObjectManager.Player.Distance(target) <= W.Range)
+            if (W.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= W.Range)
             {
                 switch (rMode)
                 {
@@ -154,10 +154,10 @@ namespace Skillshots
         }
         private static void ExecuteE()
         {
-            Obj_AI_Hero target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             if (target == null) return;
             var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
-            if (E.IsReady() && ObjectManager.Player.Distance(target) <= E.Range)
+            if (E.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= E.Range)
             {
                 switch (rMode)
                 {
@@ -175,10 +175,10 @@ namespace Skillshots
         }
         private static void ExecuteR()
         {
-            Obj_AI_Hero target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             if (target == null) return;
             var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
-            if (R.IsReady() && ObjectManager.Player.Distance(target) <= R.Range)
+            if (R.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= R.Range)
             {
                 switch (rMode)
                 {

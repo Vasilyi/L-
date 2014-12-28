@@ -252,8 +252,8 @@ namespace TRUStInMyBombs
 
         private static void AutoUlt()
         {
-            var qTarget = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Magical);
-            var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Magical);
+            var rTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             var rTargetsamount = Config.Item("enemysforR").GetValue<Slider>().Value;
             if (R.IsReady() && (qTarget != null || rTarget != null))
             {
@@ -335,7 +335,7 @@ namespace TRUStInMyBombs
         {
             if (!Config.Item("interrupt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < W.Range)
+            if (Player.Distance(unit.ServerPosition) < W.Range)
             {
                 W.Cast(unit);
             }
@@ -343,10 +343,10 @@ namespace TRUStInMyBombs
 
         private static void Ks()
         {
-            var rTarget = SimpleTs.GetTarget(Config.Item("ksRRange").GetValue<Slider>().Value, SimpleTs.DamageType.Magical);
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var qTarget2 = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range + W.Width * 0.5f, SimpleTs.DamageType.Magical);
+            var rTarget = TargetSelector.GetTarget(Config.Item("ksRRange").GetValue<Slider>().Value, TargetSelector.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            var qTarget2 = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Magical);
+            var eTarget = TargetSelector.GetTarget(E.Range + W.Width * 0.5f, TargetSelector.DamageType.Magical);
             var ksAll = Config.Item("ksAll").GetValue<bool>();
             if (Q.IsReady() && qTarget2 != null && qTarget2.Health < Player.GetSpellDamage(qTarget2, SpellSlot.Q) && ksAll)
             {
@@ -448,13 +448,13 @@ namespace TRUStInMyBombs
         {
             UseSpells(Config.Item("useB").GetValue<bool>(), Config.Item("useE").GetValue<bool>(),
                 Config.Item("useR").GetValue<bool>());
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
             if (IgniteSlot != SpellSlot.Unknown &&
-                ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
-                ObjectManager.Player.Distance(qTarget) < 600 &&
+                ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                ObjectManager.Player.Distance(qTarget.ServerPosition) < 600 &&
                 Player.GetSummonerSpellDamage(qTarget, Damage.SummonerSpell.Ignite) > qTarget.Health)
             {
-                ObjectManager.Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
+                ObjectManager.Player.Spellbook.CastSpell(IgniteSlot, qTarget);
             }
         }
 
@@ -466,9 +466,9 @@ namespace TRUStInMyBombs
 
         private static void UseSpells(bool useQ, bool useE, bool useR)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var qTarget2 = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range + W.Width * 0.5f, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            var qTarget2 = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Magical);
+            var eTarget = TargetSelector.GetTarget(E.Range + W.Width * 0.5f, TargetSelector.DamageType.Magical);
             if (useQ && Q.IsReady() && qTarget != null)
             {
                 Q.Cast(qTarget);
