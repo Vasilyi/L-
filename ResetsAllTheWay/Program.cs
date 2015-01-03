@@ -225,7 +225,7 @@ namespace ResetsAllTheWay
 
         private static bool checkformark(Obj_AI_Base target)
         {
-            if target.Buffs.Any(buff => buff.Name.ToLower().Contains("katarinaqmark"));
+            if (target.Buffs.Any(buff => buff.Name.ToLower().Contains("katarinaqmark")))
                    {
                        Console.WriteLine(mark.unit + " : marked");
                        return true;
