@@ -96,7 +96,7 @@ namespace Annie
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalker"));
 
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
 
             Config.AddSubMenu(targetSelectorMenu);
             Config.AddSubMenu(new Menu("Combo settings", "combo"));
@@ -144,7 +144,7 @@ namespace Annie
 
         private static void OnDraw(EventArgs args)
         {
-            // Utility.DrawCircle(R1.GetPrediction(SimpleTs.GetTarget(900, SimpleTs.DamageType.Magical)).CastPosition, 250,
+            // Utility.DrawCircle(R1.GetPrediction(TargetSelector.GetTarget(900, TargetSelector.DamageType.Magical)).CastPosition, 250,
             //     Color.Aquamarine);
             foreach (var spell in SpellList)
             {
@@ -188,8 +188,8 @@ namespace Annie
 
         private static void OnGameUpdate(EventArgs args)
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var flashRtarget = SimpleTs.GetTarget(900, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            var flashRtarget = TargetSelector.GetTarget(900, TargetSelector.DamageType.Magical);
             if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo(target, flashRtarget, true);
@@ -215,7 +215,7 @@ namespace Annie
             {
                 if (ObjectManager.Player.Distance(position) > 600)
                 {
-                    ObjectManager.Player.SummonerSpellbook.CastSpell(FlashSlot, position);
+                    ObjectManager.Player.Spellbook.CastSpell(FlashSlot, position);
                 }
                 R.Cast(target, false, true);
             }
@@ -249,7 +249,7 @@ namespace Annie
                         DoingCombo = Environment.TickCount;
                         Q.CastOnUnit(target, Config.Item("PCast").GetValue<bool>());
                          Utility.DelayAction.Add(
-                            (int) (ObjectManager.Player.Distance(target) / Q.Speed * 1000 - Game.Ping / 2.0)+250,
+                            (int) (ObjectManager.Player.Distance(target.ServerPosition) / Q.Speed * 1000 - Game.Ping / 2.0)+250,
                             () =>
                             {
                                 if (R.IsReady() &&
@@ -302,12 +302,12 @@ namespace Annie
             }
 
             if (IgniteSlot != SpellSlot.Unknown && target != null &&
-                ObjectManager.Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
-                ObjectManager.Player.Distance(target) < 600 &&
+                ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                ObjectManager.Player.Distance(target.ServerPosition) < 600 &&
                 ObjectManager.Player.GetSpellDamage(target, IgniteSlot) > target.Health)
 
             {
-                ObjectManager.Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                ObjectManager.Player.Spellbook.CastSpell(IgniteSlot, target);
             }
         }
 
