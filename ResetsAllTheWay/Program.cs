@@ -49,45 +49,12 @@ namespace ResetsAllTheWay
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
 
         }
-        private static void BuffGained(Obj_AI_Base target, Obj_AI_Base source, BuffMngr.OnGainBuffArgs args)
-        {
-            if (target.IsMe && args.BuffID == 3334932)
-            {
-                tSpells.rEndTick = args.EndTime;
-                tSpells.rStartTick = args.StartTime;
-                tSpells.ulting = true;
-            }
-            else if (args.BuffID == 84848667) //mark
-            {
-                MarkList.Add(new QMark(target.BaseSkinName, args.EndTime));
-            }
-        }
-
-        private static void BuffLost(Obj_AI_Base target, Obj_AI_Base source, BuffMngr.OnGainBuffArgs args)
-        {
-            if (target.IsMe && args.BuffID == 3334932)
-            {
-                tSpells.ulting = false;
-            }
-            else if (args.BuffID == 84848667) // mark
-            {
-                foreach (var mark in MarkList)
-                {
-                    if (mark.unit == target.BaseSkinName)
-                    {
-                        MarkList.Remove(mark);
-                    }
-                }
-            }
-        }
+        
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
             if (Player.BaseSkinName != ChampionName) return;
             Console.WriteLine("ResetsAllTheWay loaded");
-            BuffMngr.BuffMngrInit();
-            BuffMngr.OnGainBuff += BuffGained;
-            BuffMngr.OnLoseBuff += BuffLost;
 
             //Create the spells
             Q = new Spell(SpellSlot.Q, 675);
