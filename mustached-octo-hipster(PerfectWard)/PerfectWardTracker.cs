@@ -35,6 +35,7 @@ namespace PerfectWard
             Config.AddToMainMenu();
         }
 
+
         void Game_OnGameUpdate(EventArgs args)
         {
 
@@ -43,6 +44,8 @@ namespace PerfectWard
             {
                 wardSpellSlot = Items.GetWardSlot();
             }
+
+          
             else if (Config.Item("placekeypink").GetValue<KeyBind>().Active)
             {
                 wardSpellSlot = Ward.GetPinkSlot();
@@ -84,6 +87,7 @@ namespace PerfectWard
                 {
                     if (Config.Item("placekey").GetValue<KeyBind>().Active)
                     {
+                        
                         wardSpellSlot = Items.GetWardSlot();
                     }
                     else if (Config.Item("placekeypink").GetValue<KeyBind>().Active)

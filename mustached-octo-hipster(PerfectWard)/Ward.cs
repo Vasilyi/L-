@@ -106,13 +106,13 @@ namespace PerfectWard
         {
             _WardSpots = new List<Vector3>();
 
-            _WardSpots.Add(new Vector3(3261.93f, 7773.65f, 60.0f));    // Blue Golem
+            _WardSpots.Add(new Vector3(3199.723f, 7846.65f, 52.0f));    // Blue Golem
             _WardSpots.Add(new Vector3(7831.46f, 3501.13f, 60.0f));      // Blue Lizard
             _WardSpots.Add(new Vector3(10586.62f, 3067.93f, 60.0f));     // Blue Tri Bush
             _WardSpots.Add(new Vector3(6483.73f, 4606.57f, 60.0f));      // Blue Pass Bush
             _WardSpots.Add(new Vector3(7610.46f, 5000.0f, 60.0f));    // Blue River Entrance
-            _WardSpots.Add(new Vector3(4717.09f, 7142.35f, 50.83f));    // Blue Round Bush
-            _WardSpots.Add(new Vector3(4882.86f, 8393.77f, 27.83f));      // Blue River Round Bush
+            _WardSpots.Add(new Vector3(4649.459f, 7124.964f, 50.83f));    // Blue Round Bush
+            _WardSpots.Add(new Vector3(4799.897f, 8381.28f, 27.27f));      // Blue River Round Bush
             _WardSpots.Add(new Vector3(6951.01f, 3040.55f, 52.26f));    // Blue Split Push Bush
             _WardSpots.Add(new Vector3(5583.74f, 3573.83f, 51.43f));    // Blue Riveer Center Close
 
@@ -127,10 +127,14 @@ namespace PerfectWard
             _WardSpots.Add(new Vector3(9795.85f, 6355.15f, -12.21f));   // Purple River Round Bush
             _WardSpots.Add(new Vector3(7836.85f, 11906.34f, 56.48f)); // Purple Split Push Bush
 
+
+
+            _WardSpots.Add(new Vector3(6250.84f, 10065.06f, 56.48f)); // Bush over baron pit
+
             _WardSpots.Add(new Vector3(10546.35f, 5019.06f, -60.0f));  // Dragon
             _WardSpots.Add(new Vector3(9344.95f, 5703.43f, -64.07f));   // Dragon Bush
             _WardSpots.Add(new Vector3(4334.98f, 9714.54f, -60.42f));   // Baron
-            _WardSpots.Add(new Vector3(5363.31f, 9157.05f, -62.70f));   // Baron Bush
+            _WardSpots.Add(new Vector3(5363.31f, 9157.05f, -71.70f));   // Baron Bush
 
             _WardSpots.Add(new Vector3(12731.25f, 9132.66f, 50.32f));   // Purple Bot T2
             _WardSpots.Add(new Vector3(8036.52f, 12882.94f, 45.19f));   // Purple Bot T2
@@ -296,6 +300,8 @@ namespace PerfectWard
 
             return null;
         }
+
+       
 
         public static void DrawWardSpots()
         {
