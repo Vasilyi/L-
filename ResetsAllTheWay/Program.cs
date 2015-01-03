@@ -7,7 +7,6 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using BuffLib;
 #endregion
 
 namespace ResetsAllTheWay
