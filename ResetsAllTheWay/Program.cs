@@ -225,13 +225,9 @@ namespace ResetsAllTheWay
 
         private static bool checkformark(Obj_AI_Base target)
         {
-            foreach (QMark mark in MarkList)
-            {
-                if (mark.unit == target.BaseSkinName)
-                {
+            if target.Buffs.Any(buff => buff.Name.ToLower().Contains("katarinaqmark"));
                     Console.WriteLine(mark.unit + " : marked");
                     return true;
-                    
                 }
             }
             //Console.WriteLine(target.BaseSkinName + " : not marked");
