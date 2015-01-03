@@ -59,7 +59,7 @@ namespace PerfectWard
                     if (wardSpellSlot != null)
                     {
                         Console.WriteLine("putting ward");
-                        wardSpellSlot.UseItem((Vector3)nearestWard);
+                        ObjectManager.Player.Spellbook.CastSpell(wardSpellSlot.SpellSlot, (Vector3)nearestWard);
                         lastuseward = Environment.TickCount;
                     }
                 }
@@ -93,7 +93,7 @@ namespace PerfectWard
                         if (wardSpellSlot != null)
                         {
                             Console.WriteLine("putting ward2");
-                            wardSpellSlot.UseItem((Vector3)Wardspoting._PutSafeWard.ClickPosition);
+                            ObjectManager.Player.Spellbook.CastSpell(wardSpellSlot.SpellSlot, (Vector3)Wardspoting._PutSafeWard.ClickPosition);
                             lastuseward = Environment.TickCount;
 
                         }
