@@ -56,8 +56,10 @@ namespace TRUStinmyKarthus
             try
             {
                 //Create the menu
+                var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
+                TargetSelector.AddToMenu(targetSelectorMenu);
                 Config = new Menu("TRUStInMyKarthus", "mainmenu", true);
-
+                Config.AddSubMenu(targetSelectorMenu);
                 Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("ComboKey", "Combo!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("HarassKey", "Harrass").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
