@@ -1,4 +1,4 @@
-﻿#region
+#region
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -43,7 +43,9 @@ namespace TRUStinmyKarthus
             }
             Console.WriteLine("TRUStInMyKarthus LOADED");
             Game.OnGameUpdate += Game_OnGameUpdate;
-
+var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
+            TargetSelector.AddToMenu(targetSelectorMenu);
+           
             Player = ObjectManager.Player;
             IgniteSlot = ObjectManager.Player.GetSpellSlot("SummonerDot");
             Q = new Spell(SpellSlot.Q, Spells.qRange);
@@ -56,10 +58,8 @@ namespace TRUStinmyKarthus
             try
             {
                 //Create the menu
-                var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
-                TargetSelector.AddToMenu(targetSelectorMenu);
                 Config = new Menu("TRUStInMyKarthus", "mainmenu", true);
-                Config.AddSubMenu(targetSelectorMenu);
+ Config.AddSubMenu(targetSelectorMenu);
                 Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("ComboKey", "Combo!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("HarassKey", "Harrass").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
