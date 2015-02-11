@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -29,57 +29,6 @@ namespace IHateCC
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
             Console.WriteLine("I HATE CC LOADED");
-        }
-
-
-         private static void Game_OnGameProcessPacket(GamePacketEventArgs args)
-        {
-            if (!Config.Item("nonpackets").GetValue<KeyBind>().Active)
-            {
-                var packet = new GamePacket(args.PacketData);
-                if (packet.Header != 0xB7)
-                    return;
-
-                var buff = Packet.S2C.GainBuff.Decoded(args.PacketData);
-                Checks(buff.Target, buff.Source, buff);
-            }
-        }
-
-
-         private static void Checks(Obj_AI_Base target, Obj_AI_Base source, Packet.S2C.GainBuff.Struct args)
-        {
-            if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active) && target.IsMe && args.Duration > 0)
-            {
-                if ((args.Type == BuffType.Stun || args.Type == BuffType.Taunt || args.Type == BuffType.Fear || args.Type == BuffType.Charm))
-                {
-                    Console.WriteLine(args.BuffId + " CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : " + target.IsMe);
-                    CleanseChecks(false, args.Duration);
-                };
-                if (args.Type == BuffType.Silence && Config.Item("silence").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, args.Duration);
-                };
-                if (args.Type == BuffType.Suppression && Config.Item("supress").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, args.Duration);
-                };
-                if (args.Type == BuffType.Disarm && Config.Item("disarm").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, args.Duration);
-                };
-                if (args.Type == BuffType.Blind && Config.Item("blind").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, args.Duration);
-                };
-                if (args.Type == BuffType.Snare && Config.Item("root").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, args.Duration);
-                };
-                //if (args.BuffID == "???" && Config.Item("exhaust").GetValue<KeyBind>().Active)
-                //{
-                //    CleanseChecks(false, args.Duration);
-                //};
-            };
         }
 
 
@@ -145,9 +94,8 @@ namespace IHateCC
                         KeyBindType.Toggle)));
             Config.AddToMainMenu();
             Game.OnGameUpdate += Game_OnGameUpdate;
-            
-            itemslots.CleanseSlot = Utility.GetSpellSlot(Player, "SummonerBoost", true);
-            Console.WriteLine(Utility.GetSpellSlot(Player, "SummonerBoost", true) + " found cleanse");
+            itemslots.CleanseSlot = Utility.GetSpellSlot(Player, "SummonerBoost");
+            Console.WriteLine(Utility.GetSpellSlot(Player, "SummonerBoost") + " found cleanse");
             if (Player.BaseSkinName == "Gangplank")
             {
                 itemslots.spellslot = SpellSlot.W;
@@ -157,7 +105,7 @@ namespace IHateCC
 
         public static void Game_OnGameUpdate(EventArgs args)
         {
-            if ((Config.Item("nonpackets").GetValue<KeyBind>().Active) && Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
+            if (Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
             {
                 foreach (var buff in ObjectManager.Player.Buffs)
                 {
