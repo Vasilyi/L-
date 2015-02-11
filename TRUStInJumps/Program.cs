@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -60,9 +60,9 @@ namespace ProJumper
             }
             Game.OnGameUpdate += OnGameUpdate;
             Drawing.OnDraw += OnDraw;
-            Console.WriteLine("ProJumper LOADED");
-            
-            Config = new Menu("ProJumper", "ProJumper", true);
+            Console.WriteLine("TRUStInJumps LOADED");
+
+            Config = new Menu("TRUStInJumps", "TRUStInJumps", true);
             Config.AddSubMenu(new Menu("Config", "Config"));
             Config.SubMenu("Config").AddItem(new MenuItem("wardjump", "Jump key").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("Config").AddItem(new MenuItem("drawrange", "Draw jump range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
@@ -76,11 +76,12 @@ namespace ProJumper
             {
                 if (Player.ChampionName == "JarvanIV")
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, 800, menuItem.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, 800, menuItem.Color);
                 }
                 else
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, 625, menuItem.Color);
+
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, 625, menuItem.Color);
                 }
             }
         }
@@ -115,13 +116,24 @@ namespace ProJumper
                 if (ObjectManager.Player.Distance(posforward) < 600)
                 {
                     Obj_AI_Minion[] nearstobj = { null };
-                    foreach (var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => (Player.ChampionName == "Jax" || Player.ChampionName == "Katarina" || obj.IsAlly) && obj.Position.Distance(posforward) <= 200).Where(obj => nearstobj[0] == null || nearstobj[0].Position.Distance(posforward) > obj.Position.Distance(posforward)))
+                    Obj_AI_Hero[] nearsthero = { null };
+                    foreach (var obj in ObjectManager.Get<Obj_AI_Minion>().Where(obj => (Player.ChampionName == "Jax" || Player.ChampionName == "Katarina") && obj.Position.Distance(posforward) <= 200).Where(obj => nearstobj[0] == null || nearstobj[0].Position.Distance(posforward) > obj.Position.Distance(posforward)))
                     {
                         nearstobj[0] = obj;
+                    }
+                    foreach (var obj in ObjectManager.Get<Obj_AI_Hero>().Where(obj => (Player.ChampionName == "Jax" || Player.ChampionName == "Katarina") && obj.Position.Distance(posforward) <= 200).Where(obj => nearsthero[0] == null || nearsthero[0].Position.Distance(posforward) > obj.Position.Distance(posforward)))
+                    {
+                        nearsthero[0] = obj;
                     }
                     if (nearstobj[0] != null)
                     {
                         JumpSpell.Cast(nearstobj[0]);
+                        return;
+                    }
+                    if (nearsthero[0] != null)
+                    {
+                        JumpSpell.Cast(nearsthero[0]);
+                        return;
                     }
                     else if (Items.GetWardSlot() != null)
                     {
