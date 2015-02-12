@@ -83,9 +83,9 @@ var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
                 Config.AddSubMenu(new Menu("Draw Options:", "drawing"));
                 Config.SubMenu("drawing").AddItem(new MenuItem("noDraw", "Disable - Drawing").SetValue(true));
                 //Config.SubMenu("drawing").AddItem(new MenuItem("drawDmg", "Draw - Damage Marks").SetValue(true));
-                Config.SubMenu("drawing").AddItem(new MenuItem("drawQ", "Draw - Bomb (without bounce)").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
-                Config.SubMenu("drawing").AddItem(new MenuItem("drawW", "Draw - Satchel Charge").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
-                Config.SubMenu("drawing").AddItem(new MenuItem("drawE", "Draw - Hexplosive Minefield").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawQ", "Draw - Q range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawW", "Draw - W range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+                Config.SubMenu("drawing").AddItem(new MenuItem("drawE", "Draw - E range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
                 Config.AddToMainMenu();
                 Drawing.OnDraw += OnDraw;
             }
