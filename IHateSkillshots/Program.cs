@@ -76,7 +76,7 @@ namespace Skillshots
             Config.AddToMainMenu();
 
             Drawing.OnDraw += Drawing_OnDraw;
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
         private static void Drawing_OnDraw(EventArgs args)

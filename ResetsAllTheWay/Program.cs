@@ -109,8 +109,7 @@ namespace ResetsAllTheWay
 
             //Add the events we are going to use:
             Drawing.OnDraw += Drawing_OnDraw;
-            Game.OnGameUpdate += Game_OnGameUpdate;
-            Game.OnGameSendPacket += GameOnOnGameSendPacket;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -121,7 +120,7 @@ namespace ResetsAllTheWay
                 var menuItem = Config.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                 {
-                    Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, menuItem.Color);
                 }
             }
         }
@@ -179,13 +178,18 @@ namespace ResetsAllTheWay
             }
         }
 
-
-        private static void GameOnOnGameSendPacket(GamePacketEventArgs args)
+        private static void PlayAnimation(GameObject sender, GameObjectPlayAnimationEventArgs args)
         {
-            if (args.PacketData[0] == Packet.C2S.Move.Header && Environment.TickCount < tSpells.rStartTick + 300)
+            if (sender.IsMe)
             {
-                args.Process = false;
-                Console.WriteLine("BLOCK PACKET");
+                if (args.Animation == "Spell4")
+                {
+                    tSpells.ulting = true;
+                }
+                else
+                {
+                    tSpells.ulting = false;
+                }
             }
         }
 
