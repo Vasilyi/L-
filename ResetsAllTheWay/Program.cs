@@ -140,7 +140,7 @@ namespace ResetsAllTheWay
         public static class tSpells
         {
             public static float rEndTick;
-            public static float rStartTick;
+            public static float rStartTick = 0;
             public static bool ulting;
             public static float wLastUse;
             public static float qlastuse;
