@@ -54,14 +54,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LeagueSharp">
-      <HintPath>..\..\..\LeagueSharp\\System\LeagueSharp.dll</HintPath>
+      <HintPath>..\..\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\LeagueSharp\\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>..\..\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\..\LeagueSharp\\System\SharpDX.dll</HintPath>
+      <HintPath>..\..\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

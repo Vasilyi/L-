@@ -47,9 +47,18 @@ namespace ResetsAllTheWay
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+            Obj_AI_Hero.OnIssueOrder += ObjAiHeroOnOnIssueOrder;
 
         }
-        
+
+        private static void ObjAiHeroOnOnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
+        {
+            if (sender.IsMe && Environment.TickCount < tSpells.rStartTick + 300)
+            {
+                args.Process = false;
+            }
+        }
+
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
@@ -79,6 +88,10 @@ namespace ResetsAllTheWay
             Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));
             Config.SubMenu("hotkeys").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("hotkeys").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+
+            Config.AddSubMenu(new Menu("Combo Options:", "combooptions"));
+            Config.SubMenu("combooptions").AddItem(new MenuItem("useR", "Use - Death Lotus (R)").SetValue(true));
+            Config.SubMenu("combooptions").AddItem(new MenuItem("Epriority", "Use - (E) before (Q)").SetValue(true));
 
             Config.AddSubMenu(new Menu("Harass Options:", "harassspells"));
             Config.SubMenu("harassspells").AddItem(new MenuItem("useQHarass", "Use - Bouncing Blades (Q)").SetValue(true));
@@ -131,7 +144,6 @@ namespace ResetsAllTheWay
             public static bool ulting;
             public static float wLastUse;
             public static float qlastuse;
-            public static bool usedfg;
             public static bool useignite;
 
         }
@@ -195,11 +207,7 @@ namespace ResetsAllTheWay
 
         private static void DoCombo(Obj_AI_Base target)
         {
-            if (Config.Item("dfg").GetValue<bool>() && tSpells.usedfg && Items.HasItem(3128) && Items.CanUseItem(3128))
-            {
-                Items.UseItem(3128, target);
-            }
-            if (Q.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < Q.Range)
+            if (Q.IsReady() && (Config.Item("Epriority").GetValue<bool>() == false || !E.IsReady() || ObjectManager.Player.Distance(target.ServerPosition) > E.Range) && ObjectManager.Player.Distance(target.ServerPosition) < Q.Range)
             {
                 Q.Cast(target, false);
                 tSpells.qlastuse = Environment.TickCount;
@@ -214,7 +222,7 @@ namespace ResetsAllTheWay
                 tSpells.wLastUse = Environment.TickCount;
                 //Console.WriteLine("CAST W");
             }
-            if (R.IsReady() && !W.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 300)
+            if (R.IsReady() && Config.Item("useR").GetValue<bool>() && !W.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 300)
             {
                 ObjectManager.Player.IssueOrder(GameObjectOrder.HoldPosition, new Vector3(Player.ServerPosition.X, Player.ServerPosition.Y, Player.ServerPosition.Z));
                 R.Cast();
@@ -244,7 +252,6 @@ namespace ResetsAllTheWay
             double totaldamage = 0;
             bool marked = checkformark(target);
             tSpells.useignite = false;
-            tSpells.usedfg = false;
             if ((ObjectManager.Player.Distance(target.ServerPosition) < Q.Range || ObjectManager.Player.Distance(target.ServerPosition) < E.Range && E.IsReady()) && Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
             {
                 totaldamage += Player.GetSpellDamage(target, SpellSlot.Q);
@@ -263,23 +270,12 @@ namespace ResetsAllTheWay
             }
             if (!Q.IsReady() && marked)
             {
-                totaldamage += Player.CalcDamage(target,Damage.DamageType.Magical, (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 15) + (0.15 * ObjectManager.Player.FlatMagicDamageMod));
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.Q, 1);
             }
 
             if (totaldamage > target.Health)
             {
                return totaldamage;
-            }
-
-            if (Config.Item("dfg").GetValue<bool>() && Items.HasItem(3128) && Items.CanUseItem(3128))
-            {
-                totaldamage += (totaldamage * 1.2) + Player.CalcDamage(target, Damage.DamageType.Magical, target.MaxHealth * 0.15);
-            }
-
-            if (totaldamage > target.Health)
-            {
-                tSpells.usedfg = true;
-                return totaldamage;
             }
             
             if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && ObjectManager.Player.Distance(target.ServerPosition) < 600)
@@ -291,7 +287,7 @@ namespace ResetsAllTheWay
                     totaldamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
                 }
             }
-            tSpells.usedfg = true;
+
             
             return totaldamage;
         }
@@ -301,9 +297,10 @@ namespace ResetsAllTheWay
         {
             double totaldamage = 0;
             bool marked = checkformark(target);
-            if (Q.IsReady() && (W.IsReady() || E.IsReady() || R.IsReady()))
+            if (Q.IsReady())
             {
                 totaldamage += Player.GetSpellDamage(target, SpellSlot.Q);
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.Q, 1);
             }
             if (E.IsReady() && W.IsReady())
             {
@@ -317,15 +314,7 @@ namespace ResetsAllTheWay
             {
                 totaldamage += Player.GetSpellDamage(target, SpellSlot.R) * 3;
             }
-            if (!Q.IsReady() && marked)
-            {
-                totaldamage += Player.CalcDamage(target, Damage.DamageType.Magical, (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 15) + (0.15 * ObjectManager.Player.FlatMagicDamageMod));
-            }
 
-            if (Config.Item("dfg").GetValue<bool>() && Items.HasItem(3128) && Items.CanUseItem(3128))
-            {
-                totaldamage += (totaldamage * 1.2) + Player.CalcDamage(target, Damage.DamageType.Magical, target.MaxHealth * 0.15);
-            }
 
             if (Config.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
             {
