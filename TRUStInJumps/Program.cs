@@ -80,7 +80,7 @@ namespace ProJumper
                     
                     if (Player.ChampionName == "JarvanIV")
                     {
-                        Render.Circle.DrawCircle(ObjectManager.Player.Position, 625, menuItem.Color);
+                        Render.Circle.DrawCircle(ObjectManager.Player.Position, 770, menuItem.Color);
                     }
                     else
                     {
