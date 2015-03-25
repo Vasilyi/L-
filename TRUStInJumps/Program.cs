@@ -17,7 +17,7 @@ namespace ProJumper
         public static Obj_AI_Hero Player;
         public static Menu Config;
         public static SpellSlot JumpSlot = SpellSlot.Unknown;
-        public static bool casted;
+        public static bool casted = false;
         public static Spell JumpSpell;
         public static Vector3 posforward;
         public static Spell Jslot;
@@ -32,7 +32,6 @@ namespace ProJumper
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
-            Console.WriteLine(Player.BaseSkinName);
             if (Player.ChampionName == "LeeSin")
             {
                 JumpSlot = SpellSlot.W;
@@ -58,31 +57,41 @@ namespace ProJumper
             {
                 JumpSpell = new Spell(JumpSlot, 625);
             }
-            Game.OnGameUpdate += OnGameUpdate;
-            Drawing.OnDraw += OnDraw;
             Console.WriteLine("TRUStInJumps LOADED");
-
             Config = new Menu("TRUStInJumps", "TRUStInJumps", true);
             Config.AddSubMenu(new Menu("Config", "Config"));
             Config.SubMenu("Config").AddItem(new MenuItem("wardjump", "Jump key").SetValue(new KeyBind(32, KeyBindType.Press)));
-            Config.SubMenu("Config").AddItem(new MenuItem("drawrange", "Draw jump range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
+            Config.SubMenu("Config").AddItem(new MenuItem("drawrange", "Draw jump range").SetValue(new Circle(true, System.Drawing.Color.White)));
             Config.AddToMainMenu();
+            Game.OnUpdate += OnGameUpdate;
+            Drawing.OnDraw += JumperDraw;
         }
 
-        private static void OnDraw(EventArgs args)
+        private static void JumperDraw(EventArgs args)
         {
-            var menuItem = Config.Item("drawrange").GetValue<Circle>();
-            if (Config.Item("drawrange").GetValue<Circle>().Active)
-            {
-                if (Player.ChampionName == "JarvanIV")
-                {
-                    Render.Circle.DrawCircle(ObjectManager.Player.Position, 800, menuItem.Color);
-                }
-                else
-                {
 
-                    Render.Circle.DrawCircle(ObjectManager.Player.Position, 625, menuItem.Color);
+            try
+            {
+
+                var menuItem = Config.SubMenu("Config").Item("drawrange").GetValue<Circle>();
+                Console.WriteLine(menuItem.Color);
+                if (menuItem.Active)
+                {
+                    
+                    if (Player.ChampionName == "JarvanIV")
+                    {
+                        Render.Circle.DrawCircle(ObjectManager.Player.Position, 625, menuItem.Color);
+                    }
+                    else
+                    {
+                        Render.Circle.DrawCircle(ObjectManager.Player.Position, 625, menuItem.Color);
+
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
         private static void OnGameUpdate(EventArgs args)

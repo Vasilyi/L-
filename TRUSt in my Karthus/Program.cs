@@ -42,7 +42,7 @@ namespace TRUStinmyKarthus
                 return;
             }
             Console.WriteLine("TRUStInMyKarthus LOADED");
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
 var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
             TargetSelector.AddToMenu(targetSelectorMenu);
            
