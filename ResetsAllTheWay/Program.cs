@@ -55,6 +55,7 @@ namespace ResetsAllTheWay
         {
             if (sender.IsMe && Environment.TickCount < tSpells.rStartTick + 300)
             {
+                //Console.WriteLine("BLOCKED");
                 args.Process = false;
             }
         }

@@ -21,8 +21,6 @@ namespace TRUStinmyKarthus
         public static Spell E;
         public static Spell R;
         public static SpellSlot IgniteSlot;
-        private static Vector3 PingLocation;
-        private static int LastPingT = 0;
         public class Spells
         {
             public static float qRange = 875f;
@@ -143,18 +141,18 @@ var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
 
             if (qValue2.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, qValue2.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Q.Range, qValue2.Color);
             }
 
             if (wValue.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, W.Range, wValue.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, W.Range, wValue.Color);
             }
 
 
             if (eValue.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, E.Range, eValue.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, E.Range, eValue.Color);
             }
 
 

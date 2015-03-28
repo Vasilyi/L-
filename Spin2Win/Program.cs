@@ -12,6 +12,7 @@ namespace Spin2Win
         public static Obj_AI_Hero Player;
         public static Menu Config;
         public static double direction = 0;
+        public static int LastTick;
 
         private static void Main(string[] args)
         {
@@ -21,12 +22,13 @@ namespace Spin2Win
         private static void Game_OnGameUpdate(EventArgs args)
         {
 
-            if (Config.Item("SpinningOn").GetValue<KeyBind>().Active)
+            if (Config.Item("SpinningOn").GetValue<KeyBind>().Active && Environment.TickCount > LastTick + Config.Item("spindelay").GetValue<Slider>().Value * 50)
             {
                 double spinX = 100 * Math.Sin(Math.PI * direction / Config.Item("spinspeed").GetValue<Slider>().Value);
                 double spinZ = 100 * Math.Cos(Math.PI * direction / Config.Item("spinspeed").GetValue<Slider>().Value);
                 Vector3 moveposition = new Vector3(Player.ServerPosition.X + (float)spinX, Player.ServerPosition.Y +  (float)spinZ, Player.ServerPosition.Z);
                 Player.IssueOrder(GameObjectOrder.MoveTo, moveposition);
+                LastTick = Environment.TickCount;
                 direction++;
                 
             }
@@ -35,7 +37,7 @@ namespace Spin2Win
         private static void OnGameLoad(EventArgs args)
         {
 
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             Config = new Menu("Spin2Win", "Spin2Win", true);
             Config.AddToMainMenu();
             Config.AddSubMenu(new Menu("Spin Settings", "Spin"));
@@ -43,6 +45,9 @@ namespace Spin2Win
             Config.SubMenu("Spin")
                 .AddItem(new MenuItem("spinspeed", "Spin Speed"))
                 .SetValue(new Slider(5, 1, 16));
+            Config.SubMenu("Spin")
+                .AddItem(new MenuItem("spinspeed", "Spin Speed"))
+                .SetValue(new Slider(6, 1, 20));
             Player = ObjectManager.Player;
             Game.PrintChat("<font color='#F7A100'>Spin2Win</font>");
         }
