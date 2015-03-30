@@ -22,7 +22,7 @@ namespace Spin2Win
         private static void Game_OnGameUpdate(EventArgs args)
         {
 
-            if (Config.Item("SpinningOn").GetValue<KeyBind>().Active && Environment.TickCount > LastTick + Config.Item("spindelay").GetValue<Slider>().Value * 50)
+            if (Config.Item("SpinningOn").GetValue<KeyBind>().Active && Environment.TickCount > LastTick + Config.Item("spindelay").GetValue<Slider>().Value * 25)
             {
                 double spinX = 100 * Math.Sin(Math.PI * direction / Config.Item("spinspeed").GetValue<Slider>().Value);
                 double spinZ = 100 * Math.Cos(Math.PI * direction / Config.Item("spinspeed").GetValue<Slider>().Value);
@@ -43,10 +43,10 @@ namespace Spin2Win
             Config.AddSubMenu(new Menu("Spin Settings", "Spin"));
             Config.SubMenu("Spin").AddItem(new MenuItem("SpinningOn", "Spin!").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("Spin")
-                .AddItem(new MenuItem("spinspeed", "Spin Speed"))
+                .AddItem(new MenuItem("spinspeed", "Spin Points amount"))
                 .SetValue(new Slider(5, 1, 16));
             Config.SubMenu("Spin")
-                .AddItem(new MenuItem("spinspeed", "Spin Speed"))
+                .AddItem(new MenuItem("spindelay", "Spin Delay"))
                 .SetValue(new Slider(6, 1, 20));
             Player = ObjectManager.Player;
             Game.PrintChat("<font color='#F7A100'>Spin2Win</font>");
