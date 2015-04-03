@@ -40,7 +40,7 @@ namespace TRUStinmyKarthus
                 return;
             }
             Console.WriteLine("TRUStInMyKarthus LOADED");
-            Game.OnUpdate += Game_OnGameUpdate;
+            
 var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
             TargetSelector.AddToMenu(targetSelectorMenu);
            
@@ -57,7 +57,7 @@ var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
             {
                 //Create the menu
                 Config = new Menu("TRUStInMyKarthus", "mainmenu", true);
- Config.AddSubMenu(targetSelectorMenu);
+                Config.AddSubMenu(targetSelectorMenu);
                 Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("ComboKey", "Combo!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 Config.SubMenu("hotkeys").AddItem(new MenuItem("HarassKey", "Harrass").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
@@ -85,15 +85,16 @@ var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
                 Config.SubMenu("drawing").AddItem(new MenuItem("drawW", "Draw - W range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
                 Config.SubMenu("drawing").AddItem(new MenuItem("drawE", "Draw - E range").SetValue(new Circle(true, System.Drawing.Color.FromArgb(100, 255, 0, 255))));
                 Config.AddToMainMenu();
+                Game.OnUpdate += KartOnGameUpdate;
                 Drawing.OnDraw += OnDraw;
             }
             catch (Exception)
             {
-                Game.PrintChat("Error found in bombs. Refused to load.");
+                Game.PrintChat("Error found in Karthus menu. Refused to load.");
             }
         }
 
-        public static void Game_OnGameUpdate(EventArgs args)
+        public static void KartOnGameUpdate(EventArgs args)
         {
             try
             {

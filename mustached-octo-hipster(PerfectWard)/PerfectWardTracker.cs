@@ -19,6 +19,10 @@ namespace PerfectWard
 
         public PerfectWardTracker()
         {
+            CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+        }
+        private static void Game_OnGameLoad(EventArgs args)
+        {
             Game.OnStart += OnGameStart;
             Game.OnUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += OnDraw;
@@ -35,7 +39,7 @@ namespace PerfectWard
             Config.AddToMainMenu();
         }
 
-
+        
         void Game_OnGameUpdate(EventArgs args)
         {
 

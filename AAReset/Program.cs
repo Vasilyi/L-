@@ -30,6 +30,7 @@ namespace AAReseter
             if (sender.IsMe && (args.Animation == "Run" || args.Animation == "Idle") && Orbwalking.CanMove(0) == false)
             {
                 Orbwalking.ResetAutoAttackTimer();
+                Console.WriteLine("animation reseted");
             }
         }
     }
