@@ -21,7 +21,7 @@ namespace PerfectWard
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
-        private static void Game_OnGameLoad(EventArgs args)
+        public void Game_OnGameLoad(EventArgs args)
         {
             Game.OnStart += OnGameStart;
             Game.OnUpdate += Game_OnGameUpdate;
