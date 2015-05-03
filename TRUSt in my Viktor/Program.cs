@@ -21,7 +21,7 @@ namespace Viktor
         // Spells
         private static Spell Q, W, E, R;
         private static readonly int maxRangeE = 1275;
-        private static readonly int lengthE = 750;
+        private static readonly int lengthE = 720;
         private static readonly int speedE = 1200;
         private static readonly int rangeE = 525;
         private static int lasttick = 0;
@@ -30,7 +30,7 @@ namespace Viktor
             get
             {
                 if ((keyLinks["comboActive"].Value.Active) || (keyLinks["harassActive"].Value.Active))
-                    return (!Q.IsReady() && !E.IsReady() || ((player.Mana / player.MaxMana) * 100 < 10));
+                    return ((!Q.IsReady() || player.Mana < Q.Instance.ManaCost) && (!E.IsReady() || player.Mana < E.Instance.ManaCost));
 
                 return true;
             }
@@ -124,18 +124,17 @@ namespace Viktor
             bool useE = boolLinks["comboUseE"].Value && E.IsReady();
             bool useR = boolLinks["comboUseR"].Value && R.IsReady();
 
-            if (useQ)
-            {
-                var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-                if (target != null)
-                    Q.Cast(target);
-            }
-
             if (useE)
             {
                 var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
                 if (target != null)
                     PredictCastE(target);
+            }
+            if (useQ)
+            {
+                var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+                if (target != null)
+                    Q.Cast(target);
             }
             if (useW)
             {
@@ -157,11 +156,6 @@ namespace Viktor
                                 if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
                                     return;
                         }
-                        if (player.Position.Distance(t.ServerPosition) < player.Position.Distance(t.Position))
-                        {
-                            if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
-                                return;
-                        }
                     }
                 }
             }
@@ -171,8 +165,8 @@ namespace Viktor
 
                 if (t != null)
                 {
-                    if (t.Health < Damage.GetSpellDamage(player, t, SpellSlot.R) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady())
-                        R.Cast(t);
+                    if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R,1)*2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady())
+                        R.Cast(t,false,true);
                 }
                 foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                 {
