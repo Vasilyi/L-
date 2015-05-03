@@ -135,7 +135,7 @@ namespace Annie
             Config.AddToMainMenu();
 
             Drawing.OnDraw += OnDraw;
-            Game.OnGameUpdate += OnGameUpdate;
+            Game.OnUpdate += OnGameUpdate;
             GameObject.OnCreate += OnCreateObject;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
 
@@ -151,7 +151,7 @@ namespace Annie
                 var menuItem = Config.Item(spell.Slot + "Draw").GetValue<Circle>();
                 if (menuItem.Active)
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, spell.Range, menuItem.Color);
                 }
             }
         }
