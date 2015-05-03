@@ -25,7 +25,16 @@ namespace Viktor
         private static readonly int speedE = 1200;
         private static readonly int rangeE = 525;
         private static int lasttick = 0;
+        private static bool AttacksEnabled
+        {
+            get
+            {
+                if ((keyLinks["comboActive"].Value.Active) || (keyLinks["harassActive"].Value.Active))
+                    return (!Q.IsReady() && !E.IsReady() || ((player.Mana / player.MaxMana) * 100 < 10));
 
+                return true;
+            }
+        }
         // Menu
         public static MenuWrapper menu;
 
@@ -39,8 +48,13 @@ namespace Viktor
         {
             // Register events
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+          
         }
 
+        private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        {
+            args.Process = AttacksEnabled;
+        }
         private static void Game_OnGameLoad(EventArgs args)
         {
             // Champ validation
@@ -67,6 +81,7 @@ namespace Viktor
             Drawing.OnDraw += Drawing_OnDraw;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Orbwalking.OnNonKillableMinion += Orbwalking_OnNonKillableMinion;
+            Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
         }
         private static void Orbwalking_OnNonKillableMinion(AttackableUnit minion)
         {
@@ -119,20 +134,13 @@ namespace Viktor
             if (useE)
             {
                 var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
-                if (ShouldAAorCast(target.ServerPosition))
-                {
-                    return;
-                }
                 if (target != null)
                     PredictCastE(target);
             }
             if (useW)
             {
                 var t = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
-                if (ShouldAAorCast(t.ServerPosition))
-                {
-                    return;
-                }
+
                 if (t != null)
                 {
                     if (t.Path.Count() < 2)
@@ -163,8 +171,8 @@ namespace Viktor
 
                 if (t != null)
                 {
-                    if ((!ShouldAAorCast(t.ServerPosition) || player.Distance(t)>525) && t.Health < Damage.GetSpellDamage(player, t, SpellSlot.R) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady())
-                        Utility.DelayAction.Add(100, () => R.Cast(t, false, true));
+                    if (t.Health < Damage.GetSpellDamage(player, t, SpellSlot.R) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady())
+                        R.Cast(t);
                 }
                 foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                 {
@@ -174,12 +182,6 @@ namespace Viktor
            
         }
 
-        private static bool ShouldAAorCast(Vector3 position)
-        {
-            if (ObjectManager.Player.HasBuff("viktorpowertransferreturn") && Orbwalking.CanAttack() && player.Distance(position) < 525)
-                return true;
-            return false;
-        }
         private static void OnHarass()
         {
                 // Mana check
@@ -196,10 +198,7 @@ namespace Viktor
                 if (useE)
                 {
                     var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
-                    if (ShouldAAorCast(target.ServerPosition))
-                    {
-                        return;
-                    }
+
                     if (target != null)
                         PredictCastE(target);
                 }
