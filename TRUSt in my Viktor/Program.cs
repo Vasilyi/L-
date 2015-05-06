@@ -71,7 +71,7 @@ namespace Viktor
             Q.SetTargetted(0.25f, 2000);
             W.SetSkillshot(0.5f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0, 90, speedE, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.25f, 450f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.5f, 450f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             // Create menu
             SetupMenu();
@@ -86,14 +86,20 @@ namespace Viktor
         }
         private static void Orbwalking_OnNonKillableMinion(AttackableUnit minion)
         {
+            QLastHit((Obj_AI_Base)minion);
+        }
+        private static void QLastHit(Obj_AI_Base minion)
+        {
             bool castQ = ((keyLinks["waveUseQLH"].Value.Active) || boolLinks["waveUseQ"].Value && keyLinks["waveActive"].Value.Active);
-            if (castQ && Q.IsReady() && Orbwalking.CanMove(0))
+            if (castQ)
             {
-                var target = minion as Obj_AI_Base;
-                if (target != null && Q.IsKillable(target))
+                var distance = Geometry.Distance(player, minion);
+                var t = 250 + (int)distance / 2;
+                var predHealth = HealthPrediction.GetHealthPrediction(minion, t, 0);
+                Console.WriteLine(" Distance: " + distance + " timer : " + t + " health: " + predHealth);
+                if (predHealth > 0 && Q.IsKillable(minion))
                 {
-                    // Cast since it's killable with E
-                    Q.Cast(target);
+                    Q.Cast(minion);
                 }
             }
         }
@@ -108,6 +114,8 @@ namespace Viktor
             // WaveClear
             if (keyLinks["waveActive"].Value.Active)
                 OnWaveClear();
+
+            // Ultimate follow
             if (R.Instance.Name != "ViktorChaosStorm" && boolLinks["AutoFollowR"].Value && Environment.TickCount - lasttick > 0)
             {
                 var stormT = TargetSelector.GetTarget(player, 1100, TargetSelector.DamageType.Magical);
@@ -168,7 +176,7 @@ namespace Viktor
                 if (t != null)
                 {
                     if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R,1)*2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady())
-                        R.Cast(t,false,true);
+                        R.Cast(t.ServerPosition);
                 }
                 foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                 {
@@ -215,7 +223,7 @@ namespace Viktor
                 {
                     if (Q.IsKillable(minion) && minion.BaseSkinName.Contains("Siege"))
                     {
-                        Q.Cast(minion);
+                        QLastHit(minion);
                         break;
                     }
                 }
