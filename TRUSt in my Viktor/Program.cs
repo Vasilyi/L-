@@ -82,10 +82,12 @@ namespace Viktor
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Orbwalking.OnNonKillableMinion += Orbwalking_OnNonKillableMinion;
             Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
+            Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
         }
         private static void Orbwalking_OnNonKillableMinion(AttackableUnit minion)
         {
-            if (keyLinks["waveUseQLH"].Value.Active && Q.IsReady() && Orbwalking.CanMove(0))
+            bool castQ = ((keyLinks["waveUseQLH"].Value.Active) || boolLinks["waveUseQ"].Value && keyLinks["waveActive"].Value.Active);
+            if (castQ && Q.IsReady() && Orbwalking.CanMove(0))
             {
                 var target = minion as Obj_AI_Base;
                 if (target != null && Q.IsKillable(target))
@@ -211,7 +213,7 @@ namespace Viktor
             {
                 foreach (var minion in MinionManager.GetMinions(player.Position, player.AttackRange))
                 {
-                    if (Q.IsKillable(minion) && !Orbwalking.CanAttack() && Orbwalking.CanMove(0))
+                    if (Q.IsKillable(minion) && minion.BaseSkinName.Contains("Siege"))
                     {
                         Q.Cast(minion);
                         break;
@@ -364,7 +366,7 @@ namespace Viktor
                         // Get prediction
                         prediction = E.GetPrediction(enemy);
                         // Validate target
-                        if (prediction.Hitchance == HitChance.High && Vector2.DistanceSquared(pos1.To2D(), prediction.CastPosition.To2D()) < (E.Range * E.Range) * 0.8)
+                        if (prediction.Hitchance >= HitChance.High && Vector2.DistanceSquared(pos1.To2D(), prediction.CastPosition.To2D()) < (E.Range * E.Range) * 0.8)
                             closeToPrediction.Add(enemy);
                     }
 
@@ -443,7 +445,7 @@ namespace Viktor
                 prediction = E.GetPrediction(target);
 
                 // Cast the E
-                if (prediction.Hitchance == HitChance.High)
+                if (prediction.Hitchance >= HitChance.High)
                     CastE(pos1, prediction.CastPosition);
 
                 // Reset spell
@@ -464,7 +466,7 @@ namespace Viktor
             E.Cast(source, destination);
         }
 
-        private static void OnInterruptableTarget(Obj_AI_Hero unit, Interrupter2.InterruptableTargetEventArgs args)
+        private static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero unit, Interrupter2.InterruptableTargetEventArgs args)
         {
             if (args.DangerLevel >= Interrupter2.DangerLevel.High)
             {
