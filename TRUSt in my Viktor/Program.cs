@@ -53,7 +53,13 @@ namespace Viktor
 
         private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
-            args.Process = AttacksEnabled;
+            if (args.Target.Type == GameObjectType.obj_AI_Hero)
+            {
+                args.Process = AttacksEnabled;
+            }
+            else
+                args.Process = true;
+
         }
         private static void Game_OnGameLoad(EventArgs args)
         {
