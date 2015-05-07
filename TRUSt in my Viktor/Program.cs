@@ -132,7 +132,19 @@ namespace Viktor
                 }
             }
         }
-
+        private static bool KillableWithAA(Obj_AI_Base target)
+        {
+            var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
+            if (player.HasBuff("viktorpowertransferreturn") && Orbwalking.CanAttack() && (player.CalcDamage(target, Damage.DamageType.Magical,
+                    qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] +
+                    (player.TotalMagicalDamage * .5) + player.TotalAttackDamage()) > target.Health))
+            {
+                Console.WriteLine("killable with aa");
+                return true;
+            }
+            else
+                return false;
+        }
         private static void OnCombo()
         {
             bool useQ = boolLinks["comboUseQ"].Value && Q.IsReady();
@@ -181,7 +193,7 @@ namespace Viktor
 
                 if (t != null)
                 {
-                    if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R,1)*2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady())
+                    if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(t))
                         R.Cast(t.ServerPosition);
                 }
                 foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
