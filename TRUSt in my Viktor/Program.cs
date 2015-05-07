@@ -114,7 +114,7 @@ namespace Viktor
             // Combo
             if (keyLinks["comboActive"].Value.Active)
                 OnCombo();
-            // Harass
+            // Harassÿ
             if (keyLinks["harassActive"].Value.Active)
                 OnHarass();
             // WaveClear
@@ -576,11 +576,60 @@ namespace Viktor
             else if (value is MenuWrapper.SliderLink)
                 sliderLinks.Add(key, value as MenuWrapper.SliderLink);
         }
+        private static float GetComboDamage(Obj_AI_Base enemy)
+        {
+            var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
+            var damage = 0d;
 
+            //Base Q damage
+            if (Q.IsReady())
+            {
+                damage += player.GetSpellDamage(enemy, SpellSlot.Q);
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] + (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
+            }
+
+            // Q damage on AA
+            if (!Q.IsReady() && player.HasBuff("viktorpowertransferreturn"))
+            {
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical,
+                    qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] +
+                    (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
+            }
+
+            //E damage
+            if (E.IsReady())
+            {
+                if (player.HasBuff("viktoreaug") || player.HasBuff("viktorqeaug") || player.HasBuff("viktorqweaug"))
+                    damage += player.GetSpellDamage(enemy, SpellSlot.E, 1);
+                else
+                    damage += player.GetSpellDamage(enemy, SpellSlot.E, 0);
+            }
+
+            //R damage + 2 ticks
+            if (R.Level > 0 && R.IsReady() && R.Instance.Name == "ViktorChaosStorm")
+            {
+                damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R, 1) * 2;
+                damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R);
+            }
+
+            // Ludens Echo damage
+            if (Items.HasItem(3285))
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, 100 + player.FlatMagicDamageMod * 0.15);
+
+            //sheen damage
+            if (Items.HasItem(3057))
+                damage += player.CalcDamage(enemy, Damage.DamageType.Physical, 0.5 * player.BaseAttackDamage);
+
+            //lich bane dmg
+            if (Items.HasItem(3100))
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, 0.5 * player.FlatMagicDamageMod + 0.75 * player.BaseAttackDamage);
+            
+            return (float)damage;
+        }
         private static void SetupMenu()
         {
+            
             menu = new MenuWrapper("TRUSt in my " + CHAMP_NAME);
-
             // Combo
             var subMenu = menu.MainMenu.AddSubMenu("Combo");
             ProcessLink("comboUseQ", subMenu.AddLinkedBool("Use Q"));
@@ -624,7 +673,16 @@ namespace Viktor
             ProcessLink("drawRangeE", subMenu.AddLinkedCircle("E range", false, Color.FromArgb(150, Color.DarkRed), E.Range));
             ProcessLink("drawRangeEMax", subMenu.AddLinkedCircle("E max range", true, Color.FromArgb(150, Color.OrangeRed), maxRangeE));
             ProcessLink("drawRangeR", subMenu.AddLinkedCircle("R range", false, Color.FromArgb(150, Color.Red), R.Range));
-        
+            ProcessLink("dmgdraw", subMenu.AddLinkedBool("Draw dmg on healthbar"));
+            var dmgAfterComboItem = new MenuItem("dmgdraw", "Draw dmg on healthbar").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
+            Utility.HpBarDamageIndicator.Enabled = boolLinks["dmgdraw"].Value;
+            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
+            {
+                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+            };
+            menu.MainMenu.MenuHandle.SubMenu("Dmg Drawing").AddItem(dmgAfterComboItem);
+
         }
     }
 }
