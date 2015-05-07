@@ -674,14 +674,15 @@ namespace Viktor
             ProcessLink("drawRangeEMax", subMenu.AddLinkedCircle("E max range", true, Color.FromArgb(150, Color.OrangeRed), maxRangeE));
             ProcessLink("drawRangeR", subMenu.AddLinkedCircle("R range", false, Color.FromArgb(150, Color.Red), R.Range));
             ProcessLink("dmgdraw", subMenu.AddLinkedBool("Draw dmg on healthbar"));
-            var dmgAfterComboItem = new MenuItem("dmgdraw", "Draw dmg on healthbar").SetValue(true);
+            var dmgAfterComboItem = menu.MainMenu.MenuHandle.SubMenu("Dmg Drawing").AddItem(new MenuItem("dmgdraw", "Draw dmg on healthbar").SetValue(true));
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
             Utility.HpBarDamageIndicator.Enabled = boolLinks["dmgdraw"].Value;
             dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
             {
+                Console.WriteLine("menu changed");
                 Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
             };
-            menu.MainMenu.MenuHandle.SubMenu("Dmg Drawing").AddItem(dmgAfterComboItem);
+           
 
         }
     }
