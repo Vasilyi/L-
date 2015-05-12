@@ -23,6 +23,7 @@ namespace TRUStInMyBombs
         public static Spell E;
         public static Spell R;
         public static SpellSlot IgniteSlot;
+        public static int LastbombTime;
 
         public static GameObject wBomb;
 
@@ -44,7 +45,7 @@ namespace TRUStInMyBombs
                 var colordraw = Config.Item("satchelDraw").GetValue<Circle>();
                 if (drawdistance > ObjectManager.Player.Distance(convertcoords))
                 {
-                    Utility.DrawCircle(convertcoords, 80, colordraw.Color);
+                    Render.Circle.DrawCircle(convertcoords, 80, colordraw.Color);
                     
                 }
             }
@@ -62,10 +63,10 @@ namespace TRUStInMyBombs
             }
             Console.WriteLine("TRUStInMyBombs LOADED");
             InitializeJumpSpots();
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             GameObject.OnCreate += OnCreateObj;
             GameObject.OnDelete += OnDeleteObj;
-            Interrupter.OnPossibleToInterrupt += ZOnPosibleToInterrupt;
+            Interrupter2.OnInterruptableTarget += ZOnPosibleToInterrupt;
 
 
             Player = ObjectManager.Player;
@@ -201,50 +202,50 @@ namespace TRUStInMyBombs
             {
                 if (Q.IsReady())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, Q2.Range, qValue.Color);
-                    Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color, 5, 30, true);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, Q2.Range, qValue.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color, 5, true);
                 }
                 else if (W.IsReady())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, W.Range, qValue.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, W.Range, qValue.Color);
                 }
                 else if (E.IsReady())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, E.Range, qValue.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, E.Range, qValue.Color);
                 }
                 else if (R.IsReady())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, R.Range, qValue.Color);
-                    Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color, 5, 30, true);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, R.Range, qValue.Color);
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color, 5, true);
                 }
                 return;
             }
             if (qValue.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, Q2.Range, qValue.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Q2.Range, qValue.Color);
             }
 
             if (qValue2.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, qValue.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Q.Range, qValue.Color);
             }
 
             if (wValue.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, W.Range, wValue.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, W.Range, wValue.Color);
             }
 
 
             if (eValue.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, E.Range, eValue.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, E.Range, eValue.Color);
             }
 
 
             if (rValue.Active)
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color);
-                Utility.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color,5,30,true);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, R.Range, rValue.Color,5,true);
             }
 
 
@@ -331,7 +332,7 @@ namespace TRUStInMyBombs
             }
         }
 
-        private static void ZOnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        private static void ZOnPosibleToInterrupt(Obj_AI_Hero unit, Interrupter2.InterruptableTargetEventArgs args)
         {
             if (!Config.Item("interrupt").GetValue<bool>()) return;
 
@@ -364,9 +365,10 @@ namespace TRUStInMyBombs
 
         private static void JumpProxMouse()
         {
-            if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "ZiggsW")
+            if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "ZiggsW" && Environment.TickCount > LastbombTime)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, Player.Position);
+                LastbombTime = Environment.TickCount + 500;
             }
             else if (wBomb != null && ObjectManager.Player.Distance(wBomb.Position) > 100 && ObjectManager.Player.Distance(wBomb.Position) < 300)
             {
@@ -402,12 +404,14 @@ namespace TRUStInMyBombs
                 return;
             }
             JumpSpot nearestspot = FindNearestJumpSpot();
+            Console.WriteLine(nearestspot);
             Vector3 nearestJump = new Vector3(nearestspot.Jumppos.X, nearestspot.Jumppos.Z, nearestspot.Jumppos.Y);
             Vector3 moveposition = new Vector3(nearestspot.MovePosition.X, nearestspot.MovePosition.Z, nearestspot.MovePosition.Y);
             Console.WriteLine(nearestJump.ToString());
-            if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "ZiggsW")
+            if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "ZiggsW" && Environment.TickCount > LastbombTime)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, nearestJump);
+                LastbombTime = Environment.TickCount + 500;
             }
             else if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name != "ZiggsW" && ObjectManager.Player.Distance(moveposition) > 60)
             {
@@ -497,87 +501,49 @@ namespace TRUStInMyBombs
         private static void InitializeJumpSpots()
         {
             Jump = new List<JumpSpot>();
-            Jump.Add(new JumpSpot(new Vector3(5182.2998046875f, 54.800712585449f, 7440.966796875f), new Vector3(5304.58984375f, 54.800712585449f, 7565.5278320313f)));
-            Jump.Add(new JumpSpot(new Vector3(5476.32421875f, -58.546016693115f, 8302.73046875f), new Vector3(5416.7905273438f, -57.956558227539f, 8127.6274414063f)));
-            Jump.Add(new JumpSpot(new Vector3(4340.427734375f, 52.527732849121f, 7379.603515625f), new Vector3(4190.7915039063f, 52.527732849121f, 7456.7749023438f)));
-            Jump.Add(new JumpSpot(new Vector3(4861.8642578125f, -62.949485778809f, 10363.97265625f), new Vector3(5000.3354492188f, -62.949485778809f, 10470.788085938f)));
-            Jump.Add(new JumpSpot(new Vector3(6525.5727539063f, 55.67924118042f, 9764.90234375f), new Vector3(6543.2924804688f, 55.67924118042f, 9906.08984375f)));
-            Jump.Add(new JumpSpot(new Vector3(8502.6015625f, 56.100059509277f, 4030.9699707031f), new Vector3(8629.169921875f, 56.100059509277f, 4037.0673828125f)));
-            Jump.Add(new JumpSpot(new Vector3(9579.015625f, -63.261302947998f, 3906.39453125f), new Vector3(9639.9208984375f, -63.261302947998f, 3721.6237792969f)));
-            Jump.Add(new JumpSpot(new Vector3(9122.095703125f, -63.247100830078f, 4092.3359375f), new Vector3(9004.9052734375f, -63.247100830078f, 3957.8447265625f)));
-            Jump.Add(new JumpSpot(new Vector3(7258.9287109375f, 57.113296508789f, 3830.3498535156f), new Vector3(7247.9721679688f, 57.113296508789f, 4008.0791015625f)));
-            Jump.Add(new JumpSpot(new Vector3(6717.4697265625f, 60.789710998535f, 5199.8627929688f), new Vector3(6707.7407226563f, 60.789710998535f, 5358.189453125f)));
-            Jump.Add(new JumpSpot(new Vector3(5947.009765625f, 54.906421661377f, 5799.0791015625f), new Vector3(6038.1240234375f, 54.906421661377f, 5719.5639648438f)));
-            Jump.Add(new JumpSpot(new Vector3(5815.9038085938f, 52.852485656738f, 3194.2316894531f), new Vector3(5907.134765625f, 52.852485656738f, 3253.7680664063f)));
-            Jump.Add(new JumpSpot(new Vector3(5089.8999023438f, 54.250331878662f, 6005.5874023438f), new Vector3(4989.0200195313f, 54.250331878662f, 6054.4975585938f)));
-            Jump.Add(new JumpSpot(new Vector3(3048.2485351563f, 55.628494262695f, 6029.0205078125f), new Vector3(2962.1896972656f, 55.628494262695f, 5933.5864257813f)));
-            Jump.Add(new JumpSpot(new Vector3(2134.3784179688f, 60.152767181396f, 6418.15234375f), new Vector3(2048.9326171875f, 60.152767181396f, 6406.2651367188f)));
-            Jump.Add(new JumpSpot(new Vector3(1651.7109375f, 53.561576843262f, 7525.001953125f), new Vector3(1699.1987304688f, 53.561576843262f, 7631.7885742188f)));
-            Jump.Add(new JumpSpot(new Vector3(1136.0306396484f, 50.775238037109f, 8481.19921875f), new Vector3(1247.5817871094f, 50.775238037109f, 8500.8662109375f)));
-            Jump.Add(new JumpSpot(new Vector3(2433.314453125f, 53.364398956299f, 9980.5634765625f), new Vector3(2457.7978515625f, 53.364398956299f, 10102.342773438f)));
-            Jump.Add(new JumpSpot(new Vector3(4946.9228515625f, 41.375110626221f, 12027.184570313f), new Vector3(4949.6733398438f, 41.375110626221f, 11907.3515625f)));
-            Jump.Add(new JumpSpot(new Vector3(5993.0654296875f, 54.33109664917f, 11314.407226563f), new Vector3(5992.3364257813f, 54.33109664917f, 11414.142578125f)));
-            Jump.Add(new JumpSpot(new Vector3(4985.8022460938f, 46.194820404053f, 11392.716796875f), new Vector3(4980.814453125f, 46.194820404053f, 11494.674804688f)));
-            Jump.Add(new JumpSpot(new Vector3(6996.1748046875f, 53.763172149658f, 12262.01171875f), new Vector3(7003.19140625f, 53.763172149658f, 12405.4140625f)));
-            Jump.Add(new JumpSpot(new Vector3(8423.283203125f, 47.13533782959f, 12247.524414063f), new Vector3(8546.052734375f, 47.13533782959f, 12225.833007813f)));
-            Jump.Add(new JumpSpot(new Vector3(9263.97265625f, 52.484786987305f, 11869.091796875f), new Vector3(9389.8525390625f, 52.484786987305f, 11863.307617188f)));
-            Jump.Add(new JumpSpot(new Vector3(9115.283203125f, 52.227199554443f, 12283.983398438f), new Vector3(9000.3017578125f, 52.227199554443f, 12261.0078125f)));
-            Jump.Add(new JumpSpot(new Vector3(9994.4912109375f, 106.22331237793f, 11870.6875f), new Vector3(9894.1484375f, 106.22331237793f, 11853.583984375f)));
-            Jump.Add(new JumpSpot(new Vector3(8409.6875f, 53.670509338379f, 10373.21875f), new Vector3(8534.4619140625f, 53.670509338379f, 10302.107421875f)));
-            Jump.Add(new JumpSpot(new Vector3(4118.3876953125f, 108.71948242188f, 2121.7075195313f), new Vector3(4247f, 108.71948242188f, 2115f)));
-            Jump.Add(new JumpSpot(new Vector3(4725.486328125f, 54.231761932373f, 2683.4543457031f), new Vector3(4607.6743164063f, 54.231761932373f, 2659.8942871094f)));
-            Jump.Add(new JumpSpot(new Vector3(4897.533203125f, 54.2516746521f, 2052.708984375f), new Vector3(4996.212890625f, 54.2516746521f, 2028.4288330078f)));
-            Jump.Add(new JumpSpot(new Vector3(5648.9956054688f, 55.286037445068f, 2016.7189941406f), new Vector3(5523.005859375f, 55.286037445068f, 2001.3936767578f)));
-            Jump.Add(new JumpSpot(new Vector3(7022.462890625f, 52.594055175781f, 1376.6743164063f), new Vector3(7044.1245117188f, 52.594055175781f, 1469.1911621094f)));
-            Jump.Add(new JumpSpot(new Vector3(7134.9140625f, 54.548675537109f, 2140.7275390625f), new Vector3(7133f, 54.548675537109f, 1977f)));
-            Jump.Add(new JumpSpot(new Vector3(7945.6557617188f, 54.276401519775f, 2450.0712890625f), new Vector3(7942.3046875f, 54.276401519775f, 2660.9660644531f)));
-            Jump.Add(new JumpSpot(new Vector3(9100.7197265625f, 60.792221069336f, 3073.9343261719f), new Vector3(9093.5087890625f, 60.792221069336f, 2917.2602539063f)));
-            Jump.Add(new JumpSpot(new Vector3(9058.2998046875f, 68.232513427734f, 2428.3017578125f), new Vector3(9042.6005859375f, 68.232513427734f, 2530.5822753906f)));
-            Jump.Add(new JumpSpot(new Vector3(9769.3544921875f, 68.960105895996f, 2188.2644042969f), new Vector3(9786.37890625f, 68.960105895996f, 2020.0227050781f)));
-            Jump.Add(new JumpSpot(new Vector3(9871.234375f, 52.962394714355f, 1379.2374267578f), new Vector3(9860.5283203125f, 52.962394714355f, 1517.3566894531f)));
-            Jump.Add(new JumpSpot(new Vector3(10133.500976563f, 49.336658477783f, 3153.0109863281f), new Vector3(10045.125f, 49.336658477783f, 3253.6359863281f)));
-            Jump.Add(new JumpSpot(new Vector3(11265.125976563f, -62.610431671143f, 4252.2177734375f), new Vector3(11390.166992188f, -62.610431671143f, 4313.8203125f)));
-            Jump.Add(new JumpSpot(new Vector3(11746.482421875f, 51.986545562744f, 4655.6328125f), new Vector3(11666.5859375f, 51.986545562744f, 4487.162109375f)));
-            Jump.Add(new JumpSpot(new Vector3(12036.173828125f, 59.147567749023f, 5541.5102539063f), new Vector3(11895.735351563f, 59.147567749023f, 5513.7592773438f)));
-            Jump.Add(new JumpSpot(new Vector3(11422.623046875f, 54.825256347656f, 5447.9135742188f), new Vector3(11555f, 54.825256347656f, 5475f)));
-            Jump.Add(new JumpSpot(new Vector3(10471.787109375f, 54.86909866333f, 6708.9833984375f), new Vector3(10302.061523438f, 54.86909866333f, 6713.6376953125f)));
-            Jump.Add(new JumpSpot(new Vector3(10763.604492188f, 54.87166595459f, 6806.6303710938f), new Vector3(10779.88671875f, 54.87166595459f, 6933.4072265625f)));
-            Jump.Add(new JumpSpot(new Vector3(12053.392578125f, 54.827217102051f, 6344.705078125f), new Vector3(12133.737304688f, 54.827217102051f, 6425.1333007813f)));
-            Jump.Add(new JumpSpot(new Vector3(12201.602539063f, 55.32479095459f, 5832.1831054688f), new Vector3(12343.471679688f, 55.32479095459f, 5817.8686523438f)));
-            Jump.Add(new JumpSpot(new Vector3(11833.345703125f, 50.354991912842f, 9526.79296875f), new Vector3(11853.022460938f, 50.354991912842f, 9625.810546875f)));
-            Jump.Add(new JumpSpot(new Vector3(11947.16015625f, 106.82741546631f, 10174.01171875f), new Vector3(11909f, 106.82741546631f, 10015f)));
-            Jump.Add(new JumpSpot(new Vector3(11501.220703125f, 53.453559875488f, 8731.6298828125f), new Vector3(11384.24609375f, 53.453559875488f, 8615.3408203125f)));
-            Jump.Add(new JumpSpot(new Vector3(10552.061523438f, 65.851661682129f, 8096.9360351563f), new Vector3(10495f, 65.851661682129f, 7963f)));
-            Jump.Add(new JumpSpot(new Vector3(10462.163085938f, 55.272270202637f, 7388.1103515625f), new Vector3(10495.671875f, 55.272270202637f, 7499.1953125f)));
-            Jump.Add(new JumpSpot(new Vector3(9902.44921875f, 55.129611968994f, 6451.4887695313f), new Vector3(10029.932617188f, 55.129611968994f, 6473.9155273438f)));
-            Jump.Add(new JumpSpot(new Vector3(8837.2626953125f, -64.537475585938f, 5314.8232421875f), new Vector3(8753.697265625f, -64.537475585938f, 5169.1889648438f)));
-            Jump.Add(new JumpSpot(new Vector3(8584.904296875f, -64.85913848877f, 6212.0083007813f), new Vector3(8648.8125f, -64.85913848877f, 6310.46484375f)));
-            Jump.Add(new JumpSpot(new Vector3(8980.521484375f, 55.912460327148f, 6930.9438476563f), new Vector3(8895f, 55.912460327148f, 6815f)));
-            Jump.Add(new JumpSpot(new Vector3(2241.9340820313f, 109.32015228271f, 4209.6376953125f), new Vector3(2258.6662597656f, 109.32015228271f, 4336.8940429688f)));
-            Jump.Add(new JumpSpot(new Vector3(2362.7917480469f, 56.317901611328f, 4921.134765625f), new Vector3(2331f, 56.317901611328f, 4767f)));
-            Jump.Add(new JumpSpot(new Vector3(2592.4208984375f, 60.191635131836f, 5629.8041992188f), new Vector3(2701f, 60.191635131836f, 5699f)));
-            Jump.Add(new JumpSpot(new Vector3(3527.6638183594f, 55.608444213867f, 6323.6030273438f), new Vector3(3537.6516113281f, 55.608444213867f, 6451.9873046875f)));
-            Jump.Add(new JumpSpot(new Vector3(3340.2841796875f, 53.313583374023f, 6995.8481445313f), new Vector3(3346.0974121094f, 53.313583374023f, 6864.9716796875f)));
-            Jump.Add(new JumpSpot(new Vector3(3526.2731933594f, 54.509613037109f, 7071.9296875f), new Vector3(3522.7084960938f, 54.509613037109f, 7185.6630859375f)));
-            Jump.Add(new JumpSpot(new Vector3(3516.3874511719f, 53.838798522949f, 7711.3291015625f), new Vector3(3686.1735839844f, 53.838798522949f, 7713.0024414063f)));
-            Jump.Add(new JumpSpot(new Vector3(6438.3310546875f, -64.068969726563f, 8201.734375f), new Vector3(6466.015625f, -64.068969726563f, 8358.650390625f)));
-            Jump.Add(new JumpSpot(new Vector3(6550.9438476563f, 56.018665313721f, 8759.0458984375f), new Vector3(6547f, 56.018665313721f, 8613f)));
-            Jump.Add(new JumpSpot(new Vector3(7040.94140625f, 56.018997192383f, 8698.333984375f), new Vector3(7134.6791992188f, 56.018997192383f, 8759.9619140625f)));
-            Jump.Add(new JumpSpot(new Vector3(8070.28125f, 55.055992126465f, 8696.9052734375f), new Vector3(7977f, 55.055992126465f, 8781f)));
-            Jump.Add(new JumpSpot(new Vector3(7396.7861328125f, 55.606025695801f, 9239.8271484375f), new Vector3(7394.984375f, 55.606025695801f, 9063.814453125f)));
-            Jump.Add(new JumpSpot(new Vector3(5525.7817382813f, 55.085205078125f, 9987.673828125f), new Vector3(5384.943359375f, 55.085205078125f, 10007.40234375f)));
-            Jump.Add(new JumpSpot(new Vector3(4422.02734375f, -62.942153930664f, 10580.529296875f), new Vector3(4388.0249023438f, -62.942153930664f, 10663.412109375f)));
-            Jump.Add(new JumpSpot(new Vector3(6607.0966796875f, 54.634994506836f, 10630.306640625f), new Vector3(6628.1147460938f, 54.634994506836f, 10463.506835938f)));
-            Jump.Add(new JumpSpot(new Vector3(7374.482421875f, 53.263687133789f, 4671.4790039063f), new Vector3(7364.9262695313f, 53.263687133789f, 4513.6796875f)));
-            Jump.Add(new JumpSpot(new Vector3(6405.2646484375f, 52.171257019043f, 3655.4738769531f), new Vector3(6313.0185546875f, 52.171257019043f, 3562.0717773438f)));
-            Jump.Add(new JumpSpot(new Vector3(5576.25390625f, 51.753463745117f, 4176.833984375f), new Vector3(5500.7392578125f, 51.753463745117f, 4270.5112304688f)));
-            Jump.Add(new JumpSpot(new Vector3(10226.828125f, 66.05110168457f, 8866.791015625f), new Vector3(10175.86328125f, 66.05110168457f, 8956.7744140625f)));
-            Jump.Add(new JumpSpot(new Vector3(9750.0341796875f, 52.114059448242f, 9440.05078125f), new Vector3(9845f, 52.114059448242f, 9313f)));
-            Jump.Add(new JumpSpot(new Vector3(9029.5546875f, 54.20191192627f, 9765.8134765625f), new Vector3(8947.9169921875f, 54.20191192627f, 9851.1064453125f)));
-            Jump.Add(new JumpSpot(new Vector3(7642.74609375f, 53.922214508057f, 10822.842773438f), new Vector3(7745f, 53.922214508057f, 10897f)));
-            Jump.Add(new JumpSpot(new Vector3(8236.056640625f, 49.935394287109f, 11255.161132813f), new Vector3(8112.7490234375f, 49.935394287109f, 11145.7734375f)));
-            Jump.Add(new JumpSpot(new Vector3(1752.2419433594f, 54.923698425293f, 8448.9619140625f), new Vector3(1621.3428955078f, 54.923698425293f, 8437.0380859375f)));
+            Jump.Add(new JumpSpot(new Vector3(5512.908f, 6039.813f, 51.31262f), new Vector3(5345.714f, 6148.591f, 50.80725f)));
+            Jump.Add(new JumpSpot(new Vector3(3831.914f, 52.46252f, 6549.028f), new Vector3(3830.042f, 52.46143f, 6652.219f)));
+            Jump.Add(new JumpSpot(new Vector3(3308.438f, 52.0874f, 6435.311f), new Vector3(3209.204f, 51.93689f, 6392.481f)));
+            Jump.Add(new JumpSpot(new Vector3(3732.878f, 50.80249f, 7201.029f), new Vector3(3731.923f, 51.41162f, 7312.149f)));
+            Jump.Add(new JumpSpot(new Vector3(4759.604f, 52.5658f, 7822.059f), new Vector3(4640.189f, 52.51257f, 7804.859f)));
+            Jump.Add(new JumpSpot(new Vector3(3885.163f, 51.8927f, 7825.341f), new Vector3(4015.652f, 51.33838f, 7829.216f)));
+            Jump.Add(new JumpSpot(new Vector3(2216.856f, 51.77698f, 8393.946f), new Vector3(2123.749f, 51.7771f, 8377.014f)));
+            Jump.Add(new JumpSpot(new Vector3(2950.097f, 57.04395f, 5879.647f), new Vector3(3074.498f, 57.04492f, 5903.677f)));
+            Jump.Add(new JumpSpot(new Vector3(5234.063f, -71.24072f, 10726.57f), new Vector3(5320.236f, -71.24048f, 10757.75f)));
+            Jump.Add(new JumpSpot(new Vector3(4881.556f, -71.24072f, 10782.05f), new Vector3(4869.955f, -71.24084f, 10860.36f)));
+            Jump.Add(new JumpSpot(new Vector3(6110.383f, 55.34912f, 10585.62f), new Vector3(6216.023f, 54.39734f, 10602.18f)));
+            Jump.Add(new JumpSpot(new Vector3(6552.886f, 54.21692f, 11547.54f), new Vector3(6535.944f, 53.92749f, 11637.58f)));
+            Jump.Add(new JumpSpot(new Vector3(6458.442f, 56.47693f, 12112.99f), new Vector3(6467.904f, 56.47681f, 12005.04f)));
+            Jump.Add(new JumpSpot(new Vector3(7918.915f, 53.72021f, 4151.359f), new Vector3(7921.666f, 53.71948f, 4239.165f)));
+            Jump.Add(new JumpSpot(new Vector3(8402.849f, 51.10583f, 2753.006f), new Vector3(8388.755f, 51.13f, 2842.286f)));
+            Jump.Add(new JumpSpot(new Vector3(8982.477f, 53.33093f, 4001.319f), new Vector3(9085.941f, 53.7821f, 4030.224f)));
+            Jump.Add(new JumpSpot(new Vector3(8944.968f, 52.15833f, 4721.304f), new Vector3(9033.252f, 52.0719f, 4675.623f)));
+            Jump.Add(new JumpSpot(new Vector3(9727.997f, -71.24084f, 4040.509f), new Vector3(9685.505f, -70.97998f, 3954.977f)));
+            Jump.Add(new JumpSpot(new Vector3(9468.955f, -71.24072f, 4501.78f), new Vector3(9367.121f, -71.2406f, 4542.082f)));
+            Jump.Add(new JumpSpot(new Vector3(9042.721f, -71.24048f, 6411.511f), new Vector3(9093.207f, -71.24072f, 6477.897f)));
+            Jump.Add(new JumpSpot(new Vector3(9477.367f, 52.48083f, 7107.661f), new Vector3(9431.294f, 52.53564f, 7017.614f)));
+            Jump.Add(new JumpSpot(new Vector3(7741.808f, 52.40625f, 5898.093f), new Vector3(7815.08f, 51.64905f, 5953.273f)));
+            Jump.Add(new JumpSpot(new Vector3(8193.631f, -71.24072f, 6280.748f), new Vector3(8126.122f, -71.24072f, 6197.067f)));
+            Jump.Add(new JumpSpot(new Vector3(5657.813f, 51.65442f, 7702.506f), new Vector3(5719.472f, 51.65442f, 7758.776f)));
+            Jump.Add(new JumpSpot(new Vector3(6061.12f, -68.72888f, 8316.865f), new Vector3(6007.151f, -68.7594f, 8257.824f)));
+            Jump.Add(new JumpSpot(new Vector3(6740.511f, -71.24084f, 8535.017f), new Vector3(6803.211f, -71.24072f, 8591.198f)));
+            Jump.Add(new JumpSpot(new Vector3(7786.991f, 52.44653f, 9320.914f), new Vector3(7787.272f, 52.50171f, 9227.487f)));
+            Jump.Add(new JumpSpot(new Vector3(7554.679f, 52.87244f, 8830.464f), new Vector3(7598.848f, 52.87256f, 8890.213f)));
+            Jump.Add(new JumpSpot(new Vector3(7144.915f, 52.84851f, 10033.38f), new Vector3(7143.229f, 52.46057f, 10126.55f)));
+            Jump.Add(new JumpSpot(new Vector3(8056.637f, 50.70618f, 11011.76f), new Vector3(8119.013f, 50.7179f, 11056.78f)));
+            Jump.Add(new JumpSpot(new Vector3(10693.3f, 51.87354f, 7608.199f), new Vector3(10744.99f, 52.01514f, 7506.439f)));
+            Jump.Add(new JumpSpot(new Vector3(10693.3f, 51.87354f, 7608.199f), new Vector3(10744.99f, 52.01514f, 7506.439f)));
+            Jump.Add(new JumpSpot(new Vector3(10909.05f, 62.68127f, 8249.537f), new Vector3(10916.33f, 62.87183f, 8143.787f)));
+            Jump.Add(new JumpSpot(new Vector3(11499.76f, 59.40002f, 8549.204f), new Vector3(11576.31f, 60.37341f, 8582.757f)));
+            Jump.Add(new JumpSpot(new Vector3(11951.33f, 50.3103f, 8876.381f), new Vector3(11879.36f, 50.43408f, 8810.297f)));
+            Jump.Add(new JumpSpot(new Vector3(11011.02f, 51.72339f, 7057.407f), new Vector3(10997.64f, 51.72363f, 7140.384f)));
+            Jump.Add(new JumpSpot(new Vector3(10868.45f, 51.72302f, 7031.942f), new Vector3(10781.43f, 51.72278f, 7060.89f)));
+            Jump.Add(new JumpSpot(new Vector3(10217.83f, 51.97852f, 6823.584f), new Vector3(10308.14f, 51.97656f, 6835.764f)));
+            Jump.Add(new JumpSpot(new Vector3(12686.56f, 51.70142f, 6388.303f), new Vector3(12772.3f, 51.677f, 6391.575f)));
+            Jump.Add(new JumpSpot(new Vector3(11528.67f, -71.2406f, 4623.761f), new Vector3(11603.53f, -71.2406f, 4699.122f)));
+            Jump.Add(new JumpSpot(new Vector3(12003.49f, 52.35034f, 4974.583f), new Vector3(11934.33f, 51.9657f, 4872.047f)));
+            Jump.Add(new JumpSpot(new Vector3(6762.071f, 48.5238f, 3944.274f), new Vector3(6664.041f, 48.52441f, 3997.398f)));
         }
-
+         
     }
 }
