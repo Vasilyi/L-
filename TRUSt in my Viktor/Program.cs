@@ -76,7 +76,7 @@ namespace Viktor
             // Finetune spells
             Q.SetTargetted(0.25f, 2000);
             W.SetSkillshot(0.5f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            E.SetSkillshot(0, 90, speedE, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0, 80, speedE, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.5f, 450f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             // Create menu
@@ -120,6 +120,9 @@ namespace Viktor
             // WaveClear
             if (keyLinks["waveActive"].Value.Active)
                 OnWaveClear();
+
+            if (keyLinks["jungleActive"].Value.Active)
+                OnJungleClear();
 
             // Ultimate follow
             if (R.Instance.Name != "ViktorChaosStorm" && boolLinks["AutoFollowR"].Value && Environment.TickCount - lasttick > 0)
@@ -187,7 +190,7 @@ namespace Viktor
                     }
                 }
             }
-            if (useR && R.Instance.Name == "ViktorChaosStorm")
+            if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast)
             {
                 var t = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
@@ -196,12 +199,12 @@ namespace Viktor
                     if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(t))
                         R.Cast(t.ServerPosition);
                 }
-                foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
-                {
-                    R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
-                }
+                    foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
+                    {
+                        R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
+                    }
             }
-           
+
         }
 
         private static void OnHarass()
@@ -249,6 +252,50 @@ namespace Viktor
 
             if (useE)
                 PredictCastMinionE(sliderLinks["waveNumE"].Value.Value + 1);
+        }
+
+        private static void OnJungleClear()
+        {
+            // Mana check
+            if ((player.Mana / player.MaxMana) * 100 < sliderLinks["waveMana"].Value.Value)
+                return;
+
+            bool useQ = boolLinks["waveUseQ"].Value && Q.IsReady();
+            bool useE = boolLinks["waveUseE"].Value && E.IsReady();
+
+            if (useQ)
+            {
+                foreach (var minion in MinionManager.GetMinions(player.Position, player.AttackRange, MinionTypes.All, MinionTeam.Neutral,MinionOrderTypes.MaxHealth))
+                {
+                    Q.Cast(minion);
+                }
+            }
+
+            if (useE)
+                PredictCastMinionEJungle();
+        }
+
+
+        private static bool PredictCastMinionEJungle()
+        {
+            int requiredHitNumber = 1;
+            int hitNum = 0;
+            Vector2 startPos = new Vector2(0, 0);
+            Vector2 endPos = new Vector2(0, 0);
+            foreach (var minion in MinionManager.GetMinions(player.Position, rangeE,MinionTypes.All, MinionTeam.Neutral))
+            {
+                var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE, MinionTypes.All, MinionTeam.Neutral) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE);
+                if (farmLocation.MinionsHit > hitNum)
+                {
+                    hitNum = farmLocation.MinionsHit;
+                    startPos = minion.Position.To2D();
+                    endPos = farmLocation.Position;
+                }
+            }
+
+            if (startPos.X != 0 && startPos.Y != 0)
+                return PredictCastMinionEJungle(startPos, requiredHitNumber);
+            return false;
         }
 
         private static bool PredictCastMinionE(int requiredHitNumber = -1)
@@ -309,6 +356,19 @@ namespace Viktor
             return new MinionManager.FarmLocation(result, minionCount);
         }
 
+
+        private static bool PredictCastMinionEJungle(Vector2 fromPosition, int requiredHitNumber = 1)
+        {
+            var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE, MinionTypes.All, MinionTeam.Neutral), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE);
+
+            if (farmLocation.MinionsHit >= requiredHitNumber)
+            {
+                CastE(fromPosition, farmLocation.Position);
+                return true;
+            }
+
+            return false;
+        }
         private static bool PredictCastMinionE(Vector2 fromPosition, int requiredHitNumber = 1)
         {
             var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE);
@@ -522,7 +582,7 @@ namespace Viktor
             if (!W.IsReady() || !boolLinks["autoW"].Value)
                 return;
 
-            var tPanth = HeroManager.Enemies.Find(h => h.IsValidTarget(W.Range) && h.HasBuff("Pantheon_GrandSkyfall_Jump", true));
+            var tPanth = HeroManager.Enemies.Find(h => h.IsValidTarget(W.Range) && h.HasBuff("Pantheon_GrandSkyfall_Jump"));
             if (tPanth != null)
             {
                 if (W.Cast(tPanth) == Spell.CastStates.SuccessfullyCasted)
@@ -655,6 +715,7 @@ namespace Viktor
             ProcessLink("waveNumE", subMenu.AddLinkedSlider("Minions to hit with E", 2, 1, 10));
             ProcessLink("waveMana", subMenu.AddLinkedSlider("Mana usage in percent (%)", 30));
             ProcessLink("waveActive", subMenu.AddLinkedKeyBind("WaveClear active", 'V', KeyBindType.Press));
+            ProcessLink("jungleActive", subMenu.AddLinkedKeyBind("JungleClear active", 'G', KeyBindType.Press));
 
             subMenu = menu.MainMenu.AddSubMenu("LastHit");
             ProcessLink("waveUseQLH", subMenu.AddLinkedKeyBind("Use Q", 'A', KeyBindType.Press));   
