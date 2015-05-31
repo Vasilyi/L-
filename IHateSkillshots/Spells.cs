@@ -659,6 +659,29 @@ namespace Skillshots
 
             #endregion Draven
 
+            #region Ekko
+
+            Spells.Add(
+                new SpellData
+                {
+                    BaseSkinName = "Ekko",
+                    SpellName = "EkkoQ",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 950,
+                    Radius = 60,
+                    MissileSpeed = 1650,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 4,
+                    IsDangerous = true,
+                    MissileSpellName = "ekkoqmis",
+                    CanBeRemoved = true,
+              });
+
+            #endregion Ekko
+
             #region Elise
 
             Spells.Add(
