@@ -52,7 +52,7 @@ namespace Ryze
             Q.SetSkillshot(0.25f, Q.Instance.SData.LineWidth, Q.Instance.SData.MissileSpeed, true, SkillshotType.SkillshotLine);
             W = new Spell(SpellSlot.W, 600);
             E = new Spell(SpellSlot.E, 600);
-
+            R = new Spell(SpellSlot.R);
             SpellList.Add(Q);
             SpellList.Add(W);
             SpellList.Add(E);
@@ -215,86 +215,95 @@ namespace Ryze
         {
             var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
             var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-
-            if (target.CountEnemiesInRange(200) > 1 && (UltActive() || (R.Instance.Level > 0 && R.IsReady())))
+            try
             {
-                AoeCombo();
-                return;
-            }
-            if (qTarget != null && !Player.Spellbook.IsCastingSpell)
-            {
-                var collided = Q.GetPrediction(qTarget, false, -1f, new[] { CollisionableObjects.Minions });
-                if (Q.IsReady())
+                if (target != null && target.CountEnemiesInRange(200) > 1 && (UltActive() || (R.Instance.Level > 0 && R.IsReady())))
                 {
-                    if (collided.Hitchance == HitChance.VeryHigh)
-                    {
-                        DebugWrite("High hitchance Q");
-                        ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
-                        return;
-                    }
-                    else if (collided.Hitchance == HitChance.Immobile)
-                    {
-                        DebugWrite("Immobile Q");
-                        ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
-                        return;
-                    }
-                    else if (PassiveCharged() && Player.ManaPercent > 30)
-                    {
-                        DebugWrite("PassiveCharged Q");
-                        ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
-                        return;
-                    }
-
-                }
-                if (target == null)
+                    AoeCombo();
                     return;
-                if (W.IsReady())
-                {
-                    var spellnametext = "W";
-                       
-                    if (myQCooldown > 0.25)
-                    {
-                        W.CastOnUnit(target);
-                        DebugWrite("Reducing Q cooldown with " + spellnametext);
-                        return;
-                    }
-                    else if (collided.Hitchance == HitChance.Collision)
-                    {
-                        W.CastOnUnit(target);
-                        DebugWrite("Q is in collision with " + spellnametext);
-                        return;
-                    }
                 }
-                if (E.IsReady())
+                if (qTarget != null && !Player.Spellbook.IsCastingSpell)
                 {
-                    var spellnametext = "E";
+                    var collided = Q.GetPrediction(qTarget, false, -1f, new[] { CollisionableObjects.Minions });
+                    if (Q.IsReady() && collided != null)
+                    {
+                        if (collided.Hitchance == HitChance.VeryHigh)
+                        {
+                            DebugWrite("High hitchance Q");
+                            ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
+                            return;
+                        }
+                        else if (collided.Hitchance == HitChance.Immobile)
+                        {
+                            DebugWrite("Immobile Q");
+                            ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
+                            return;
+                        }
+                        else if (PassiveCharged() && Player.ManaPercent > 30)
+                        {
+                            DebugWrite("PassiveCharged Q");
+                            ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
+                            return;
+                        }
 
-                    if (myQCooldown > 0.25)
+                    }
+                    if (target == null)
                     {
-                        E.CastOnUnit(target);
-                        DebugWrite("Reducing Q cooldown with " + spellnametext);
                         return;
                     }
-                    else if (collided.Hitchance == HitChance.Collision)
+                    if (W.IsReady())
                     {
-                        E.CastOnUnit(target);
-                        DebugWrite("Q is in collision with " + spellnametext);
-                        return;
+                        var spellnametext = "W";
+
+                        if (myQCooldown > 0.25)
+                        {
+                            W.CastOnUnit(target);
+                            DebugWrite("Reducing Q cooldown with " + spellnametext);
+                            return;
+                        }
+                        else if (collided.Hitchance == HitChance.Collision)
+                        {
+                            W.CastOnUnit(target);
+                            DebugWrite("Q is in collision with " + spellnametext);
+                            return;
+                        }
+                    }
+                    if (E.IsReady())
+                    {
+                        var spellnametext = "E";
+
+                        if (myQCooldown > 0.25)
+                        {
+                            E.CastOnUnit(target);
+                            DebugWrite("Reducing Q cooldown with " + spellnametext);
+                            return;
+                        }
+                        else if (collided.Hitchance == HitChance.Collision)
+                        {
+                            E.CastOnUnit(target);
+                            DebugWrite("Q is in collision with " + spellnametext);
+                            return;
+                        }
+                    }
+                    if (Q.IsReady())
+                    {
+                        if (collided.Hitchance > HitChance.Medium)
+                        {
+                            ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
+                            DebugWrite("Medium chance Q");
+                        }
+                        if (PassiveCharged() && Player.ManaPercent > 30)
+                        {
+                            ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
+                            DebugWrite("Q TO PROC PASSIVE");
+                        }
                     }
                 }
-                if (Q.IsReady())
-                {
-                    if (collided.Hitchance > HitChance.Medium)
-                    {
-                        ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
-                        DebugWrite("Medium chance Q");
-                    }
-                    if (PassiveCharged() && Player.ManaPercent > 30)
-                    {
-                        ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
-                        DebugWrite("Q TO PROC PASSIVE");
-                    }
-                }
+
+            }
+            catch (Exception r)
+            {
+                Console.WriteLine(r.ToString());
             }
         }
 
