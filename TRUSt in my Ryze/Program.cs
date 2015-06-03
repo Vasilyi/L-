@@ -447,15 +447,11 @@ namespace Ryze
 
         private static bool UltActive()
         {
-            return Player.HasBuff("ryzepassivecharged");
+            return Player.HasBuff("RyzeR");
         }
         private static void Harass()
         {
             var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-            foreach (var buff in Player.Buffs)
-            {
-                Console.WriteLine("PLAYER : " + buff.Name);
-            }
             if (target != null && Config.Item("UseQHarass").GetValue<bool>())
             {
                 var collided = Q.GetPrediction(target, false, -1f, new[] { CollisionableObjects.Minions });
