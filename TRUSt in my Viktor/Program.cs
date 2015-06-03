@@ -25,6 +25,7 @@ namespace Viktor
         private static readonly int speedE = 1200;
         private static readonly int rangeE = 525;
         private static int lasttick = 0;
+        private static Vector3 GapCloserPos;
         private static bool AttacksEnabled
         {
             get
@@ -77,7 +78,7 @@ namespace Viktor
             Q.SetTargetted(0.25f, 2000);
             W.SetSkillshot(0.5f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0, 80, speedE, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.5f, 450f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.25f, 450f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             // Create menu
             SetupMenu();
@@ -575,7 +576,14 @@ namespace Viktor
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (boolLinks["miscGapcloser"].Value && W.IsInRange(gapcloser.End))
-                W.Cast(gapcloser.End.To2D(), true);
+            {
+                GapCloserPos = gapcloser.End;
+                if (Geometry.Distance(gapcloser.Start, gapcloser.End) > gapcloser.Sender.Spellbook.GetSpell(gapcloser.Slot).SData.CastRangeDisplayOverride)
+                {
+                    GapCloserPos = Geometry.Extend(gapcloser.Start, gapcloser.End, gapcloser.Sender.Spellbook.GetSpell(gapcloser.Slot).SData.CastRangeDisplayOverride);
+                }
+                W.Cast(GapCloserPos.To2D(), true);
+            }
         }
         private static void AutoW()
         {
@@ -593,7 +601,7 @@ namespace Viktor
             {
                 if (enemy.HasBuff("rocketgrab2"))
                 {
-                    var t = HeroManager.Allies.Find(h => h.BaseSkinName.ToLower() == "blitzcrank" && h.Distance(player) < W.Range);
+                    var t = HeroManager.Allies.Find(h => h.BaseSkinName.ToLower() == "blitzcrank" && h.Distance((AttackableUnit)player) < W.Range);
                     if (t != null)
                     {
                         if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
