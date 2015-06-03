@@ -31,7 +31,9 @@ namespace TRUStinmyKarthus
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+
         }
+
 
         private static void Game_OnGameLoad(EventArgs args)
         {
@@ -40,8 +42,7 @@ namespace TRUStinmyKarthus
                 return;
             }
             Console.WriteLine("TRUStInMyKarthus LOADED");
-            
-var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
+            var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
             TargetSelector.AddToMenu(targetSelectorMenu);
            
             Player = ObjectManager.Player;
@@ -51,8 +52,9 @@ var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
             E = new Spell(SpellSlot.E, Spells.eRange);
             R = new Spell(SpellSlot.R, 99999);
 
-            Q.SetSkillshot(1f, 150f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(0.85f, Q.Instance.SData.CastRadius, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.25f, 0f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q.Range = Spells.qRange + Q.Instance.SData.CastRadius;
             try
             {
                 //Create the menu
@@ -69,7 +71,6 @@ var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
 
                 Config.AddSubMenu(new Menu("Combo Options:", "combospells"));
                 Config.SubMenu("combospells").AddItem(new MenuItem("UseI", "Use Ignite if enemy is killable").SetValue(true));
-                Config.SubMenu("combospells").AddItem(new MenuItem("dfg", "Use DFG in full combo").SetValue(true));
                 Config.SubMenu("combospells").AddItem(new MenuItem("useQ", "Use - Q").SetValue(true));
                 Config.SubMenu("combospells").AddItem(new MenuItem("useW", "Use - W").SetValue(true));
                 Config.SubMenu("combospells").AddItem(new MenuItem("useE", "Use - E").SetValue(true));
@@ -162,6 +163,8 @@ var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
 
         private static void AutoUlt()
         {
+            if (R.Instance.Level == 0)
+                return;
            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => ObjectManager.Player.GetSpellDamage(x, SpellSlot.R) >= x.Health && x.IsValidTarget()))
            {
 
