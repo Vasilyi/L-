@@ -20,8 +20,8 @@ namespace Viktor
 
         // Spells
         private static Spell Q, W, E, R;
-        private static readonly int maxRangeE = 1275;
-        private static readonly int lengthE = 720;
+        private static readonly int maxRangeE = 1225;
+        private static readonly int lengthE = 700;
         private static readonly int speedE = 1200;
         private static readonly int rangeE = 525;
         private static int lasttick = 0;
@@ -191,7 +191,7 @@ namespace Viktor
                     }
                 }
             }
-            if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast)
+            if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast && !player.Spellbook.IsCastingSpell)
             {
                 var t = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
