@@ -82,7 +82,7 @@ namespace TRUStInMyBombs
             Q2.SetSkillshot(0.7f, 60f, 1200, true, SkillshotType.SkillshotLine);
             //W.SetSkillshot(0.7f, 125f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.5f, 0f, 1750f, false, SkillshotType.SkillshotCircle);
-            R.SetSkillshot(1f, 550f, 1750f, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(1f, 500f, 1750f, false, SkillshotType.SkillshotCircle);
             try
             {
                 //Create the menu
