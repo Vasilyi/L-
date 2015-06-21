@@ -224,6 +224,11 @@ namespace Ryze
                 }
                 if (qTarget != null && !Player.Spellbook.IsCastingSpell)
                 {
+
+                    if (target != null)
+                    {
+                        qTarget = target;
+                    }
                     var collided = Q.GetPrediction(qTarget, false, -1f, new[] { CollisionableObjects.Minions });
                     if (Q.IsReady() && collided != null)
                     {
