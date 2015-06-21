@@ -19,7 +19,7 @@ namespace IHateCC
             public static int QSSslot;
             public static bool mikaelslot;
             public static SpellSlot CleanseSlot;
-            public static SpellSlot spellslot;
+            public static SpellSlot spellslot = 0;
             public static float lastcleanse;
 
         }
@@ -32,40 +32,48 @@ namespace IHateCC
         }
 
 
-        private static void Checks(Obj_AI_Base target, Obj_AI_Base source,  BuffType Type)
+        private static void Checks(string Type)
         {
-            if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active) && target.IsMe)
+            Console.WriteLine(Type);
+            try
             {
-                if ((Type == BuffType.Stun || Type == BuffType.Taunt || Type == BuffType.Fear || Type == BuffType.Charm))
+                if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active))
                 {
-                    Console.WriteLine("CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : " + target.IsMe);
-                    CleanseChecks(false, 0);
-                };
-                if (Type == BuffType.Silence && Config.Item("silence").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, 0);
-                };
-                if (Type == BuffType.Suppression && Config.Item("supress").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(true, 0);
-                };
-                if (Type == BuffType.Disarm && Config.Item("disarm").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, 0);
-                };
-                if (Type == BuffType.Blind && Config.Item("blind").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false, 0);
-                };
-                if (Type == BuffType.Snare && Config.Item("root").GetValue<KeyBind>().Active)
-                {
-                    CleanseChecks(false,0);
-                };
-                //if (args.BuffID == "???" && Config.Item("exhaust").GetValue<KeyBind>().Active)
-                //{
-                //    CleanseChecks(false, args.Duration);
-                //};
-            };
+                    if ((Type == "Stun" || Type == "Taunt" || Type == "Fear" || Type == "Charm"))
+                    {
+                        Console.WriteLine("CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : ");
+                        CleanseChecks(false);
+                    };
+                    if (Type == "Silence" && Config.Item("silence").GetValue<KeyBind>().Active)
+                    {
+                        CleanseChecks(false);
+                    };
+                    if (Type == "Suppression" && Config.Item("supress").GetValue<KeyBind>().Active)
+                    {
+                        CleanseChecks(true);
+                    };
+                    if (Type == "Disarm" && Config.Item("disarm").GetValue<KeyBind>().Active)
+                    {
+                        CleanseChecks(false);
+                    };
+                    if (Type == "Blind" && Config.Item("blind").GetValue<KeyBind>().Active)
+                    {
+                        CleanseChecks(false);
+                    };
+                    if (Type == "Snare" && Config.Item("root").GetValue<KeyBind>().Active)
+                    {
+                        CleanseChecks(false);
+                    };
+                    //if (args.BuffID == "???" && Config.Item("exhaust").GetValue<KeyBind>().Active)
+                    //{
+                    //    CleanseChecks(false, args.Duration);
+                    //};
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("s" + e);
+            }
         }
         private static void Game_OnGameLoad(EventArgs args)
         {
@@ -85,7 +93,6 @@ namespace IHateCC
             Config.SubMenu("Types").AddItem(new MenuItem("exhaust", "Cleanse exhaust").SetValue(true));
 
             Config.AddSubMenu(new Menu("HotKey", "HotKey"));
-            Config.SubMenu("HotKey").AddItem(new MenuItem("nonpackets", "Non-packet mode").SetValue(true));
             Config.SubMenu("HotKey")
                 .AddItem(new MenuItem("ccactive", "Auto Cleanse").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("HotKey")
@@ -93,7 +100,7 @@ namespace IHateCC
                     new MenuItem("ccactiveT", "Auto Cleanse (toggle)").SetValue(new KeyBind("C".ToCharArray()[0],
                         KeyBindType.Toggle)));
             Config.AddToMainMenu();
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             itemslots.CleanseSlot = Utility.GetSpellSlot(Player, "SummonerBoost");
             Console.WriteLine(Utility.GetSpellSlot(Player, "SummonerBoost") + " found cleanse");
             if (Player.BaseSkinName == "Gangplank")
@@ -109,56 +116,58 @@ namespace IHateCC
             {
                 foreach (var buff in ObjectManager.Player.Buffs)
                 {
-                    if (Game.Time > Config.Item("minimaltime").GetValue<Slider>().Value / 10)
+                    var buffend = buff.EndTime - Game.Time;
+                    if (!buff.Caster.IsMe && buffend > Config.Item("minimaltime").GetValue<Slider>().Value / 10)
                     {
-                        Checks(Player, Player, buff.Type);
+                        Console.WriteLine(buff.Name + " : " + buffend + " : " + Config.Item("minimaltime").GetValue<Slider>().Value / 10);
+                        Checks(buff.Type.ToString());
                     }
                 };
             };
         }
 
-        private static void CleanseChecks(bool supress, float duration)
+        private static void CleanseChecks(bool supress)
         {
-            Console.WriteLine("Checking duration " + (duration > Config.Item("minimaltime").GetValue<Slider>().Value / 10));
-            if (duration > Config.Item("minimaltime").GetValue<Slider>().Value/10 || duration == 0)
+            CleanseSLot();
+            try
             {
-                CleanseSLot();
-                CastCleanse(false);
-            }
-        }
-        private static void CastCleanse(bool supress)
-        {
-            if (itemslots.lastcleanse == Environment.TickCount)
-            {
-                return;
-            };
-            Console.WriteLine(ObjectManager.Player.Spellbook.CanUseSpell(itemslots.spellslot));
-            if (supress && itemslots.QSSslot != 0)
-            {
-                Items.UseItem(itemslots.QSSslot);
-                itemslots.lastcleanse = Environment.TickCount;
-            };
-            if (!supress)
-            {
-                Console.WriteLine("Not supress " + itemslots.QSSslot + " : " + itemslots.CleanseSlot + " : " + itemslots.spellslot);
-                if (itemslots.QSSslot != 0 && Items.CanUseItem(itemslots.QSSslot))
+                if (itemslots.lastcleanse + 100 > Environment.TickCount)
                 {
-                    Console.WriteLine("Found QSS");
+                    return;
+                };
+                Console.WriteLine(ObjectManager.Player.Spellbook.CanUseSpell(itemslots.spellslot));
+                if (supress && itemslots.QSSslot != 0 && Items.CanUseItem(itemslots.QSSslot))
+                {
+                    Console.WriteLine("Supress " + itemslots.QSSslot + " : " + itemslots.CleanseSlot + " : " + itemslots.spellslot);
                     Items.UseItem(itemslots.QSSslot);
                     itemslots.lastcleanse = Environment.TickCount;
-                }
-                else if (itemslots.spellslot != SpellSlot.Q && ObjectManager.Player.Spellbook.CanUseSpell(itemslots.CleanseSlot) == SpellState.Ready)
-                {
-                    ObjectManager.Player.Spellbook.CastSpell(itemslots.CleanseSlot);
-                    Console.WriteLine("Found Summoner");
-                    itemslots.lastcleanse = Environment.TickCount;
-                }
-                else if (itemslots.spellslot != SpellSlot.Q && ObjectManager.Player.Spellbook.CanUseSpell(itemslots.spellslot) == SpellState.Ready)
-                {
-                    Console.WriteLine("Found Spell");
-                    ObjectManager.Player.Spellbook.CastSpell(itemslots.spellslot);
-                    itemslots.lastcleanse = Environment.TickCount;
                 };
+                if (!supress)
+                {
+                    Console.WriteLine("Not supress " + itemslots.QSSslot + " : " + itemslots.CleanseSlot + " : " + itemslots.spellslot);
+                    if (itemslots.QSSslot != 0 && Items.CanUseItem(itemslots.QSSslot))
+                    {
+                        Console.WriteLine("Found QSS");
+                        Items.UseItem(itemslots.QSSslot);
+                        itemslots.lastcleanse = Environment.TickCount;
+                    }
+                    else if (ObjectManager.Player.Spellbook.CanUseSpell(itemslots.CleanseSlot) == SpellState.Ready)
+                    {
+                        ObjectManager.Player.Spellbook.CastSpell(itemslots.CleanseSlot);
+                        Console.WriteLine("Found Summoner");
+                        itemslots.lastcleanse = Environment.TickCount;
+                    }
+                    else if (itemslots.spellslot != 0 && ObjectManager.Player.Spellbook.CanUseSpell(itemslots.spellslot) == SpellState.Ready)
+                    {
+                        Console.WriteLine("Found Spell");
+                        ObjectManager.Player.Spellbook.CastSpell(itemslots.spellslot);
+                        itemslots.lastcleanse = Environment.TickCount;
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("b" +  e);
             }
         }
 
