@@ -34,36 +34,37 @@ namespace IHateCC
 
         private static void Checks(string Type)
         {
-            Console.WriteLine(Type);
+          //  Console.WriteLine(Type);
             try
             {
-                if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active))
+                if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<bool>()))
                 {
-                    if ((Type == "Stun" || Type == "Taunt" || Type == "Fear" || Type == "Charm"))
+                    if ((Type == "Stun" || Type == "Taunt" || Type == "Fear" || Type == "Charm") && Config.Item("HardCC").GetValue<bool>())
                     {
                         Console.WriteLine("CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : ");
                         CleanseChecks(false);
-                    };
-                    if (Type == "Silence" && Config.Item("silence").GetValue<KeyBind>().Active)
+                    }
+                    if (Type == "Silence" && Config.Item("silence").GetValue<bool>())
                     {
                         CleanseChecks(false);
-                    };
-                    if (Type == "Suppression" && Config.Item("supress").GetValue<KeyBind>().Active)
+                    }
+                    if (Type == "Suppression" && Config.Item("supress").GetValue<bool>())
                     {
                         CleanseChecks(true);
-                    };
-                    if (Type == "Disarm" && Config.Item("disarm").GetValue<KeyBind>().Active)
+                    }
+                    if (Type == "Disarm" && Config.Item("disarm").GetValue<bool>())
                     {
                         CleanseChecks(false);
-                    };
-                    if (Type == "Blind" && Config.Item("blind").GetValue<KeyBind>().Active)
+                    }
+                    if (Type == "Blind" && Config.Item("blind").GetValue<bool>())
                     {
                         CleanseChecks(false);
-                    };
-                    if (Type == "Snare" && Config.Item("root").GetValue<KeyBind>().Active)
+                    }
+                    if ((Type == "Snare" || Type == "Root") && Config.Item("root").GetValue<bool>())
                     {
                         CleanseChecks(false);
-                    };
+                    }
+
                     //if (args.BuffID == "???" && Config.Item("exhaust").GetValue<KeyBind>().Active)
                     //{
                     //    CleanseChecks(false, args.Duration);
@@ -75,6 +76,13 @@ namespace IHateCC
                 Console.WriteLine("s" + e);
             }
         }
+
+        private static bool ChampIngame(string champname)
+        {
+            return ObjectManager.Get<Obj_AI_Hero>().Any(h => h.IsEnemy && !h.IsMe && h.ChampionName == champname);
+        }
+
+
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
@@ -92,7 +100,15 @@ namespace IHateCC
             Config.SubMenu("Types").AddItem(new MenuItem("root", "Cleanse root").SetValue(true));
             Config.SubMenu("Types").AddItem(new MenuItem("exhaust", "Cleanse exhaust").SetValue(true));
 
-            Config.AddSubMenu(new Menu("HotKey", "HotKey"));
+            if (ChampIngame("Zed"))
+            {
+                Config.SubMenu("Types").AddItem(new MenuItem("zedR", "Zed Mark").SetValue(true));
+            }
+            if (ChampIngame("Vladimir"))
+            {
+                Config.SubMenu("Types").AddItem(new MenuItem("vladR", "Vladimir ulti").SetValue(true));
+            }
+        Config.AddSubMenu(new Menu("HotKey", "HotKey"));
             Config.SubMenu("HotKey")
                 .AddItem(new MenuItem("ccactive", "Auto Cleanse").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("HotKey")
@@ -117,6 +133,14 @@ namespace IHateCC
                 foreach (var buff in ObjectManager.Player.Buffs)
                 {
                     var buffend = buff.EndTime - Game.Time;
+                    if (Config.Item("zedR") != null && Config.Item("zedR").GetValue<bool>() && buff.Name == "zedulttargetmark")
+                    {
+                        Utility.DelayAction.Add(2900, () => CleanseChecks(true));
+                    }
+                    if (Config.Item("vladR") != null && Config.Item("vladR").GetValue<bool>() && buff.Name == "VladimirHemoplague")
+                    {
+                        CleanseChecks(true);
+                    }
                     if (!buff.Caster.IsMe && buffend > Config.Item("minimaltime").GetValue<Slider>().Value / 10)
                     {
                         Console.WriteLine(buff.Name + " : " + buffend + " : " + Config.Item("minimaltime").GetValue<Slider>().Value / 10);
@@ -170,6 +194,8 @@ namespace IHateCC
                 Console.WriteLine("b" +  e);
             }
         }
+
+
 
         private static void CleanseSLot()
         {
