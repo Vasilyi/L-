@@ -50,7 +50,8 @@ namespace Vladimir
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
-            if (Player.Name != ChampionName) return;
+
+            if (Player.ChampionName != ChampionName) return;
 
             //Create the spells
             Q = new Spell(SpellSlot.Q, 600);
@@ -85,6 +86,9 @@ namespace Vladimir
             Config.SubMenu("Drawings")
                 .AddItem(
                     new MenuItem("ERange", "E range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
+            Config.SubMenu("Drawings")
+    .AddItem(
+        new MenuItem("RRange", "R range").SetValue(new Circle(false, System.Drawing.Color.FromArgb(255, 255, 255, 255))));
             Config.AddSubMenu(new Menu("Misc", "Misc"));
             Config.SubMenu("Misc")
                 .AddItem(
@@ -134,7 +138,6 @@ namespace Vladimir
         {
             if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
             {
-
                 Combo();
             };
             if (Config.Item("HarassActive").GetValue<KeyBind>().Active)
@@ -146,7 +149,7 @@ namespace Vladimir
                 if (ObjectManager.Player.Spellbook.CanUseSpell(SpellSlot.E) == SpellState.Ready)
                 {
                     int eTimeLeft = Environment.TickCount - ECharges.lastE;
-                    Console.WriteLine(ECharges.lastE.ToString() + " CURRENT TICK : " + Environment.TickCount.ToString() + " TIMELEFT : " + eTimeLeft.ToString());
+                   // Console.WriteLine(ECharges.lastE.ToString() + " CURRENT TICK : " + Environment.TickCount.ToString() + " TIMELEFT : " + eTimeLeft.ToString());
                     if ((eTimeLeft >= 9900) && E.IsReady())
                     {
                         
@@ -156,19 +159,51 @@ namespace Vladimir
             }
 
         }
+        private static float TotalDmg(Obj_AI_Base enemy, bool useQ, bool useE, bool useR)
+        {
+            var damage = 0d;
+            var estacks = Player.GetBuffCount("vladimirtidesofbloodcost");
+            //Base Q damage
+            if (useQ && Q.IsReady())
+            {
+                damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
+            }
 
+            //E damage
+            if (useE && E.IsReady())
+            {
+                var edmg =  new double[] { 60, 85, 110, 135, 160 }[Player.Spellbook.GetSpell(SpellSlot.E).Level];
+                edmg = edmg * (1 + 0.25 * estacks);
+                edmg = edmg + 0.45 * Player.FlatMagicDamageMod;
+                damage += edmg;
+            }
+
+            //R damage
+            if (useR && R.IsReady())
+            {
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R);
+                damage += TotalDmg(enemy, true, true, false) * 0.12;
+            }
+
+            // Ludens Echo damage
+            if (Items.HasItem(3285))
+                damage += Player.CalcDamage(enemy, Damage.DamageType.Magical, 100 + Player.FlatMagicDamageMod * 0.1);
+            return (float)damage;
+        }
         private static void Combo()
         {
             var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
 
             if (target != null)
             {
+                if (Player.Distance(target.ServerPosition) <= R.Range + R.Width && R.IsReady() && TotalDmg(target, true, true, false) < target.Health)
+                    R.Cast(target, true, true);
+
                 if (Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
                     Q.Cast(target);
                 if (Player.Distance(target.ServerPosition) <= E.Range && E.IsReady() && !Player.Spellbook.IsCastingSpell)
                     E.Cast();
-                if (Player.Distance(target.ServerPosition) <= R.Range + R.Width && R.IsReady())
-                    R.Cast(target, true, true);
+
             }
         }
 
