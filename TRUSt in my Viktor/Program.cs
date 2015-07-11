@@ -159,10 +159,19 @@ namespace Viktor
             var Etarget = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
             var Qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
             var RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
-            if (killpriority && Etarget != Qtarget && ((Etarget.Health > TotalDmg(Etarget, false, true, false)) || (Etarget.Health > TotalDmg(Etarget, false, true, true) && Etarget == RTarget)) && Qtarget.Health < TotalDmg(Qtarget, true, true, false))
+            if (killpriority && Etarget != Qtarget && ((Etarget.Health > TotalDmg(Etarget, false, true, false, false)) || (Etarget.Health > TotalDmg(Etarget, false, true, true,false) && Etarget == RTarget)) && Qtarget.Health < TotalDmg(Qtarget, true, true, false,false))
             {
                 Etarget = Qtarget;
             }
+
+            if (RTarget != null)
+            {
+                if (TotalDmg(RTarget, true, true, false, false) < RTarget.Health && TotalDmg(RTarget, true, true, true, true) > RTarget.Health)
+                {
+                    R.Cast(RTarget.ServerPosition);
+                }
+            }
+
 
             if (useE)
             {
@@ -211,7 +220,7 @@ namespace Viktor
                         R.Cast(RTarget.ServerPosition);
                     }
                     // Cast if full combo can kill
-                    if (GetComboDamage(RTarget) > RTarget.Health)
+                    if (TotalDmg(RTarget,true,true,true,true) > RTarget.Health)
                     {
                         R.Cast(RTarget.ServerPosition);
                     }
@@ -661,20 +670,21 @@ namespace Viktor
             else if (value is MenuWrapper.SliderLink)
                 sliderLinks.Add(key, value as MenuWrapper.SliderLink);
         }
-        private static float TotalDmg(Obj_AI_Base enemy, bool useQ, bool useE, bool useR)
+        private static float TotalDmg(Obj_AI_Base enemy, bool useQ, bool useE, bool useR, bool qRange)
         {
             var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
             var damage = 0d;
             var rTicks = sliderLinks["rTicks"].Value.Value;
+            bool inQRange = ((qRange && Orbwalking.InAutoAttackRange(enemy)) || qRange == false);
             //Base Q damage
-            if (useQ && Q.IsReady())
+            if (useQ && Q.IsReady() && inQRange)
             {
                 damage += player.GetSpellDamage(enemy, SpellSlot.Q);
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] + (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
             }
 
             // Q damage on AA
-            if (useQ && !Q.IsReady() && player.HasBuff("viktorpowertransferreturn"))
+            if (useQ && !Q.IsReady() && player.HasBuff("viktorpowertransferreturn") && inQRange)
             {
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical,
                     qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] +
@@ -714,7 +724,7 @@ namespace Viktor
         private static float GetComboDamage(Obj_AI_Base enemy)
         {
             
-            return TotalDmg(enemy,true, true, true);
+            return TotalDmg(enemy,true, true, true, false);
         }
         private static void SetupMenu()
         {
