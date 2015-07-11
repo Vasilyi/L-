@@ -155,18 +155,25 @@ namespace Viktor
             bool useW = boolLinks["comboUseW"].Value && W.IsReady();
             bool useE = boolLinks["comboUseE"].Value && E.IsReady();
             bool useR = boolLinks["comboUseR"].Value && R.IsReady();
+            bool killpriority = boolLinks["spPriority"].Value && R.IsReady();
+            var Etarget = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
+            var Qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            var RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
+            if (killpriority && Etarget != Qtarget && ((Etarget.Health > TotalDmg(Etarget, false, true, false)) || (Etarget.Health > TotalDmg(Etarget, false, true, true) && Etarget == RTarget)) && Qtarget.Health < TotalDmg(Qtarget, true, true, false))
+            {
+                Etarget = Qtarget;
+            }
 
             if (useE)
             {
-                var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
-                if (target != null)
-                    PredictCastE(target);
+                if (Etarget != null)
+                    PredictCastE(Etarget);
             }
             if (useQ)
             {
-                var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-                if (target != null)
-                    Q.Cast(target);
+                
+                if (Qtarget != null)
+                    Q.Cast(Qtarget);
             }
             if (useW)
             {
@@ -193,20 +200,20 @@ namespace Viktor
             }
             if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast && !player.Spellbook.IsCastingSpell)
             {
-                var t = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
-                if (t != null)
+
+                if (RTarget != null)
                 {
 
                     // Cast if no spells ready beside ulti and can kill
-                    if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(t))
+                    if ((RTarget.Health < (Damage.GetSpellDamage(player, RTarget, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, RTarget, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(RTarget))
                     {
-                        R.Cast(t.ServerPosition);
+                        R.Cast(RTarget.ServerPosition);
                     }
                     // Cast if full combo can kill
-                    if (GetComboDamage(t) > t.Health)
+                    if (GetComboDamage(RTarget) > t.Health)
                     {
-                        R.Cast(t.ServerPosition);
+                        R.Cast(RTarget.ServerPosition);
                     }
                 }
                 foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
@@ -654,20 +661,20 @@ namespace Viktor
             else if (value is MenuWrapper.SliderLink)
                 sliderLinks.Add(key, value as MenuWrapper.SliderLink);
         }
-        private static float GetComboDamage(Obj_AI_Base enemy)
+        private static float TotalDmg(Obj_AI_Base enemy, bool useQ, bool useE, bool useR)
         {
             var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
             var damage = 0d;
             var rTicks = sliderLinks["rTicks"].Value.Value;
             //Base Q damage
-            if (Q.IsReady())
+            if (useQ && Q.IsReady() && )
             {
                 damage += player.GetSpellDamage(enemy, SpellSlot.Q);
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] + (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
             }
 
             // Q damage on AA
-            if (!Q.IsReady() && player.HasBuff("viktorpowertransferreturn"))
+            if (useQ && !Q.IsReady() && player.HasBuff("viktorpowertransferreturn"))
             {
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical,
                     qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] +
@@ -675,7 +682,7 @@ namespace Viktor
             }
 
             //E damage
-            if (E.IsReady())
+            if (useE && E.IsReady())
             {
                 if (player.HasBuff("viktoreaug") || player.HasBuff("viktorqeaug") || player.HasBuff("viktorqweaug"))
                     damage += player.GetSpellDamage(enemy, SpellSlot.E, 1);
@@ -684,7 +691,7 @@ namespace Viktor
             }
 
             //R damage + 2 ticks
-            if (R.Level > 0 && R.IsReady() && R.Instance.Name == "ViktorChaosStorm")
+            if (useR && R.Level > 0 && R.IsReady() && R.Instance.Name == "ViktorChaosStorm")
             {
                 damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R, 1) * rTicks;
                 damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R);
@@ -704,6 +711,11 @@ namespace Viktor
 
             return (float)damage;
         }
+        private static float GetComboDamage(Obj_AI_Base enemy)
+        {
+            
+            return TotalDmg(enemy,true, true, true);
+        }
         private static void SetupMenu()
         {
 
@@ -719,7 +731,7 @@ namespace Viktor
             ProcessLink("AutoFollowR", subMenu.AddLinkedBool("Auto Follow R"));
             ProcessLink("comboActive", subMenu.AddLinkedKeyBind("Combo active", 32, KeyBindType.Press));
             ProcessLink("rTicks", subMenu.AddLinkedSlider("Ultimate ticks to count", 2, 1, 14));
-
+            ProcessLink("spPriority", subMenu.AddLinkedBool("Prioritize kill over dmg"));
 
 
             // Harass
