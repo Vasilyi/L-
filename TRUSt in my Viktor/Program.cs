@@ -718,7 +718,7 @@ namespace Viktor
             ProcessLink("rLastHit", subMenu.AddLinkedBool("1 target ulti"));
             ProcessLink("AutoFollowR", subMenu.AddLinkedBool("Auto Follow R"));
             ProcessLink("comboActive", subMenu.AddLinkedKeyBind("Combo active", 32, KeyBindType.Press));
-            ProcessLink("rTicks", subMenu.AddLinkedSlider("Ultimate ticks to count", 3, 1, 5));
+            ProcessLink("rTicks", subMenu.AddLinkedSlider("Ultimate ticks to count", 2, 1, 14));
 
 
 
