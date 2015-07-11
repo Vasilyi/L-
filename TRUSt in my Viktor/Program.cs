@@ -49,7 +49,7 @@ namespace Viktor
         {
             // Register events
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
-          
+
         }
 
         private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
@@ -197,37 +197,47 @@ namespace Viktor
 
                 if (t != null)
                 {
+
+                    // Cast if no spells ready beside ulti and can kill
                     if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(t))
-                        R.Cast(t.ServerPosition);
-                }
-                    foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                     {
-                        R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
+                        R.Cast(t.ServerPosition);
                     }
+                    // Cast if full combo can kill
+                    if (GetComboDamage(t) > t.Health)
+                    {
+                        R.Cast(t.ServerPosition);
+                    }
+                }
+                foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
+                {
+                    R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
+
+                }
             }
 
         }
 
         private static void OnHarass()
         {
-                // Mana check
-                if ((player.Mana / player.MaxMana) * 100 < sliderLinks["harassMana"].Value.Value)
-                    return;
-                bool useE = boolLinks["harassUseE"].Value && E.IsReady();
-                bool useQ = boolLinks["harassUseQ"].Value && Q.IsReady();
-                if (useQ)
-                {
-                    var qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-                    if (qtarget != null)
-                        Q.Cast(qtarget);
-                }
-                if (useE)
-                {
-                    var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
+            // Mana check
+            if ((player.Mana / player.MaxMana) * 100 < sliderLinks["harassMana"].Value.Value)
+                return;
+            bool useE = boolLinks["harassUseE"].Value && E.IsReady();
+            bool useQ = boolLinks["harassUseQ"].Value && Q.IsReady();
+            if (useQ)
+            {
+                var qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+                if (qtarget != null)
+                    Q.Cast(qtarget);
+            }
+            if (useE)
+            {
+                var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
 
-                    if (target != null)
-                        PredictCastE(target);
-                }
+                if (target != null)
+                    PredictCastE(target);
+            }
         }
 
         private static void OnWaveClear()
@@ -266,7 +276,7 @@ namespace Viktor
 
             if (useQ)
             {
-                foreach (var minion in MinionManager.GetMinions(player.Position, player.AttackRange, MinionTypes.All, MinionTeam.Neutral,MinionOrderTypes.MaxHealth))
+                foreach (var minion in MinionManager.GetMinions(player.Position, player.AttackRange, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth))
                 {
                     Q.Cast(minion);
                 }
@@ -283,7 +293,7 @@ namespace Viktor
             int hitNum = 0;
             Vector2 startPos = new Vector2(0, 0);
             Vector2 endPos = new Vector2(0, 0);
-            foreach (var minion in MinionManager.GetMinions(player.Position, rangeE,MinionTypes.All, MinionTeam.Neutral))
+            foreach (var minion in MinionManager.GetMinions(player.Position, rangeE, MinionTypes.All, MinionTeam.Neutral))
             {
                 var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE, MinionTypes.All, MinionTeam.Neutral) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE);
                 if (farmLocation.MinionsHit > hitNum)
@@ -648,7 +658,7 @@ namespace Viktor
         {
             var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
             var damage = 0d;
-
+            var rTicks = sliderLinks["rTicks"].Value.Value;
             //Base Q damage
             if (Q.IsReady())
             {
@@ -676,13 +686,13 @@ namespace Viktor
             //R damage + 2 ticks
             if (R.Level > 0 && R.IsReady() && R.Instance.Name == "ViktorChaosStorm")
             {
-                damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R, 1) * 2;
+                damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R, 1) * rTicks;
                 damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R);
             }
 
             // Ludens Echo damage
             if (Items.HasItem(3285))
-                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, 100 + player.FlatMagicDamageMod * 0.15);
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, 100 + player.FlatMagicDamageMod * 0.1);
 
             //sheen damage
             if (Items.HasItem(3057))
@@ -691,12 +701,12 @@ namespace Viktor
             //lich bane dmg
             if (Items.HasItem(3100))
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical, 0.5 * player.FlatMagicDamageMod + 0.75 * player.BaseAttackDamage);
-            
+
             return (float)damage;
         }
         private static void SetupMenu()
         {
-            
+
             menu = new MenuWrapper("TRUSt in my " + CHAMP_NAME);
             // Combo
             var subMenu = menu.MainMenu.AddSubMenu("Combo");
@@ -708,6 +718,9 @@ namespace Viktor
             ProcessLink("rLastHit", subMenu.AddLinkedBool("1 target ulti"));
             ProcessLink("AutoFollowR", subMenu.AddLinkedBool("Auto Follow R"));
             ProcessLink("comboActive", subMenu.AddLinkedKeyBind("Combo active", 32, KeyBindType.Press));
+            ProcessLink("rTicks", subMenu.AddLinkedSlider("Ultimate ticks to count", 3, 1, 5));
+
+
 
             // Harass
             subMenu = menu.MainMenu.AddSubMenu("Harass");
@@ -726,7 +739,7 @@ namespace Viktor
             ProcessLink("jungleActive", subMenu.AddLinkedKeyBind("JungleClear active", 'G', KeyBindType.Press));
 
             subMenu = menu.MainMenu.AddSubMenu("LastHit");
-            ProcessLink("waveUseQLH", subMenu.AddLinkedKeyBind("Use Q", 'A', KeyBindType.Press));   
+            ProcessLink("waveUseQLH", subMenu.AddLinkedKeyBind("Use Q", 'A', KeyBindType.Press));
 
             // Misc
             subMenu = menu.MainMenu.AddSubMenu("Misc");
@@ -751,7 +764,7 @@ namespace Viktor
                 Console.WriteLine("menu changed");
                 Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
             };
-           
+
 
         }
     }

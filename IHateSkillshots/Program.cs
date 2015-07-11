@@ -25,7 +25,7 @@ namespace Skillshots
             {
                 Config = new Menu("Skillshots", "Skillshots", true);
                 Config.AddSubMenu(new Menu("Combo", "Combo"));
-                Config.SubMenu("Combo").AddItem(new MenuItem("HitChance", "Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High" })));
+                Config.SubMenu("Combo").AddItem(new MenuItem("HitChance", "Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "VeryHigh" })));
                 Config.AddSubMenu(new Menu("Drawings", "Drawings"));
                 var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
                 TargetSelector.AddToMenu(targetSelectorMenu);
@@ -112,6 +112,7 @@ namespace Skillshots
 
             if (target == null) return;
             var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
+            Console.WriteLine(rMode);
             if (Q.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= Q.Range)
             {
                 switch (rMode)
@@ -124,6 +125,9 @@ namespace Skillshots
                         break;
                     case 2://High
                         Q.CastIfHitchanceEquals(target, HitChance.High);
+                        break;
+                    case 3://Very High
+                        Q.CastIfHitchanceEquals(target, HitChance.VeryHigh);
                         break;
                 }
             }
@@ -149,6 +153,9 @@ namespace Skillshots
                     case 2://High
                         W.CastIfHitchanceEquals(target, HitChance.High);
                         break;
+                    case 3://Very High
+                        W.CastIfHitchanceEquals(target, HitChance.VeryHigh);
+                        break;
                 }
             }
         }
@@ -170,6 +177,9 @@ namespace Skillshots
                     case 2://High
                         E.CastIfHitchanceEquals(target, HitChance.High);
                         break;
+                    case 3://Very High
+                        E.CastIfHitchanceEquals(target, HitChance.VeryHigh);
+                        break;
                 }
             }
         }
@@ -190,6 +200,9 @@ namespace Skillshots
                         break;
                     case 2://High
                         R.CastIfHitchanceEquals(target, HitChance.High);
+                        break;
+                    case 3://Very High
+                        R.CastIfHitchanceEquals(target, HitChance.VeryHigh);
                         break;
                 }
             }

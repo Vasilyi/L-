@@ -41,7 +41,7 @@ namespace Vladimir
         {
            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>())
            {
-               if (hero.BaseSkinName == "Zed")
+               if (hero.Name == "Zed")
                {
                    Config.SubMenu("Misc").AddItem(new MenuItem("antized", "Put your shit on Zed").SetValue(true));
                }
@@ -50,7 +50,7 @@ namespace Vladimir
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
-            if (Player.BaseSkinName != ChampionName) return;
+            if (Player.Name != ChampionName) return;
 
             //Create the spells
             Q = new Spell(SpellSlot.Q, 600);
@@ -119,9 +119,9 @@ namespace Vladimir
         }
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs attack)
         {
-            if (Config.Item("antized") != null && Config.Item("antized").GetValue<bool>() && attack.Target == Player)
+            if (Config.Item("antized") != null && Config.Item("antized").GetValue<bool>() && attack.Target.IsMe)
             {
-                if (unit.BaseSkinName == "Zed" && attack.SData.Name == "zedult")
+                if (unit.Name == "Zed" && attack.SData.Name == "zedult")
                     ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W);
                     Console.WriteLine("Zed feck u:)");
             };
@@ -165,7 +165,7 @@ namespace Vladimir
             {
                 if (Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
                     Q.Cast(target);
-                if (Player.Distance(target.ServerPosition) <= E.Range && E.IsReady())
+                if (Player.Distance(target.ServerPosition) <= E.Range && E.IsReady() && !Player.Spellbook.IsCastingSpell)
                     E.Cast();
                 if (Player.Distance(target.ServerPosition) <= R.Range + R.Width && R.IsReady())
                     R.Cast(target, true, true);
@@ -180,7 +180,7 @@ namespace Vladimir
             {
                 if (Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
                     Q.Cast(target, false);
-                if (Player.Distance(target.ServerPosition) <= E.Range && E.IsReady())
+                if (Player.Distance(target.ServerPosition) <= E.Range && E.IsReady() && !Player.Spellbook.IsCastingSpell)
                     E.Cast();
             }
         }
