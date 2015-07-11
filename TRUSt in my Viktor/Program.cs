@@ -206,12 +206,12 @@ namespace Viktor
                 {
 
                     // Cast if no spells ready beside ulti and can kill
-                    if ((RTarget.Health < (Damage.GetSpellDamage(player, RTarget, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, RTarget, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(RTarget))
+                    if ((RTarget.Health < (Damage.GetSpellDamage(player, RTarget, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, RTarget, SpellSlot.R))) && RTarget.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(RTarget))
                     {
                         R.Cast(RTarget.ServerPosition);
                     }
                     // Cast if full combo can kill
-                    if (GetComboDamage(RTarget) > t.Health)
+                    if (GetComboDamage(RTarget) > RTarget.Health)
                     {
                         R.Cast(RTarget.ServerPosition);
                     }
@@ -667,7 +667,7 @@ namespace Viktor
             var damage = 0d;
             var rTicks = sliderLinks["rTicks"].Value.Value;
             //Base Q damage
-            if (useQ && Q.IsReady() && )
+            if (useQ && Q.IsReady())
             {
                 damage += player.GetSpellDamage(enemy, SpellSlot.Q);
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] + (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
