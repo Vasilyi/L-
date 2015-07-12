@@ -210,21 +210,6 @@ namespace Viktor
             if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast && !player.Spellbook.IsCastingSpell)
             {
 
-
-                if (RTarget != null)
-                {
-
-                    // Cast if no spells ready beside ulti and can kill
-                    if ((RTarget.Health < (Damage.GetSpellDamage(player, RTarget, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, RTarget, SpellSlot.R))) && RTarget.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(RTarget))
-                    {
-                        R.Cast(RTarget.ServerPosition);
-                    }
-                    // Cast if full combo can kill
-                    if (TotalDmg(RTarget,true,true,true,true) > RTarget.Health)
-                    {
-                        R.Cast(RTarget.ServerPosition);
-                    }
-                }
                 foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                 {
                     R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
