@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -115,7 +115,7 @@ namespace Viktor
             // Combo
             if (keyLinks["comboActive"].Value.Active)
                 OnCombo();
-            // Harassÿ
+            // Harassï¿½
             if (keyLinks["harassActive"].Value.Active)
                 OnHarass();
             // WaveClear
@@ -155,34 +155,18 @@ namespace Viktor
             bool useW = boolLinks["comboUseW"].Value && W.IsReady();
             bool useE = boolLinks["comboUseE"].Value && E.IsReady();
             bool useR = boolLinks["comboUseR"].Value && R.IsReady();
-            bool killpriority = boolLinks["spPriority"].Value && R.IsReady();
-            var Etarget = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
-            var Qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-            var RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
-            if (killpriority && Etarget != Qtarget && ((Etarget.Health > TotalDmg(Etarget, false, true, false, false)) || (Etarget.Health > TotalDmg(Etarget, false, true, true,false) && Etarget == RTarget)) && Qtarget.Health < TotalDmg(Qtarget, true, true, false,false))
-            {
-                Etarget = Qtarget;
-            }
-
-            if (RTarget != null)
-            {
-                if (TotalDmg(RTarget, true, true, false, false) < RTarget.Health && TotalDmg(RTarget, true, true, true, true) > RTarget.Health)
-                {
-                    R.Cast(RTarget.ServerPosition);
-                }
-            }
-
 
             if (useE)
             {
-                if (Etarget != null)
-                    PredictCastE(Etarget);
+                var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
+                if (target != null)
+                    PredictCastE(target);
             }
             if (useQ)
             {
-                
-                if (Qtarget != null)
-                    Q.Cast(Qtarget);
+                var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+                if (target != null)
+                    Q.Cast(target);
             }
             if (useW)
             {
@@ -209,7 +193,22 @@ namespace Viktor
             }
             if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast && !player.Spellbook.IsCastingSpell)
             {
+                var t = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
+                if (t != null)
+                {
+
+                    // Cast if no spells ready beside ulti and can kill
+                    if ((t.Health < (Damage.GetSpellDamage(player, t, SpellSlot.R, 1) * 2 + Damage.GetSpellDamage(player, t, SpellSlot.R))) && t.HealthPercent > 5 && boolLinks["rLastHit"].Value && !Q.IsReady() && !E.IsReady() && !KillableWithAA(t))
+                    {
+                        R.Cast(t.ServerPosition);
+                    }
+                    // Cast if full combo can kill
+                    if (GetComboDamage(t) > t.Health)
+                    {
+                        R.Cast(t.ServerPosition);
+                    }
+                }
                 foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                 {
                     R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
@@ -655,21 +654,20 @@ namespace Viktor
             else if (value is MenuWrapper.SliderLink)
                 sliderLinks.Add(key, value as MenuWrapper.SliderLink);
         }
-        private static float TotalDmg(Obj_AI_Base enemy, bool useQ, bool useE, bool useR, bool qRange)
+        private static float GetComboDamage(Obj_AI_Base enemy)
         {
             var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
             var damage = 0d;
             var rTicks = sliderLinks["rTicks"].Value.Value;
-            bool inQRange = ((qRange && Orbwalking.InAutoAttackRange(enemy)) || qRange == false);
             //Base Q damage
-            if (useQ && Q.IsReady() && inQRange)
+            if (Q.IsReady())
             {
                 damage += player.GetSpellDamage(enemy, SpellSlot.Q);
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] + (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
             }
 
             // Q damage on AA
-            if (useQ && !Q.IsReady() && player.HasBuff("viktorpowertransferreturn") && inQRange)
+            if (!Q.IsReady() && player.HasBuff("viktorpowertransferreturn"))
             {
                 damage += player.CalcDamage(enemy, Damage.DamageType.Magical,
                     qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] +
@@ -677,7 +675,7 @@ namespace Viktor
             }
 
             //E damage
-            if (useE && E.IsReady())
+            if (E.IsReady())
             {
                 if (player.HasBuff("viktoreaug") || player.HasBuff("viktorqeaug") || player.HasBuff("viktorqweaug"))
                     damage += player.GetSpellDamage(enemy, SpellSlot.E, 1);
@@ -686,7 +684,7 @@ namespace Viktor
             }
 
             //R damage + 2 ticks
-            if (useR && R.Level > 0 && R.IsReady() && R.Instance.Name == "ViktorChaosStorm")
+            if (R.Level > 0 && R.IsReady() && R.Instance.Name == "ViktorChaosStorm")
             {
                 damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R, 1) * rTicks;
                 damage += Damage.GetSpellDamage(player, enemy, SpellSlot.R);
@@ -706,11 +704,6 @@ namespace Viktor
 
             return (float)damage;
         }
-        private static float GetComboDamage(Obj_AI_Base enemy)
-        {
-            
-            return TotalDmg(enemy,true, true, true, false);
-        }
         private static void SetupMenu()
         {
 
@@ -726,7 +719,7 @@ namespace Viktor
             ProcessLink("AutoFollowR", subMenu.AddLinkedBool("Auto Follow R"));
             ProcessLink("comboActive", subMenu.AddLinkedKeyBind("Combo active", 32, KeyBindType.Press));
             ProcessLink("rTicks", subMenu.AddLinkedSlider("Ultimate ticks to count", 2, 1, 14));
-            ProcessLink("spPriority", subMenu.AddLinkedBool("Prioritize kill over dmg"));
+
 
 
             // Harass
