@@ -222,7 +222,7 @@ namespace Ryze
                     AoeCombo();
                     return;
                 }
-                if (qTarget != null && !Player.Spellbook.IsCastingSpell)
+                if (qTarget != null)
                 {
 
                     if (target != null)
@@ -296,11 +296,13 @@ namespace Ryze
                         {
                             ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
                             DebugWrite("Medium chance Q");
+                            return;
                         }
                         if (PassiveCharged() && Player.ManaPercent > 30)
                         {
                             ObjectManager.Player.Spellbook.CastSpell(Q.Slot, collided.CastPosition, false);
                             DebugWrite("Q TO PROC PASSIVE");
+                            return;
                         }
                     }
                 }
