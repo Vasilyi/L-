@@ -40,7 +40,7 @@ namespace ResetsAllTheWay
         public static Spell E;
         public static Spell R;
         public static SpellSlot IgniteSlot;
-        
+        public static Orbwalking.Orbwalker Orbwalker;
         //Menu
         public static Menu Config;
         private static Obj_AI_Hero Player;
@@ -83,7 +83,11 @@ namespace ResetsAllTheWay
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             TargetSelector.AddToMenu(targetSelectorMenu);
             Config.AddSubMenu(targetSelectorMenu);
+            //Orbwalker submenu
+            Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
 
+            //Load the orbwalker and add it to the submenu.
+            Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
 
 
             Config.AddSubMenu(new Menu("HotKeys:", "hotkeys"));

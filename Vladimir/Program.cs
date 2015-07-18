@@ -23,6 +23,7 @@ namespace Vladimir
         public static Spell E;
         public static Spell R;
         public float lastE = 0f;
+        public static Orbwalking.Orbwalker Orbwalker;
         //Menu
         public static Menu Config;
         private static Obj_AI_Hero Player;
@@ -70,6 +71,12 @@ namespace Vladimir
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             TargetSelector.AddToMenu(targetSelectorMenu);
             Config.AddSubMenu(targetSelectorMenu);
+            //Orbwalker submenu
+            Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+
+            //Load the orbwalker and add it to the submenu.
+            Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
+
 
             Config.AddSubMenu(new Menu("Combo", "Combo"));
             Config.SubMenu("Combo")
