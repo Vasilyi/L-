@@ -29,7 +29,6 @@ namespace Ryze
         public static Items.Item ArchangelsStaff = new Items.Item(3003, 0);
         //Menu
         public static Menu Config;
-        public static double myQCooldown;
         public static string lasttext;
 
         private static Obj_AI_Hero Player;
@@ -44,8 +43,7 @@ namespace Ryze
         {
 
             Player = ObjectManager.Player;
-            if (Player.BaseSkinName != ChampionName) return;
-            Obj_AI_Base.OnProcessSpellCast += ObjAiHeroOnOnProcessSpellCast;
+            if (Player.CharData.BaseSkinName != ChampionName) return;
             //Create the spells
            
             Q = new Spell(SpellSlot.Q, 900);
@@ -138,25 +136,6 @@ namespace Ryze
             Orbwalking.BeforeAttack += OrbwalkingOnBeforeAttack;
         }
 
-
-        private static void ObjAiHeroOnOnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            if (sender == null || !sender.IsMe)
-            {
-                return;
-            }
-            if ( PassiveCharged() && (args.SData.Name == "RyzeW" || args.SData.Name == "RyzeE" || args.SData.Name == "RyzeR" || args.SData.Name == "ryzerw" || args.SData.Name == "ryzere"))
-            {
-                myQCooldown = myQCooldown - (4*(1+Player.PercentCooldownMod));
-            }
-            else 
-                if (args.SData.Name == "RyzeQ" || args.SData.Name == "ryzerq")
-                {
-                    myQCooldown = (4 * (1+Player.PercentCooldownMod));
-                }
-
-            Console.WriteLine(args.SData.Name + " : " + Game.Time + " : " + (myQCooldown));
-        }
 
         private static void OrbwalkingOnBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
@@ -260,7 +239,7 @@ namespace Ryze
                     {
                         var spellnametext = "W";
 
-                        if (myQCooldown > 0.25)
+                        if (!Q.IsReady())
                         {
                             W.CastOnUnit(target);
                             DebugWrite("Reducing Q cooldown with " + spellnametext);
@@ -277,7 +256,7 @@ namespace Ryze
                     {
                         var spellnametext = "E";
 
-                        if (myQCooldown > 0.25)
+                        if (!Q.IsReady())
                         {
                             E.CastOnUnit(target);
                             DebugWrite("Reducing Q cooldown with " + spellnametext);
@@ -584,7 +563,7 @@ namespace Ryze
                         {
                             var spellnametext = "W";
 
-                            if (myQCooldown > 0.25)
+                            if (!Q.IsReady())
                             {
                                 W.CastOnUnit(temptarget);
                                 DebugWrite("Reducing Q cooldown with " + spellnametext);
@@ -601,7 +580,7 @@ namespace Ryze
                         {
                             var spellnametext = "E";
 
-                            if (myQCooldown > 0.25)
+                            if (!Q.IsReady())
                             {
                                 E.CastOnUnit(temptarget);
                                 DebugWrite("Reducing Q cooldown with " + spellnametext);
