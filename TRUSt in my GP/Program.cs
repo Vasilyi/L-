@@ -26,18 +26,11 @@ namespace Gangplank
     }
     public class Program
     {
-        public const string CHAMP_NAME = "Gangplank";
-        private static Menu Config;
-        private static readonly Obj_AI_Hero player = ObjectManager.Player;
+        public static Menu Config;
+        public static readonly Obj_AI_Hero player = ObjectManager.Player;
 
         // Spells
         private static Spell Q, W, E, R;
-        private static readonly int maxRangeE = 1225;
-        private static readonly int lengthE = 700;
-        private static readonly int speedE = 1200;
-        private static readonly int rangeE = 525;
-        private static int lasttick = 0;
-        private static Vector3 GapCloserPos;
         private const int BarrelExplosionRange = 375;
         private const int BarrelConnectionRange = 660;
         public static List<Barrel> savedBarrels = new List<Barrel>();
@@ -84,9 +77,8 @@ namespace Gangplank
         private static void Game_OnGameLoad(EventArgs args)
         {
             // Champ validation
-            if (player.ChampionName != CHAMP_NAME)
+            if (player.ChampionName != "Gangplank")
                 return;
-
             // Define spells
             Q = new Spell(SpellSlot.Q, 590f); //2600f
             W = new Spell(SpellSlot.W);
@@ -102,21 +94,44 @@ namespace Gangplank
         }
 
 
-        private static void SetupMenu()
+        public static void SetupMenu()
         {
-            Config = new Menu("GangPlank", "GangPlank", true);
+            try
+            {
+                
+                Config = new Menu("GangPlank", "GangPlank", true);
 
-            var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            TargetSelector.AddToMenu(targetSelectorMenu);
-            Config.AddSubMenu(targetSelectorMenu);
-            //Orbwalker submenu
-            Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+                var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
+                TargetSelector.AddToMenu(targetSelectorMenu);
+                Config.AddSubMenu(targetSelectorMenu);
+                //Orbwalker submenu
+                Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
 
-            //Load the orbwalker and add it to the submenu.
-            Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
-            Config.AddItem(new MenuItem("useq", "Use Q", true)).SetValue(true);
-            Config.AddItem(new MenuItem("detoneateTargets", "   Blow up enemies with E", true))
-                .SetValue(new Slider(2, 1, 5));
+                //Load the orbwalker and add it to the submenu.
+                Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
+                Config.AddSubMenu(new Menu("Barrel", "Barrel"));
+                Config.SubMenu("Barrel")
+                    ..AddItem(new MenuItem("useq", "Use Q", true)).SetValue(true);
+                Config.SubMenu("Barrel")
+                    ..AddItem(new MenuItem("detoneateTargets", "   Blow up enemies with E"))
+                    .SetValue(new Slider(2, 1, 5));
+
+                Config.AddSubMenu(new Menu("Combo", "Combo"));
+                Config.SubMenu("Combo")
+                    .AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+
+                Config.AddSubMenu(new Menu("Harass", "Harass"));
+                Config.SubMenu("Harass")
+                    .AddItem(
+                        new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+
+                Config.AddToMainMenu();
+                Console.WriteLine("menu initialize");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
 
