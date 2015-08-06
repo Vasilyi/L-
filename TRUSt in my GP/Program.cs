@@ -52,14 +52,7 @@ namespace Gangplank
 
         public static void GameObject_OnDelete(GameObject sender, EventArgs args)
         {
-            for (int i = 0; i < savedBarrels.Count; i++)
-            {
-                if (savedBarrels[i].barrel.NetworkId == sender.NetworkId)
-                {
-                    savedBarrels.RemoveAt(i);
-                    return;
-                }
-            }
+            savedBarrels.RemoveAll(b => b.barrel.NetworkId.Equals(sender.NetworkId));
         }
 
         public static void GameObjectOnOnCreate(GameObject sender, EventArgs args)
@@ -72,7 +65,7 @@ namespace Gangplank
 
         public static IEnumerable<Obj_AI_Minion> GetBarrels()
         {
-            return savedBarrels.Select(b => b.barrel).Where(b => b.IsValid);
+            return savedBarrels.Select(b => b.barrel).Where(b => b.IsValid && b.SkinName == "GangplankBarrel" && b.GetBuff("gangplankebarrellife").Caster.IsMe);
         }
         private static void Game_OnGameLoad(EventArgs args)
         {
@@ -223,6 +216,8 @@ namespace Gangplank
             {
                 var targetfore = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
                 Vector3 doublebarrelsource = new Vector3(0,0,0);
+                if (targetfore == null)
+                    return;
                 foreach (var barrel in barrels.Where(b => b.Distance(player) < Q.Range && KillableBarrel(b)))
                 {
                     if (barrel != null && barrel.Distance(targetfore) < BarrelConnectionRange * E.Instance.Ammo)
@@ -236,6 +231,7 @@ namespace Gangplank
                 {
                     Vector3 positionforfirst = Geometry.Extend(targetfore.Position, doublebarrelsource, BarrelConnectionRange);
                     E.Cast(positionforfirst);
+                    Console.WriteLine("Cast first E");
                     if (positionforfirst.Distance(targetfore.Position) > BarrelExplosionRange)
                     {
                         Vector3 positionforsecond = Geometry.Extend(targetfore.Position, doublebarrelsource, targetfore.Distance(doublebarrelsource) - BarrelConnectionRange);
@@ -243,11 +239,13 @@ namespace Gangplank
                         Utility.DelayAction.Add(10, () =>
                         {
                             CastEDouble(positionforsecond);
+                            Console.WriteLine("Cast second E");
                         });
                     }
-                    Utility.DelayAction.Add(20, () =>
+                    Utility.DelayAction.Add(50, () =>
                     {
                         Q.Cast(doublebarrelsource);
+                        Console.WriteLine("Cast Q");
                     });
                 }
             }
@@ -345,6 +343,7 @@ namespace Gangplank
             if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo();
+                
             };
             if (Config.Item("HarassActive").GetValue<KeyBind>().Active)
             {
@@ -354,13 +353,8 @@ namespace Gangplank
 
         public static void Combo()
         {
-            var barrels = GetBarrels().Where(o =>
-                o.IsValid && !o.IsDead && o.Distance(player) < 1600 && o.SkinName == "GangplankBarrel" &&
-                o.GetBuff("gangplankebarrellife").Caster.IsMe).ToList();
-            if (barrels.Any())
-            {
-                CastE(barrels);
-            }
+            var barrels = GetBarrels().Where(o =>o.Distance(player) < 1600).ToList();
+            CastE(barrels);
         }
         public static void Harass()
         {
