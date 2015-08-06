@@ -31,8 +31,8 @@ namespace Gangplank
 
         // Spells
         private static Spell Q, W, E, R;
-        private const int BarrelExplosionRange = 375;
-        private const int BarrelConnectionRange = 660;
+        private const int BarrelExplosionRange = 350;
+        private const int BarrelConnectionRange = BarrelExplosionRange*2-20;
         public static List<Barrel> savedBarrels = new List<Barrel>();
         public static Orbwalking.Orbwalker Orbwalker;
 
@@ -59,6 +59,7 @@ namespace Gangplank
         {
             if (sender.Name == "Barrel")
             {
+                Console.WriteLine("barrel created");
                 savedBarrels.Add(new Barrel(sender as Obj_AI_Minion, System.Environment.TickCount));
             }
         }
@@ -192,7 +193,7 @@ namespace Gangplank
                     .Select(e => Prediction.GetPrediction(e, 0.35f));
             List<Vector3> points = new List<Vector3>();
             foreach (var barrel in
-                barrels.Where(b => b.Distance(player) < Q.Range && KillableBarrel(b)))
+                barrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
             {
                 if (barrel != null)
                 {
@@ -216,21 +217,30 @@ namespace Gangplank
             {
                 var targetfore = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
                 Vector3 doublebarrelsource = new Vector3(0,0,0);
+                Obj_AI_Base doublebarrelobject = null;
                 if (targetfore == null)
                     return;
-                foreach (var barrel in barrels.Where(b => b.Distance(player) < Q.Range && KillableBarrel(b)))
+                foreach (var barrel in barrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
                 {
                     if (barrel != null && barrel.Distance(targetfore) < BarrelConnectionRange * E.Instance.Ammo)
                     {
                         doublebarrelsource = barrel.Position;
+                        doublebarrelobject = barrel;
                         acoords = barrel.Position;
                         continue;
                     }
                 }
                 if (doublebarrelsource != new Vector3(0,0,0))
                 {
-                    Vector3 positionforfirst = Geometry.Extend(targetfore.Position, doublebarrelsource, BarrelConnectionRange);
-                    E.Cast(positionforfirst);
+                        Vector3 positionforfirst = Geometry.Extend(targetfore.Position, doublebarrelsource, BarrelExplosionRange);
+                        if (positionforfirst.Distance(doublebarrelsource) > BarrelExplosionRange)
+                        {
+                            if (!player.Spellbook.IsCastingSpell && CheckRangeForBarrels(positionforfirst, BarrelExplosionRange, false))
+                            {
+                                E.Cast(positionforfirst);
+                            }
+                        }
+
                     Console.WriteLine("Cast first E");
                     if (positionforfirst.Distance(targetfore.Position) > BarrelExplosionRange)
                     {
@@ -238,21 +248,32 @@ namespace Gangplank
                         bcoords = positionforsecond;
                         Utility.DelayAction.Add(10, () =>
                         {
-                            CastEDouble(positionforsecond);
-                            Console.WriteLine("Cast second E");
+                            if (!player.Spellbook.IsCastingSpell && CheckRangeForBarrels(positionforsecond,BarrelExplosionRange, false))
+                            {
+                                CastEDouble(positionforsecond);
+                                Console.WriteLine("Cast second E");
+                            }
                         });
                     }
-                    Utility.DelayAction.Add(50, () =>
+
+                    Utility.DelayAction.Add(300, () =>
                     {
-                        Q.Cast(doublebarrelsource);
-                        Console.WriteLine("Cast Q");
+                        if (KillableBarrel(doublebarrelobject))
+                        {
+                            if (!player.Spellbook.IsCastingSpell)
+                            {
+                                Q.Cast(doublebarrelobject);
+                                Console.WriteLine("Cast Q");
+                            }
+                        }
                     });
+                    doublebarrelsource = new Vector3(0, 0, 0);
                 }
             }
         }
         public static void CastEDouble(Vector3 positionforsecond)
         {
-
+            E.Cast(positionforsecond);
         }
 
         private static void MeleeBarrel(List<Obj_AI_Minion> barrels)
@@ -272,7 +293,7 @@ namespace Gangplank
                 Obj_AI_Hero target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
                 if (barrels.Any())
                 {
-                    var detoneateTargetBarrels = barrels.Where(b => b.Distance(player) < Q.Range && KillableBarrel(b));
+                    var detoneateTargetBarrels = barrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b));
                     var enemies =
                         HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < 600)
                             .Select(e => Prediction.GetPrediction(e, 0.25f));
@@ -286,8 +307,7 @@ namespace Gangplank
                                     e =>
                                         e.UnitPosition.Distance(detoneateTargetBarrel.Position) <
                                         BarrelExplosionRange);
-                            if (enemyCount >= Config.Item("detoneateTargets", true).GetValue<Slider>().Value &&
-                                detoneateTargetBarrel.CountEnemiesInRange(BarrelExplosionRange) >=
+                            if (detoneateTargetBarrel.CountEnemiesInRange(BarrelExplosionRange) >=
                                 Config.Item("detoneateTargets", true).GetValue<Slider>().Value)
                             {
                                 Q.CastOnUnit(detoneateTargetBarrel);
@@ -355,16 +375,30 @@ namespace Gangplank
         {
             var barrels = GetBarrels().Where(o =>o.Distance(player) < 1600).ToList();
             CastE(barrels);
+            QLogic(barrels);
         }
         public static void Harass()
         {
 
         }
+
+        public static bool CheckRangeForBarrels(Vector3 position, int range, bool killable)
+        {
+            return GetBarrels().FirstOrDefault(b => b.Distance(position) < range && (KillableBarrel(b) || !killable)) != null;
+        }
         public static void Drawing_OnDraw(EventArgs args)
         {
             Render.Circle.DrawCircle(acoords, 60, System.Drawing.Color.Aqua);
             Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
+
+
+            foreach (var barrels in GetBarrels())
+            {
+
+                Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Peru);
+            }
         }
+
 
     }
 }
