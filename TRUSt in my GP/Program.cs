@@ -111,9 +111,9 @@ namespace Gangplank
                 Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
                 Config.AddSubMenu(new Menu("Barrel", "Barrel"));
                 Config.SubMenu("Barrel")
-                    ..AddItem(new MenuItem("useq", "Use Q", true)).SetValue(true);
+                    .AddItem(new MenuItem("useq", "Use Q", true)).SetValue(true);
                 Config.SubMenu("Barrel")
-                    ..AddItem(new MenuItem("detoneateTargets", "   Blow up enemies with E"))
+                    .AddItem(new MenuItem("detoneateTargets", "   Blow up enemies with E"))
                     .SetValue(new Slider(2, 1, 5));
 
                 Config.AddSubMenu(new Menu("Combo", "Combo"));
