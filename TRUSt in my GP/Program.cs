@@ -304,10 +304,13 @@ namespace Gangplank
                             {
                                 if (E.Instance.Ammo > 0)
                                 {
-                                    var detoneateTargetBarrelThird = barrels.Where(b => b.Distance(enemies) < BarrelConnectionRange*E.Instance.Ammo + BarrelExplosionRange);
-                                    if (detoneateTargetBarrelThird.Any())
+                                    foreach (var enemy in HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < Q.Range))
                                     {
-                                        CastE(barrels);
+                                        var detoneateTargetBarrelThird = barrels.Where(b => b.Distance(enemy) < BarrelConnectionRange * E.Instance.Ammo + BarrelExplosionRange);
+                                        if (detoneateTargetBarrelThird.Any())
+                                        {
+                                            CastE(barrels);
+                                        }
                                     }
                                 }
                             }
