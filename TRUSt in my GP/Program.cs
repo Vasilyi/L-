@@ -59,7 +59,7 @@ namespace Gangplank
             if (player.ChampionName != "Gangplank")
                 return;
             // Define spells
-            Q = new Spell(SpellSlot.Q, 625f); //2600f
+            Q = new Spell(SpellSlot.Q, 600f); //2600f
             W = new Spell(SpellSlot.W);
             E = new Spell(SpellSlot.E, 1000f);
             E.SetSkillshot(0.8f, 50, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -237,7 +237,6 @@ namespace Gangplank
 
         public static int CheckRangeForBarrels(Vector3 position, int range)
         {
-            Console.WriteLine(savedbarrels.Count(b => b.Distance(position) < range));
             return savedbarrels.Count(b => b.Distance(position) < range);
         }
 
@@ -272,7 +271,7 @@ namespace Gangplank
         {
             try
             {
-                var targetfore = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+                var targetfore = TargetSelector.GetTarget(E.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
                 var enemies =
                     HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < E.Range)
                         .Select(e => Prediction.GetPrediction(e, 0.35f));
@@ -284,7 +283,7 @@ namespace Gangplank
                         barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
                     }
                 }
-                if (barrelpoints.Any() &&  E.IsReady())
+                if (barrelpoints.Any() && E.IsReady() && targetfore != null)
                 {
                     foreach (var secondbarrelpoint in barrelpoints)
                     {
@@ -300,6 +299,7 @@ namespace Gangplank
                                 //Console.WriteLine(" 1 target");
                                 
                                 var closest = barrelpoints.MinOrDefault(point => point.Distance(targetfore.ServerPosition));
+                       
                                 if (closest.CountEnemiesInRange(BarrelExplosionRange)>0 && CheckRangeForBarrels(closest, BarrelExplosionRange) == 0 && closest != EDelay.position)
                                 {
                                     EDelay.position = closest;
@@ -315,24 +315,23 @@ namespace Gangplank
                                 E.Cast(secondbarrelpoint);
                             }
                         }
-
+                 
                         foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
                         {
 
                             if (targetfore.Distance(barrel) < BarrelConnectionRange * E.Instance.Ammo)
                             {
+                                
                                 var closest = barrelpoints.MinOrDefault(point => point.Distance(targetfore.ServerPosition));
-                                if (CheckRangeForBarrels(closest, BarrelExplosionRange) == 0 && closest != EDelay.position)
+                                Console.WriteLine(BarrelConnectionRange * 2);
+                                if (CheckRangeForBarrels(closest, BarrelExplosionRange) == 0 && closest != EDelay.position && targetfore.Distance(barrel) > BarrelConnectionRange + BarrelExplosionRange)
                                 {
+                                    
                                     EDelay.position = secondbarrelpoint;
                                     EDelay.time = Environment.TickCount;
                                     E.Cast(closest);
                                 }
-                            }
 
-                            if (FindChainBarrels(barrel.ServerPosition))
-                            {
-                                Q.Cast(barrel);
                             }
                             
                         }
@@ -340,7 +339,19 @@ namespace Gangplank
 
                     }
                 }
+                if (Q.IsReady())
+                {
+                    foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
+                    {
 
+                        if (FindChainBarrels(barrel.ServerPosition))
+                        {
+                            Q.Cast(barrel);
+                        }
+
+                    }
+
+                }
                 barrelpoints = null;
                 barrelpoints = new List<Vector3>();
             }
