@@ -295,7 +295,7 @@ namespace Gangplank
                 {
                     var detoneateTargetBarrels = barrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b));
                     var enemies =
-                        HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < 600)
+                        HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < 900)
                             .Select(e => Prediction.GetPrediction(e, 0.25f));
                     var enemies2 = HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < E.Range).Select(e => Prediction.GetPrediction(e, 0.4f));
                     if (detoneateTargetBarrels.Any())
@@ -310,6 +310,7 @@ namespace Gangplank
                             if (detoneateTargetBarrel.CountEnemiesInRange(BarrelExplosionRange) >=
                                 Config.Item("detoneateTargets", true).GetValue<Slider>().Value)
                             {
+                                Console.WriteLine("found barrel");
                                 Q.CastOnUnit(detoneateTargetBarrel);
                                 return;
                             }
