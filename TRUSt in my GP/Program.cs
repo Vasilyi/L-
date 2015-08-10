@@ -64,14 +64,6 @@ namespace Gangplank
             }
         }
 
-        public static List<Barrel> GetBarrels()
-        {
-            if (savedBarrels != null && savedBarrels.Count > 0)
-            {
-                return savedBarrels.Where(b => b.barrel.IsValid && b.barrel.SkinName == "GangplankBarrel" && b.barrel.GetBuff("gangplankebarrellife").Caster.IsMe).ToList();
-            }
-            return null;
-        }
         private static void Game_OnGameLoad(EventArgs args)
         {
             // Champ validation
@@ -378,7 +370,8 @@ namespace Gangplank
 
         public static void Combo()
         {
-            var barrels = GetBarrels().Where(o =>o.barrel.Distance(player) < 1600).ToList();
+            List<Barrel> barrels = savedBarrels.Where(o => o.barrel.Distance(player) < 1600 && o.barrel.GetBuff("gangplankebarrellife").Caster.IsMe).ToList();
+
             if (barrels != null)
             {
                 CastE(barrels);
@@ -392,20 +385,22 @@ namespace Gangplank
 
         public static bool CheckRangeForBarrels(Vector3 position, int range, bool killable)
         {
-            return GetBarrels().FirstOrDefault(b => b.barrel.Distance(position) < range && (KillableBarrel(b.barrel) || !killable)) != null;
+            return savedBarrels.FirstOrDefault(b => b.barrel.Distance(position) < range && (KillableBarrel(b.barrel) || !killable)) != null;
         }
         public static void Drawing_OnDraw(EventArgs args)
         {
             Render.Circle.DrawCircle(acoords, 60, System.Drawing.Color.Aqua);
             Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
 
-            List<Barrel> barrelstable = GetBarrels();
+            List<Barrel> barrelstable = savedBarrels;
             if (barrelstable != null && barrelstable.Count > 0)
             {
                 foreach (var barrels in barrelstable)
                 {
-
-                    Render.Circle.DrawCircle(barrels.barrel.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Peru);
+                    if (barrels.barrel.IsValid)
+                    {
+                        Render.Circle.DrawCircle(barrels.barrel.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Peru);
+                    }
                 }
             }
         }
