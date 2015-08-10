@@ -47,7 +47,11 @@ namespace Gangplank
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-
+        public class EDelay
+        {
+            public static Vector3 position;
+            public static int time;
+        }
 
         private static void Game_OnGameLoad(EventArgs args)
         {
@@ -111,6 +115,10 @@ namespace Gangplank
                     .AddItem(
                         new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
 
+                Config.AddSubMenu(new Menu("Debug", "Debug"));
+                Config.SubMenu("Debug")
+                                    .AddItem(new MenuItem("debugf", "Debug", true)).SetValue(true);
+
                 Config.AddToMainMenu();
                 Console.WriteLine("menu initialize");
             }
@@ -128,6 +136,14 @@ namespace Gangplank
             Render.Circle.DrawCircle(acoords, 60, System.Drawing.Color.Aqua);
             Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
 
+
+            if (Config.Item("debugf", true).GetValue<bool>())
+            {
+                foreach (var points in barrelpoints)
+                {
+                    Render.Circle.DrawCircle(points, 60, System.Drawing.Color.Aqua);
+                }
+            }
 
             foreach (var barrels in savedbarrels)
             {
@@ -167,21 +183,32 @@ namespace Gangplank
         {
             return player.Distance(targetB) / 2800f + 0.25f;
         }
+
+        public static void DebugWrite(string text)
+        {
+            if (!Config.Item("debugf", true).GetValue<bool>())
+                return;
+            Console.WriteLine(text);
+        }
         public static bool KillableBarrel(Obj_AI_Base targetB)
         {
-
+            if (targetB.Health == 1)
+            {
+                return true;
+            }
             var barrel = savedbarrels.FirstOrDefault(b => b.NetworkId == targetB.NetworkId);
             if (barrel != null)
             {
 
                 var time = targetB.Health * getEActivationDelay();
-                Console.WriteLine(barrel.GetBuff("gangplankebarrellife").StartTime + " : " + Game.Time + " : " + GetQTime(targetB) + " : " + time);
-                if (Game.Time - barrel.GetBuff("gangplankebarrellife").StartTime - time - GetQTime(targetB) < 0)
+                DebugWrite(barrel.GetBuff("gangplankebarrellife").StartTime + " : " + Game.Time + " : " + GetQTime(targetB) + " : " + time);
+                if (Game.Time - barrel.GetBuff("gangplankebarrellife").StartTime > time - GetQTime(targetB))
                 {
-                    Console.WriteLine("KILLABLE");
+                    DebugWrite("KILLABLE");
                     return true;
                 }
             }
+            DebugWrite("non killable");
             return false;
         }
         public static List<Vector3> PointsAroundTheTargetOuterRing(Vector3 pos, float dist, float width = 15)
@@ -207,18 +234,78 @@ namespace Gangplank
         {
             return PointsAroundTheTargetOuterRing(point, BarrelConnectionRange, 20f);
         }
+
+        public static int CheckRangeForBarrels(Vector3 position, int range)
+        {
+            Console.WriteLine(savedbarrels.Count(b => b.Distance(position) < range));
+            return savedbarrels.Count(b => b.Distance(position) < range);
+        }
         public static void CastE()
         {
-            var enemies =
-                HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < E.Range)
-                    .Select(e => Prediction.GetPrediction(e, 0.35f));
-            foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
+            try
             {
-                var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall());
-                if (newP.Any())
+                var targetfore = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+                var enemies =
+                    HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < E.Range)
+                        .Select(e => Prediction.GetPrediction(e, 0.35f));
+                foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
                 {
-                    barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
+                    var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall());
+                    if (newP.Any())
+                    {
+                        barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
+                    }
                 }
+                if (barrelpoints.Any())
+                {
+                    foreach (var secondbarrelpoint in barrelpoints)
+                    {
+                        if (secondbarrelpoint == null)
+                        {
+                            return;
+                        }
+                         DebugWrite("finding second " + secondbarrelpoint.CountEnemiesInRange(BarrelExplosionRange));
+                        if (secondbarrelpoint.CountEnemiesInRange(BarrelExplosionRange) < Config.Item("detoneateTargets").GetValue<Slider>().Value)
+                        {
+                            if (Config.Item("detoneateTargets").GetValue<Slider>().Value == 1)
+                            {
+                                Console.WriteLine(" 1 target");
+                                
+                                var closest = barrelpoints.MinOrDefault(point => point.Distance(targetfore.ServerPosition));
+                                if (closest.CountEnemiesInRange(BarrelExplosionRange)>0 && CheckRangeForBarrels(closest, BarrelExplosionRange) == 0 && closest != EDelay.position)
+                                {
+                                    EDelay.position = closest;
+                                    EDelay.time = Environment.TickCount;
+                                    E.Cast(closest);
+                                }
+                            }
+                            else if (secondbarrelpoint != EDelay.position)
+                            {
+                                Console.WriteLine("> 1 target");
+                                EDelay.position = secondbarrelpoint;
+                                EDelay.time = Environment.TickCount;
+                                E.Cast(secondbarrelpoint);
+                            }
+                        }
+
+                        foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
+                        {
+                            if (barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value && Q.IsReady())
+                            {
+                                Q.Cast(barrel);
+                            }
+                        }
+
+
+                    }
+                }
+
+                barrelpoints = null;
+                barrelpoints = new List<Vector3>();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 
