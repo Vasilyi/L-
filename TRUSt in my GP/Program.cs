@@ -59,9 +59,9 @@ namespace Gangplank
             if (player.ChampionName != "Gangplank")
                 return;
             // Define spells
-            Q = new Spell(SpellSlot.Q, 590f); //2600f
+            Q = new Spell(SpellSlot.Q, 625f); //2600f
             W = new Spell(SpellSlot.W);
-            E = new Spell(SpellSlot.E, 950);
+            E = new Spell(SpellSlot.E, 1000f);
             E.SetSkillshot(0.8f, 50, float.MaxValue, false, SkillshotType.SkillshotCircle);
             R = new Spell(SpellSlot.R);
             R.SetSkillshot(1f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -240,6 +240,34 @@ namespace Gangplank
             Console.WriteLine(savedbarrels.Count(b => b.Distance(position) < range));
             return savedbarrels.Count(b => b.Distance(position) < range);
         }
+
+        public static bool FindChainBarrels(Vector3 position)
+        {
+            Vector3 testposition = new Vector3(0,0,0);
+             foreach (var barrel in savedbarrels)
+             {
+                 if (barrel.Distance(position) < BarrelConnectionRange)
+                 {
+                     if (barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
+                     {
+
+                         return true;
+                     }
+                     else
+                     {
+                         testposition = barrel.ServerPosition;
+                     }
+                 }
+             }
+             foreach (var barrel in savedbarrels)
+             {
+                 if (barrel.Distance(testposition) < BarrelConnectionRange && barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
+                 {
+                     return true;
+                 }
+             }
+            return false;
+        }
         public static void CastE()
         {
             try
@@ -256,7 +284,7 @@ namespace Gangplank
                         barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
                     }
                 }
-                if (barrelpoints.Any())
+                if (barrelpoints.Any() &&  E.IsReady())
                 {
                     foreach (var secondbarrelpoint in barrelpoints)
                     {
@@ -269,7 +297,7 @@ namespace Gangplank
                         {
                             if (Config.Item("detoneateTargets").GetValue<Slider>().Value == 1)
                             {
-                                Console.WriteLine(" 1 target");
+                                //Console.WriteLine(" 1 target");
                                 
                                 var closest = barrelpoints.MinOrDefault(point => point.Distance(targetfore.ServerPosition));
                                 if (closest.CountEnemiesInRange(BarrelExplosionRange)>0 && CheckRangeForBarrels(closest, BarrelExplosionRange) == 0 && closest != EDelay.position)
@@ -290,10 +318,23 @@ namespace Gangplank
 
                         foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
                         {
-                            if (barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value && Q.IsReady())
+
+                            if (targetfore.Distance(barrel) < BarrelConnectionRange * E.Instance.Ammo)
+                            {
+                                var closest = barrelpoints.MinOrDefault(point => point.Distance(targetfore.ServerPosition));
+                                if (CheckRangeForBarrels(closest, BarrelExplosionRange) == 0 && closest != EDelay.position)
+                                {
+                                    EDelay.position = secondbarrelpoint;
+                                    EDelay.time = Environment.TickCount;
+                                    E.Cast(closest);
+                                }
+                            }
+
+                            if (FindChainBarrels(barrel.ServerPosition))
                             {
                                 Q.Cast(barrel);
                             }
+                            
                         }
 
 
