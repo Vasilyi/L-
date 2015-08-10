@@ -64,9 +64,13 @@ namespace Gangplank
             }
         }
 
-        public static IEnumerable<Obj_AI_Minion> GetBarrels()
+        public static List<Barrel> GetBarrels()
         {
-            return savedBarrels.Select(b => b.barrel).Where(b => b.IsValid && b.SkinName == "GangplankBarrel" && b.GetBuff("gangplankebarrellife").Caster.IsMe);
+            if (savedBarrels != null && savedBarrels.Count > 0)
+            {
+                return savedBarrels.Where(b => b.barrel.IsValid && b.barrel.SkinName == "GangplankBarrel" && b.barrel.GetBuff("gangplankebarrellife").Caster.IsMe).ToList();
+            }
+            return null;
         }
         private static void Game_OnGameLoad(EventArgs args)
         {
@@ -186,14 +190,14 @@ namespace Gangplank
             }
             return false;
         }
-        public static void CastE(List<Obj_AI_Minion> barrels)
+        public static void CastE(List<Barrel> barrels)
         {
             var enemies =
                 HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < E.Range)
                     .Select(e => Prediction.GetPrediction(e, 0.35f));
             List<Vector3> points = new List<Vector3>();
             foreach (var barrel in
-                barrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
+                barrels.Select(b => b.barrel).Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
             {
                 if (barrel != null)
                 {
@@ -220,7 +224,7 @@ namespace Gangplank
                 Obj_AI_Base doublebarrelobject = null;
                 if (targetfore == null)
                     return;
-                foreach (var barrel in barrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
+                foreach (var barrel in barrels.Select(b => b.barrel).Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
                 {
                     if (barrel != null && barrel.Distance(targetfore) < BarrelConnectionRange * E.Instance.Ammo)
                     {
@@ -286,14 +290,14 @@ namespace Gangplank
         }
 
 
-        private static void QLogic(List<Obj_AI_Minion> barrels)
+        private static void QLogic(List<Barrel> barrels)
         {
             if (Q.IsReady())
             {
                 Obj_AI_Hero target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
                 if (barrels.Any())
                 {
-                    var detoneateTargetBarrels = barrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b));
+                    var detoneateTargetBarrels = barrels.Where(b => b.barrel.IsValidTarget(Q.Range) && KillableBarrel(b.barrel));
                     var enemies =
                         HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < 900)
                             .Select(e => Prediction.GetPrediction(e, 0.25f));
@@ -305,17 +309,17 @@ namespace Gangplank
                             var enemyCount =
                                 enemies.Count(
                                     e =>
-                                        e.UnitPosition.Distance(detoneateTargetBarrel.Position) <
+                                        e.UnitPosition.Distance(detoneateTargetBarrel.barrel.Position) <
                                         BarrelExplosionRange);
-                            if (detoneateTargetBarrel.CountEnemiesInRange(BarrelExplosionRange) >=
+                            if (detoneateTargetBarrel.barrel.CountEnemiesInRange(BarrelExplosionRange) >=
                                 Config.Item("detoneateTargets", true).GetValue<Slider>().Value)
                             {
                                 Console.WriteLine("found barrel");
-                                Q.CastOnUnit(detoneateTargetBarrel);
+                                Q.CastOnUnit(detoneateTargetBarrel.barrel);
                                 return;
                             }
                             var detoneateTargetBarrelSeconds =
-                                barrels.Where(b => b.Distance(detoneateTargetBarrel) < BarrelConnectionRange);
+                                barrels.Where(b => b.barrel.Distance(detoneateTargetBarrel.barrel) < BarrelConnectionRange);
                             if (detoneateTargetBarrelSeconds.Any())
                             {
                                 foreach (var detoneateTargetBarrelSecond in detoneateTargetBarrelSeconds)
@@ -323,13 +327,13 @@ namespace Gangplank
                                     if (enemyCount +
                                         enemies2.Count(
                                             e =>
-                                                e.UnitPosition.Distance(detoneateTargetBarrelSecond.Position) <
+                                                e.UnitPosition.Distance(detoneateTargetBarrelSecond.barrel.Position) <
                                                 BarrelExplosionRange) >=
                                         Config.Item("detoneateTargets", true).GetValue<Slider>().Value &&
-                                        detoneateTargetBarrelSecond.CountEnemiesInRange(BarrelExplosionRange) >=
+                                        detoneateTargetBarrelSecond.barrel.CountEnemiesInRange(BarrelExplosionRange) >=
                                         Config.Item("detoneateTargets", true).GetValue<Slider>().Value)
                                     {
-                                        Q.CastOnUnit(detoneateTargetBarrel);
+                                        Q.CastOnUnit(detoneateTargetBarrel.barrel);
                                         return;
                                     }
                                 }
@@ -340,7 +344,7 @@ namespace Gangplank
                                 {
                                     foreach (var enemy in HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < Q.Range))
                                     {
-                                        var detoneateTargetBarrelThird = barrels.Where(b => b.Distance(enemy) < BarrelConnectionRange * E.Instance.Ammo + BarrelExplosionRange);
+                                        var detoneateTargetBarrelThird = barrels.Select(b => b.barrel).Where(b => b.Distance(enemy) < BarrelConnectionRange * E.Instance.Ammo + BarrelExplosionRange);
                                         if (detoneateTargetBarrelThird.Any())
                                         {
                                             CastE(barrels);
@@ -374,9 +378,12 @@ namespace Gangplank
 
         public static void Combo()
         {
-            var barrels = GetBarrels().Where(o =>o.Distance(player) < 1600).ToList();
-            CastE(barrels);
-            QLogic(barrels);
+            var barrels = GetBarrels().Where(o =>o.barrel.Distance(player) < 1600).ToList();
+            if (barrels != null)
+            {
+                CastE(barrels);
+                QLogic(barrels);
+            }
         }
         public static void Harass()
         {
@@ -385,20 +392,21 @@ namespace Gangplank
 
         public static bool CheckRangeForBarrels(Vector3 position, int range, bool killable)
         {
-            return GetBarrels().FirstOrDefault(b => b.Distance(position) < range && (KillableBarrel(b) || !killable)) != null;
+            return GetBarrels().FirstOrDefault(b => b.barrel.Distance(position) < range && (KillableBarrel(b.barrel) || !killable)) != null;
         }
         public static void Drawing_OnDraw(EventArgs args)
         {
             Render.Circle.DrawCircle(acoords, 60, System.Drawing.Color.Aqua);
             Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
 
-            var barrelstable = GetBarrels();
-            if (!barrelstable.Any())
-                return;
-            foreach (var barrels in barrelstable)
+            List<Barrel> barrelstable = GetBarrels();
+            if (barrelstable != null && barrelstable.Count > 0)
             {
+                foreach (var barrels in barrelstable)
+                {
 
-                Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Peru);
+                    Render.Circle.DrawCircle(barrels.barrel.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Peru);
+                }
             }
         }
 
