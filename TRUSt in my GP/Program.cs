@@ -24,45 +24,30 @@ namespace Gangplank
             time = tickCount;
         }
     }
+
     public class Program
     {
         public static Menu Config;
         public static readonly Obj_AI_Hero player = ObjectManager.Player;
-
+        public static IEnumerable<Obj_AI_Minion> savedbarrels;
+        public static List<Vector3> barrelpoints = new List<Vector3>();
         // Spells
         private static Spell Q, W, E, R;
         private const int BarrelExplosionRange = 350;
-        private const int BarrelConnectionRange = BarrelExplosionRange*2-20;
-        public static List<Barrel> savedBarrels = new List<Barrel>();
+        private const int BarrelConnectionRange = BarrelExplosionRange * 2 - 20;
         public static Orbwalking.Orbwalker Orbwalker;
 
         public static Vector3 acoords;
         public static Vector3 bcoords;
-
-
         public static void Main(string[] args)
         {
+
+
             // Register events
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
-            GameObject.OnCreate += GameObjectOnOnCreate;
-            GameObject.OnDelete += GameObject_OnDelete;
         }
 
 
-
-        public static void GameObject_OnDelete(GameObject sender, EventArgs args)
-        {
-            savedBarrels.RemoveAll(b => b.barrel.NetworkId.Equals(sender.NetworkId));
-        }
-
-        public static void GameObjectOnOnCreate(GameObject sender, EventArgs args)
-        {
-            if (sender.Name == "Barrel")
-            {
-                Console.WriteLine("barrel created");
-                savedBarrels.Add(new Barrel(sender as Obj_AI_Minion, System.Environment.TickCount));
-            }
-        }
 
         private static void Game_OnGameLoad(EventArgs args)
         {
@@ -76,19 +61,30 @@ namespace Gangplank
             E.SetSkillshot(0.8f, 50, float.MaxValue, false, SkillshotType.SkillshotCircle);
             R = new Spell(SpellSlot.R);
             R.SetSkillshot(1f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
-
+            SetupMenu();
             // Register events
             Game.OnUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-            SetupMenu();
+
         }
+        private static void Game_OnGameUpdate(EventArgs args)
+        {
+            savedbarrels = GetBarrels();
+            if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
+            {
+                Combo();
 
-
+            };
+            if (Config.Item("HarassActive").GetValue<KeyBind>().Active)
+            {
+                Harass();
+            };
+        }
         public static void SetupMenu()
         {
             try
             {
-                
+
                 Config = new Menu("GangPlank", "GangPlank", true);
 
                 var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
@@ -123,8 +119,71 @@ namespace Gangplank
                 Console.WriteLine(e);
             }
         }
+        public static void Harass()
+        {
+
+        }
+        public static void Drawing_OnDraw(EventArgs args)
+        {
+            Render.Circle.DrawCircle(acoords, 60, System.Drawing.Color.Aqua);
+            Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
 
 
+            foreach (var barrels in savedbarrels)
+            {
+                if (barrels.IsValid)
+                {
+                    Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Aqua);
+                }
+            }
+        }
+
+        public static IEnumerable<Obj_AI_Minion> GetBarrels()
+        {
+            var MinionList =
+                      ObjectManager.Get<Obj_AI_Minion>()
+                          .Where(
+                              minion =>
+                                  minion.IsValidTarget(1500) && minion.Name == "Barrel" && minion.GetBuff("gangplankebarrellife").Caster.IsMe);
+            return MinionList;
+        }
+        public static void Combo()
+        {
+            CastE();
+        }
+        public static float getEActivationDelay()
+        {
+            if (player.Level >= 13)
+            {
+                return 0.5f;
+            }
+            if (player.Level >= 7)
+            {
+                return 1f;
+            }
+            return 2f;
+        }
+        public static float GetQTime(Obj_AI_Base targetB)
+        {
+            return player.Distance(targetB) / 2800f + 0.25f;
+        }
+        public static bool KillableBarrel(Obj_AI_Base targetB)
+        {
+
+            var barrel = savedbarrels.FirstOrDefault(b => b.NetworkId == targetB.NetworkId);
+            if (barrel != null)
+            {
+
+                var time = targetB.Health * getEActivationDelay();
+                Console.WriteLine(barrel.GetBuff("gangplankebarrellife").StartTime + " : " + Game.Time + " : " + GetQTime(targetB) + " : " + time);
+                if (Game.Time - barrel.GetBuff("gangplankebarrellife").StartTime - time - GetQTime(targetB) < 0)
+                {
+                    Console.WriteLine("KILLABLE");
+                    return true;
+                }
+            }
+            return false;
+        }
         public static List<Vector3> PointsAroundTheTargetOuterRing(Vector3 pos, float dist, float width = 15)
         {
             if (!pos.IsValid())
@@ -148,263 +207,20 @@ namespace Gangplank
         {
             return PointsAroundTheTargetOuterRing(point, BarrelConnectionRange, 20f);
         }
-
-        public static float getEActivationDelay()
-        {
-            if (player.Level >= 13)
-            {
-                return 0.5f;
-            }
-            if (player.Level >= 7)
-            {
-                return 1f;
-            }
-            return 2f;
-        }
-        public static float GetQTime(Obj_AI_Base targetB)
-        {
-            return player.Distance(targetB) / 2800f + 0.25f;
-        }
-        public static bool KillableBarrel(Obj_AI_Base targetB)
-        {
-            if (targetB.Health < 2)
-            {
-                return true;
-            }
-            var barrel = savedBarrels.FirstOrDefault(b => b.barrel.NetworkId == targetB.NetworkId);
-            if (barrel != null)
-            {
-                var time = targetB.Health * getEActivationDelay();
-                if (System.Environment.TickCount - barrel.time - time - GetQTime(targetB) < 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public static void CastE(List<Barrel> barrels)
+        public static void CastE()
         {
             var enemies =
                 HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < E.Range)
                     .Select(e => Prediction.GetPrediction(e, 0.35f));
-            List<Vector3> points = new List<Vector3>();
-            foreach (var barrel in
-                barrels.Select(b => b.barrel).Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
+            foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
             {
-                if (barrel != null)
+                var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall());
+                if (newP.Any())
                 {
-                    var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall());
-                    if (newP.Any())
-                    {
-                        points.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
-                    }
-                }
-            }
-            var bestPoint =
-                points.Where(b => enemies.Count(e => e.UnitPosition.Distance(b) < BarrelExplosionRange) > 0)
-                    .OrderByDescending(b => enemies.Count(e => e.UnitPosition.Distance(b) < BarrelExplosionRange))
-                    .FirstOrDefault();
-            if (bestPoint.IsValid() &&
-                !savedBarrels.Any(b => b.barrel.Position.Distance(bestPoint) < BarrelConnectionRange))
-            {
-                E.Cast(bestPoint);
-            }
-            else
-            {
-                var targetfore = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
-                Vector3 doublebarrelsource = new Vector3(0,0,0);
-                Obj_AI_Base doublebarrelobject = null;
-                if (targetfore == null)
-                    return;
-                foreach (var barrel in barrels.Select(b => b.barrel).Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
-                {
-                    if (barrel != null && barrel.Distance(targetfore) < BarrelConnectionRange * E.Instance.Ammo)
-                    {
-                        doublebarrelsource = barrel.Position;
-                        doublebarrelobject = barrel;
-                        acoords = barrel.Position;
-                        continue;
-                    }
-                }
-                if (doublebarrelsource != new Vector3(0,0,0))
-                {
-                        Vector3 positionforfirst = Geometry.Extend(targetfore.Position, doublebarrelsource, BarrelExplosionRange);
-                        if (positionforfirst.Distance(doublebarrelsource) > BarrelExplosionRange)
-                        {
-                            if (!player.Spellbook.IsCastingSpell && CheckRangeForBarrels(positionforfirst, BarrelExplosionRange, false))
-                            {
-                                E.Cast(positionforfirst);
-                            }
-                        }
-
-                    Console.WriteLine("Cast first E");
-                    if (positionforfirst.Distance(targetfore.Position) > BarrelExplosionRange)
-                    {
-                        Vector3 positionforsecond = Geometry.Extend(targetfore.Position, doublebarrelsource, targetfore.Distance(doublebarrelsource) - BarrelConnectionRange);
-                        bcoords = positionforsecond;
-                        Utility.DelayAction.Add(10, () =>
-                        {
-                            if (!player.Spellbook.IsCastingSpell && CheckRangeForBarrels(positionforsecond,BarrelExplosionRange, false))
-                            {
-                                CastEDouble(positionforsecond);
-                                Console.WriteLine("Cast second E");
-                            }
-                        });
-                    }
-
-                    Utility.DelayAction.Add(300, () =>
-                    {
-                        if (KillableBarrel(doublebarrelobject))
-                        {
-                            if (!player.Spellbook.IsCastingSpell)
-                            {
-                                Q.Cast(doublebarrelobject);
-                                Console.WriteLine("Cast Q");
-                            }
-                        }
-                    });
-                    doublebarrelsource = new Vector3(0, 0, 0);
+                    barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
                 }
             }
         }
-        public static void CastEDouble(Vector3 positionforsecond)
-        {
-            E.Cast(positionforsecond);
-        }
-
-        private static void MeleeBarrel(List<Obj_AI_Minion> barrels)
-        {
-            var meleeRangeBarrel = barrels.FirstOrDefault(b =>b.Health < 2 && Orbwalking.InAutoAttackRange(b) &&b.CountEnemiesInRange(BarrelExplosionRange) > 0);
-            if (meleeRangeBarrel != null)
-            {
-                Orbwalker.ForceTarget(meleeRangeBarrel);
-            }
-        }
-
-
-        private static void QLogic(List<Barrel> barrels)
-        {
-            if (Q.IsReady())
-            {
-                Obj_AI_Hero target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
-                if (barrels.Any())
-                {
-                    var detoneateTargetBarrels = barrels.Where(b => b.barrel.IsValidTarget(Q.Range) && KillableBarrel(b.barrel));
-                    var enemies =
-                        HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < 900)
-                            .Select(e => Prediction.GetPrediction(e, 0.25f));
-                    var enemies2 = HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < E.Range).Select(e => Prediction.GetPrediction(e, 0.4f));
-                    if (detoneateTargetBarrels.Any())
-                    {
-                        foreach (var detoneateTargetBarrel in detoneateTargetBarrels)
-                        {
-                            var enemyCount =
-                                enemies.Count(
-                                    e =>
-                                        e.UnitPosition.Distance(detoneateTargetBarrel.barrel.Position) <
-                                        BarrelExplosionRange);
-                            if (detoneateTargetBarrel.barrel.CountEnemiesInRange(BarrelExplosionRange) >=
-                                Config.Item("detoneateTargets", true).GetValue<Slider>().Value)
-                            {
-                                Console.WriteLine("found barrel");
-                                Q.CastOnUnit(detoneateTargetBarrel.barrel);
-                                return;
-                            }
-                            var detoneateTargetBarrelSeconds =
-                                barrels.Where(b => b.barrel.Distance(detoneateTargetBarrel.barrel) < BarrelConnectionRange);
-                            if (detoneateTargetBarrelSeconds.Any())
-                            {
-                                foreach (var detoneateTargetBarrelSecond in detoneateTargetBarrelSeconds)
-                                {
-                                    if (enemyCount +
-                                        enemies2.Count(
-                                            e =>
-                                                e.UnitPosition.Distance(detoneateTargetBarrelSecond.barrel.Position) <
-                                                BarrelExplosionRange) >=
-                                        Config.Item("detoneateTargets", true).GetValue<Slider>().Value &&
-                                        detoneateTargetBarrelSecond.barrel.CountEnemiesInRange(BarrelExplosionRange) >=
-                                        Config.Item("detoneateTargets", true).GetValue<Slider>().Value)
-                                    {
-                                        Q.CastOnUnit(detoneateTargetBarrel.barrel);
-                                        return;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (E.Instance.Ammo > 0)
-                                {
-                                    foreach (var enemy in HeroManager.Enemies.Where(e => e.IsValidTarget() && e.Distance(player) < Q.Range))
-                                    {
-                                        var detoneateTargetBarrelThird = barrels.Select(b => b.barrel).Where(b => b.Distance(enemy) < BarrelConnectionRange * E.Instance.Ammo + BarrelExplosionRange);
-                                        if (detoneateTargetBarrelThird.Any())
-                                        {
-                                            CastE(barrels);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            var targetforQ = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
-            if (Config.Item("useq", true).GetValue<bool>() && Q.CanCast(targetforQ) && Orbwalking.CanMove(100))
-            {
-                Q.CastOnUnit(targetforQ);
-            }
-        }
-
-        private static void Game_OnGameUpdate(EventArgs args)
-        {
-            if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
-            {
-                Combo();
-                
-            };
-            if (Config.Item("HarassActive").GetValue<KeyBind>().Active)
-            {
-                Harass();
-            };
-        }
-
-        public static void Combo()
-        {
-            List<Barrel> barrels = savedBarrels.Where(o => o.barrel.Distance(player) < 1600 && o.barrel.GetBuff("gangplankebarrellife").Caster.IsMe).ToList();
-
-            if (barrels != null)
-            {
-                CastE(barrels);
-                QLogic(barrels);
-            }
-        }
-        public static void Harass()
-        {
-
-        }
-
-        public static bool CheckRangeForBarrels(Vector3 position, int range, bool killable)
-        {
-            return savedBarrels.FirstOrDefault(b => b.barrel.Distance(position) < range && (KillableBarrel(b.barrel) || !killable)) != null;
-        }
-        public static void Drawing_OnDraw(EventArgs args)
-        {
-            Render.Circle.DrawCircle(acoords, 60, System.Drawing.Color.Aqua);
-            Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
-
-            List<Barrel> barrelstable = savedBarrels;
-            if (barrelstable != null && barrelstable.Count > 0)
-            {
-                foreach (var barrels in barrelstable)
-                {
-                    if (barrels.barrel.IsValid)
-                    {
-                        Render.Circle.DrawCircle(barrels.barrel.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Peru);
-                    }
-                }
-            }
-        }
-
 
     }
 }
