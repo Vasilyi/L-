@@ -392,8 +392,10 @@ namespace Gangplank
             Render.Circle.DrawCircle(acoords, 60, System.Drawing.Color.Aqua);
             Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
 
-
-            foreach (var barrels in GetBarrels())
+            var barrelstable = GetBarrels();
+            if (!barrelstable.Any())
+                return;
+            foreach (var barrels in barrelstable)
             {
 
                 Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Peru);
