@@ -278,9 +278,14 @@ namespace Gangplank
                 foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b)))
                 {
                     var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall());
+                    var newP2 = PointsAroundTheTargetOuterRing(barrel.Position, BarrelExplosionRange, 20f).Where(p => !p.IsWall());
                     if (newP.Any())
                     {
                         barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
+                    }
+                    if (newP2.Any())
+                    {
+                        barrelpoints.AddRange(newP2.Where(p => p.Distance(player.Position) < E.Range));
                     }
                 }
                 if (barrelpoints.Any() && E.IsReady() && targetfore != null)
