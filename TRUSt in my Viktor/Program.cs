@@ -156,6 +156,7 @@ namespace Viktor
             bool useE = boolLinks["comboUseE"].Value && E.IsReady();
             bool useR = boolLinks["comboUseR"].Value && R.IsReady();
             bool killpriority = boolLinks["spPriority"].Value && R.IsReady();
+            bool rKillSteal = boolLinks["rLastHit"].Value;
             var Etarget = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
             var Qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
             var RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
@@ -164,7 +165,7 @@ namespace Viktor
                 Etarget = Qtarget;
             }
 
-            if (RTarget != null)
+            if (RTarget != null && rKillSteal)
             {
                 if (TotalDmg(RTarget, true, true, false, false) < RTarget.Health && TotalDmg(RTarget, true, true, true, true) > RTarget.Health)
                 {
