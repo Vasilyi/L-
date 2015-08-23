@@ -165,7 +165,7 @@ namespace Viktor
                 Etarget = Qtarget;
             }
 
-            if (RTarget != null && rKillSteal)
+            if (RTarget != null && rKillSteal && useR)
             {
                 if (TotalDmg(RTarget, true, true, false, false) < RTarget.Health && TotalDmg(RTarget, true, true, true, true) > RTarget.Health)
                 {
