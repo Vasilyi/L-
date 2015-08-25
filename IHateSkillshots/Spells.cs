@@ -789,6 +789,30 @@ namespace Skillshots
 
             #endregion Ezreal
 
+
+
+            #region Fiora
+
+            Spells.Add(
+                new SpellData
+                {
+                    BaseSkinName = "Fiora",
+                    SpellName = "FioraW",
+                    Slot = SpellSlot.W,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 700,
+                    Range = 800,
+                    Radius = 70,
+                    MissileSpeed = 3200,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "FioraWMissile",
+                });
+
+            #endregion Fiora
+
             #region Fizz
 
             Spells.Add(
@@ -1519,7 +1543,7 @@ namespace Skillshots
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Kogmaw",
+                    BaseSkinName = "KogMaw",
                     SpellName = "KogMawQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1540,7 +1564,7 @@ namespace Skillshots
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Kogmaw",
+                    BaseSkinName = "KogMaw",
                     SpellName = "KogMawVoidOoze",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -1559,7 +1583,7 @@ namespace Skillshots
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Kogmaw",
+                    BaseSkinName = "KogMaw",
                     SpellName = "KogMawLivingArtillery",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -2028,6 +2052,26 @@ namespace Skillshots
                 });
 
             #endregion Nautilus
+
+            #region Nocturne
+
+            Spells.Add(
+                new SpellData
+                {
+                    BaseSkinName = "Nocturne",
+                    SpellName = "NocturneDuskbringer",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 1125,
+                    Radius = 60,
+                    MissileSpeed = 1400,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "NocturneDuskbringer",
+                });
+            #endregion Nocturne
+
 
             #region Nidalee
 
