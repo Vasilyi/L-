@@ -163,12 +163,6 @@ namespace ResetsAllTheWay
             {
                 Harass(Config.Item("useQHarass").GetValue<bool>(), Config.Item("useWHarass").GetValue<bool>(), Config.Item("useEHarass").GetValue<bool>());
             };
-            if (Config.Item("StackE").GetValue<KeyBind>().Active)
-            {
-                if (ObjectManager.Player.Spellbook.CanUseSpell(SpellSlot.E) == SpellState.Ready)
-                {
-                }
-            }
 
         }
 
