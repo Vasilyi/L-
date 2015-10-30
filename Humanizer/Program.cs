@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -16,15 +15,17 @@ namespace Humanizer
 
         public static Menu Config;
         public static float lastmovement;
-
+        private static DateTime assemblyLoadTime = DateTime.Now;
         public class LatestCast
         {
             public static float Tick = 0;
             public static float Timepass;
-            public static double X;
-            public static double Y;
+            public static float X = 0;
+            public static float Y = 0;
             public static double Distance;
             public static double Delay;
+            public static int count = 0;
+            public static double SavedTime = 0;
 
         }
 
@@ -33,11 +34,50 @@ namespace Humanizer
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
             Console.WriteLine("Humanizer LOADED");
-            LeagueSharp.Game.OnGameSendPacket += PacketHandler;
+            Spellbook.OnCastSpell += HumanizerCast;
+
+            Drawing.OnDraw += onDrawArgs =>
+            {
+                if (Config.Item("DrawTesting").GetValue<bool>())
+                {
+                    Drawing.DrawText(Drawing.Width - 290, 100, System.Drawing.Color.Lime, "Blocked " + LatestCast.count + " clicks");
+                    Drawing.DrawText(Drawing.Width - 290, 200, System.Drawing.Color.Lime, "Blocked " + LatestCast.SavedTime + " ms");
+                }
+            };
+        }
+        public static float CurrentTick
+        {
+            get
+            {
+                return (int)DateTime.Now.Subtract(assemblyLoadTime).TotalMilliseconds;
+            }
+        }
+
+        public static void HumanizerCast(Spellbook sender, SpellbookCastSpellEventArgs eventArgs)
+        {
+            Vector2 tempvect = new Vector2(LatestCast.X, LatestCast.Y);
+            LatestCast.Timepass = CurrentTick - LatestCast.Tick;
+
+            LatestCast.Distance = tempvect.Distance(eventArgs.StartPosition);
+            LatestCast.Delay = (LatestCast.Distance * 0.001 * Config.Item("delaytime").GetValue<Slider>().Value);
+            if (CurrentTick < LatestCast.Tick + LatestCast.Delay)
+            {
+                eventArgs.Process = false;
+                LatestCast.count += 1;
+                LatestCast.SavedTime += LatestCast.Delay;
+
+            }
+            if (eventArgs.Process == true && LatestCast.Timepass > Config.Item("delaytimecasts").GetValue<Slider>().Value)
+            {
+                LatestCast.X = eventArgs.StartPosition.X;
+                LatestCast.Y = eventArgs.StartPosition.Y;
+                LatestCast.Tick = CurrentTick;
+            }
         }
 
         private static void Game_OnGameLoad(EventArgs args)
         {
+
             Player = ObjectManager.Player;
 
             //Create the menu
@@ -45,53 +85,12 @@ namespace Humanizer
 
             Config.AddSubMenu(new Menu("Casts delay", "Castsdelay"));
             Config.AddSubMenu(new Menu("Movements delay", "Movementdelay"));
-            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytime", "Delay time for distance")).SetValue(new Slider(0, 100, 0));
-            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytimecasts", "Delay time between casts")).SetValue(new Slider(0, 100, 0));
-            Config.SubMenu("Movementdelay").AddItem(new MenuItem("delaytimem", "Delay time")).SetValue(new Slider(0, 100, 0));
+            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytime", "Delay time for distance")).SetValue(new Slider(200, 1000, 0));
+            Config.SubMenu("Castsdelay").AddItem(new MenuItem("delaytimecasts", "Delay time between casts")).SetValue(new Slider(0, 1000, 0));
+            Config.SubMenu("Movementdelay").AddItem(new MenuItem("delaytimem", "Delay time")).SetValue(new Slider(0, 1000, 0));
+            Config.AddItem(new MenuItem("DrawTesting", "DrawTesting").SetValue(true));
             Config.AddToMainMenu();
         }
-        private static void PacketHandler(GamePacketEventArgs args)
-        {
-            var Packetc = new GamePacket(args.PacketData);
-            if (Packetc.Header == Packet.C2S.Cast.Header)
-            {
-                
-                var decodedpacket = Packet.C2S.Cast.Decoded(args.PacketData);
-                LatestCast.Timepass = Environment.TickCount - LatestCast.Tick;
-                LatestCast.Distance = Math.Sqrt(Math.Pow(decodedpacket.ToX - LatestCast.X, 2) + Math.Pow(decodedpacket.ToY - LatestCast.Y, 2));
-                LatestCast.Delay = (LatestCast.Distance * 0.01 * Config.Item("delaytime").GetValue<Slider>().Value + Config.Item("delaytimecasts").GetValue<Slider>().Value);
-                if (Environment.TickCount < LatestCast.Tick + LatestCast.Delay)
-                {
-                    args.Process = false;
-                }
-                if (args.Process == true)
-                {
-                    LatestCast.Tick = Environment.TickCount;
-                    LatestCast.X = decodedpacket.ToX;
-                    LatestCast.Y = decodedpacket.ToY;
-                }
-            }
 
-            else if (Packetc.Header == Packet.C2S.Move.Header)
-            {
-                //Console.WriteLine("Last movement : " + lastmovement.ToString() + "\n DelayTime : " + (Config.Item("delaytimem").GetValue<Slider>().Value * 25).ToString() + "\n Tick : " + Environment.TickCount.ToString());
-                var decodedpacket = Packet.C2S.Move.Decoded(args.PacketData);
-                if (decodedpacket.MoveType != 2)
-                {
-                    return;
-                }
-                if (lastmovement + Config.Item("delaytimem").GetValue<Slider>().Value * 5 > Environment.TickCount)
-                {
-                    args.Process = false;
-                    Console.WriteLine("delayed");
-                }
-                else
-                {
-                    args.Process = true;
-                    lastmovement = Environment.TickCount;
-
-                }
-            }
-        }
     }
 }
