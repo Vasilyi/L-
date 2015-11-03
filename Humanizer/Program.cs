@@ -36,14 +36,7 @@ namespace Humanizer
             Console.WriteLine("Humanizer LOADED");
             Spellbook.OnCastSpell += HumanizerCast;
 
-            Drawing.OnDraw += onDrawArgs =>
-            {
-                if (Config.Item("DrawTesting").GetValue<bool>())
-                {
-                    Drawing.DrawText(Drawing.Width - 290, 100, System.Drawing.Color.Lime, "Blocked " + LatestCast.count + " clicks");
-                    Drawing.DrawText(Drawing.Width - 290, 200, System.Drawing.Color.Lime, "Blocked " + LatestCast.SavedTime + " ms");
-                }
-            };
+
         }
         public static float CurrentTick
         {
@@ -60,7 +53,7 @@ namespace Humanizer
 
             LatestCast.Distance = tempvect.Distance(eventArgs.StartPosition);
             LatestCast.Delay = (LatestCast.Distance * 0.001 * Config.Item("delaytime").GetValue<Slider>().Value);
-            if (CurrentTick < LatestCast.Tick + LatestCast.Delay)
+            if (CurrentTick < LatestCast.Tick + LatestCast.Delay && LatestCast.Timepass < 300)
             {
                 eventArgs.Process = false;
                 LatestCast.count += 1;
@@ -90,6 +83,16 @@ namespace Humanizer
             Config.SubMenu("Movementdelay").AddItem(new MenuItem("delaytimem", "Delay time")).SetValue(new Slider(0, 1000, 0));
             Config.AddItem(new MenuItem("DrawTesting", "DrawTesting").SetValue(true));
             Config.AddToMainMenu();
+
+
+            Drawing.OnDraw += onDrawArgs =>
+            {
+                if (Config.Item("DrawTesting").GetValue<bool>())
+                {
+                    Drawing.DrawText(Drawing.Width - 290, 100, System.Drawing.Color.Lime, "Blocked " + LatestCast.count + " clicks");
+                    Drawing.DrawText(Drawing.Width - 290, 200, System.Drawing.Color.Lime, "Blocked " + LatestCast.SavedTime + " ms");
+                }
+            };
         }
 
     }
