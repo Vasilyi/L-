@@ -53,7 +53,7 @@ namespace ResetsAllTheWay
 
         private static void ObjAiHeroOnOnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
         {
-            if (sender.IsMe && Environment.TickCount < tSpells.rStartTick + 300)
+            if (sender.IsMe && Utils.TickCount < tSpells.rStartTick + 300)
             {
                 //Console.WriteLine("BLOCKED");
                 args.Process = false;
@@ -146,7 +146,7 @@ namespace ResetsAllTheWay
         {
             public static float rEndTick;
             public static float rStartTick = 0;
-            public static bool ulting;
+            public static bool ulting = false;
             public static float wLastUse;
             public static float qlastuse;
             public static bool useignite;
@@ -225,7 +225,7 @@ namespace ResetsAllTheWay
             {
                 ObjectManager.Player.IssueOrder(GameObjectOrder.HoldPosition, new Vector3(Player.ServerPosition.X, Player.ServerPosition.Y, Player.ServerPosition.Z));
                 R.Cast();
-                tSpells.rStartTick = Environment.TickCount;
+                tSpells.rStartTick = Utils.TickCount;
                 Console.WriteLine("CAST ULT");
             }
             if (Config.Item("ignite").GetValue<bool>() && tSpells.useignite)
