@@ -134,6 +134,12 @@ namespace Gangplank
                 Config.AddSubMenu(new Menu("Farm", "Farm"));
                 Config.SubMenu("Farm").AddItem(new MenuItem("FarmActive", "Q farm", true)).SetValue(true);
 
+                Config.AddSubMenu(new Menu("Draw", "Draw"));
+                Config.SubMenu("Draw").AddItem(new MenuItem("DrawBarrels", "Barrels range", true)).SetValue(true);
+                Config.SubMenu("Draw").AddItem(new MenuItem("DrawBarrelsTime", "Barrels ready time", true)).SetValue(true);
+
+
+
                 Config.AddSubMenu(new Menu("Debug", "Debug"));
                 Config.SubMenu("Debug")
                                     .AddItem(new MenuItem("debugf", "Debug", true)).SetValue(true);
@@ -158,7 +164,7 @@ namespace Gangplank
 
                 var minion =
                     MinionManager.GetMinions(Q.Range, MinionTypes.All, MinionTeam.NotAlly)
-                        .Where(m => m.Health < Q.GetDamage(m) && m.SkinName != "GangplankBarrel" && HealthPrediction.GetHealthPrediction(m, (int)GetQTime(m)) > 0)
+                        .Where(m => m.Health < Q.GetDamage(m) && m.Name != "Barrel" && HealthPrediction.GetHealthPrediction(m, (int)GetQTime(m)) > 0)
                         .OrderByDescending(m => m.MaxHealth)
                         .ThenByDescending(m => m.Distance(player))
                         .FirstOrDefault();
@@ -182,14 +188,24 @@ namespace Gangplank
             }
 
 
-
+            
 
 
             foreach (var barrels in savedbarrels)
             {
-                if (barrels.IsValid)
+                if (barrels.IsValid && Config.Item("DrawBarrels", true).GetValue<bool>())
                 {
                     Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Aqua);
+                }
+                if (Config.Item("DrawBarrelsTime", true).GetValue<bool>())
+                {
+                    var pos = Drawing.WorldToScreen(new Vector3(barrels.ServerPosition.X, barrels.ServerPosition.Y, barrels.ServerPosition.Z));
+                    var time = getEActivationDelay()*2;
+                    var timeleft = (barrels.GetBuff("gangplankebarrellife").StartTime - Game.Time + time);
+                    if (timeleft > 0)
+                    {
+                        Drawing.DrawText(pos.X, pos.Y, Color.Aqua, timeleft.ToString().Substring(0,3));
+                    }
                 }
             }
         }
@@ -258,7 +274,7 @@ namespace Gangplank
             if (barrel != null)
             {
 
-                var time = targetB.Health * getEActivationDelay();
+                var time = getEActivationDelay() * 3;
                 // DebugWrite(barrel.GetBuff("gangplankebarrellife").StartTime + " : " + Game.Time + " : " + GetQTime(targetB) + " : " + time);
                 if (Game.Time - barrel.GetBuff("gangplankebarrellife").StartTime > time - GetQTime(targetB) - adddelay)
                 {
@@ -339,8 +355,14 @@ namespace Gangplank
             {
                 var targetfore = TargetSelector.GetTarget(E.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
                 var targetforq = TargetSelector.GetTarget(Q.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
+                bool secondrequired = true;
                 foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b, true)))
                 {
+
+                    if (targetfore.Distance(barrel) < BarrelExplosionRange)
+                    {
+                        secondrequired = false;
+                    }
                     var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall() && player.Distance(p)<E.Range+BarrelExplosionRange);
                     if (newP.Any())
                     {
@@ -354,7 +376,12 @@ namespace Gangplank
 
 
                 }
-                if (barrelpoints.Any() && E.IsReady() && Q.IsReady() && targetfore != null)
+                if (!secondrequired)
+                {
+                    return;
+                }
+
+                    if (barrelpoints.Any() && E.IsReady() && Q.IsReady() && targetfore != null)
                 {
                     foreach (var secondbarrelpoint in barrelpoints)
                     {
