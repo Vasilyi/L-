@@ -190,7 +190,10 @@ namespace Gangplank
 
             
 
-
+            if (savedbarrels == null)
+            {
+                return;
+            }
             foreach (var barrels in savedbarrels)
             {
                 if (barrels.IsValid && Config.Item("DrawBarrels", true).GetValue<bool>())
@@ -202,7 +205,7 @@ namespace Gangplank
                     var pos = Drawing.WorldToScreen(new Vector3(barrels.ServerPosition.X, barrels.ServerPosition.Y, barrels.ServerPosition.Z));
                     var time = getEActivationDelay()*2;
                     var timeleft = (barrels.GetBuff("gangplankebarrellife").StartTime - Game.Time + time);
-                    if (timeleft > 0)
+                    if (timeleft > 0 && timeleft.ToString().Length > 2)
                     {
                         Drawing.DrawText(pos.X, pos.Y, Color.Aqua, timeleft.ToString().Substring(0,3));
                     }
@@ -331,19 +334,11 @@ namespace Gangplank
 
                         return true;
                     }
-                    else
-                    {
-                        testposition = barrel.ServerPosition;
-                    }
                 }
+
+
             }
-            foreach (var barrel in savedbarrels)
-            {
-                if (barrel.Distance(testposition) < BarrelConnectionRange && barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
-                {
-                    return true;
-                }
-            }
+
             return false;
         }
 
@@ -356,32 +351,56 @@ namespace Gangplank
                 var targetfore = TargetSelector.GetTarget(E.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
                 var targetforq = TargetSelector.GetTarget(Q.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
                 bool secondrequired = true;
-                foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b, true)))
+                Obj_AI_Minion FindChainBarrelObject = null;
+                Obj_AI_Minion meleeRangeBarrel = null;
+                Obj_AI_Minion rangedbarrel = null;
+                bool blockQ = false;
+                foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range)))
                 {
-
-                    if (targetfore.Distance(barrel) < BarrelExplosionRange)
+                    if (KillableBarrel(barrel, true))
                     {
-                        secondrequired = false;
-                    }
-                    var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall() && player.Distance(p)<E.Range+BarrelExplosionRange);
-                    if (newP.Any())
-                    {
-                        barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
-                    }
+                        if (targetfore.Distance(barrel) < BarrelExplosionRange)
+                        {
+                            secondrequired = false;
+                        }
+                        var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall() && player.Distance(p) < E.Range + BarrelExplosionRange);
+                        if (newP.Any())
+                        {
+                            barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
+                        }
 
-                    foreach (var enemy1 in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(E.Range)))
-                    {
-                        barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
+                        foreach (var enemy1 in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(E.Range)))
+                        {
+                            barrelpoints.AddRange(newP.Where(p => p.Distance(Prediction.GetPrediction(enemy1, 250).UnitPosition) < E.Range));
+
+                        }
+
+                        if (FindChainBarrels(barrel.ServerPosition))
+                        {
+                            FindChainBarrelObject = barrel;
+                        }
+
+
+                        if (Orbwalking.InAutoAttackRange(barrel) && HeroManager.Enemies.Count(o =>
+                             o.IsValidTarget() && o.Distance(barrel) < BarrelExplosionRange &&
+                             barrel.Distance(Prediction.GetPrediction(o, 250).UnitPosition) < BarrelExplosionRange) > 0)
+                        {
+                            meleeRangeBarrel = barrel;
+                        }
+
+                        if (barrel.Distance(targetforq) < BarrelExplosionRange)
+                        {
+                            rangedbarrel = barrel;
+                        }
+
+                        if (barrel.Distance(targetforq) < BarrelConnectionRange && E.Instance.Ammo > 0)
+                        {
+                            blockQ = true;
+                        }
                     }
-
-
                 }
-                if (!secondrequired)
-                {
-                    return;
-                }
 
-                    if (barrelpoints.Any() && E.IsReady() && Q.IsReady() && targetfore != null)
+                if (barrelpoints.Any() && E.IsReady() && Q.IsReady() && targetfore != null && secondrequired)
                 {
                     foreach (var secondbarrelpoint in barrelpoints)
                     {
@@ -422,52 +441,31 @@ namespace Gangplank
 
                     }
                 }
-                var meleeRangeBarrel =
-             savedbarrels.FirstOrDefault(
-                 b =>
-                     b.Health < 2 && KillableBarrel(b, true) &&
-                     Orbwalking.InAutoAttackRange(b) &&
-                     HeroManager.Enemies.Count(
-                         o =>
-                             o.IsValidTarget() && o.Distance(b) < BarrelExplosionRange &&
-                             b.Distance(Prediction.GetPrediction(o, 500).UnitPosition) < BarrelExplosionRange) > 0);
+                if (rangedbarrel != null && Q.IsReady())
+                {
+                    Q.Cast(rangedbarrel);
+                }
                 if (meleeRangeBarrel != null && !Q.IsReady())
                 {
-                    Orbwalker.SetAttack(false);
-                    player.IssueOrder(GameObjectOrder.AttackUnit, meleeRangeBarrel);
+                    Orbwalker.ForceTarget(meleeRangeBarrel);
                 }
-                if (Q.IsReady())
+
+
+
+                if (FindChainBarrelObject.IsValidTarget())
                 {
-                    foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range) && KillableBarrel(b, false)))
+                    if (Q.IsReady())
                     {
-
-                        if (FindChainBarrels(barrel.ServerPosition))
-                        {
-                            Q.Cast(barrel);
-                        }
-
+                        Q.Cast(FindChainBarrelObject);
                     }
-
+                    else if (Orbwalking.InAutoAttackRange(FindChainBarrelObject))
+                    {
+                        Orbwalker.ForceTarget(FindChainBarrelObject);
+                    }
                 }
-                if (Q.IsReady())
+                if (!blockQ || player.GetSpellDamage(targetforq, SpellSlot.Q) > targetforq.Health)
                 {
-                    var barrelfound = false;
-                    foreach (var barrel in savedbarrels.Where(b => b.IsValidTarget(Q.Range)))
-                    {
-                        if (barrel.Distance(targetforq) < BarrelExplosionRange)
-                        {
-                            barrelfound = true;
-                            if (KillableBarrel(barrel, false))
-                            {
-                                Q.Cast(barrel);
-                            }
-                        }
-                    }
-
-                    if (!barrelfound || player.GetSpellDamage(targetforq, SpellSlot.Q) > targetforq.Health)
-                    {
-                        Q.Cast(targetforq);
-                    }
+                    Q.Cast(targetforq);
                 }
                 barrelpoints = null;
                 barrelpoints = new List<Vector3>();
