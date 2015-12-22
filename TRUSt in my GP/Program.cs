@@ -104,7 +104,7 @@ namespace Gangplank
                 AutoExplode();
 
             };
-           if (Config.Item("explodenear").GetValue<KeyBind>().Active)
+            if (Config.Item("explodenear").GetValue<KeyBind>().Active)
             {
                 ExplodeNearBarrel();
             };
@@ -164,7 +164,7 @@ namespace Gangplank
         }
         public static void Farm()
         {
-   
+
             if (Q.IsReady() && Config.Item("FarmActive", true).GetValue<bool>())
             {
 
@@ -194,15 +194,15 @@ namespace Gangplank
             }
 
 
-            
+
 
             if (savedbarrels == null)
             {
                 return;
             }
-            foreach (var barrels in savedbarrels)
+            foreach (var barrels in savedbarrels.Where(b => b.IsValidTarget(E.Range)))
             {
-                if (barrels.IsValid && Config.Item("DrawBarrels", true).GetValue<bool>())
+                if (Config.Item("DrawBarrels", true).GetValue<bool>())
                 {
                     Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Aqua);
                 }
@@ -212,7 +212,7 @@ namespace Gangplank
                     var timeleft = (barrels.GetBuff("gangplankebarrellife").StartTime - Game.Time + getEActivationDelay() * 2);
                     if (timeleft > 0 && timeleft.ToString().Length > 2)
                     {
-                        Drawing.DrawText(pos.X, pos.Y, Color.Aqua, timeleft.ToString().Substring(0,3));
+                        Drawing.DrawText(pos.X, pos.Y, Color.Aqua, timeleft.ToString().Substring(0, 3));
                     }
                 }
             }
@@ -256,17 +256,17 @@ namespace Gangplank
         {
             foreach (var barrel in savedbarrels)
             {
-                    if (KillableBarrel(barrel) && Q.IsReady() && barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
-                    {
-                        Q.Cast(barrel);
-                    }
+                if (KillableBarrel(barrel) && Q.IsReady() && barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
+                {
+                    Q.Cast(barrel);
+                }
             }
         }
 
 
         public static void ExplodeNearBarrel()
         {
-            
+
             var tempbarrel = savedbarrels.Where(b => b.IsValidTarget(Q.Range)).MinOrDefault(b => player.Distance(b));
             if (Q.IsReady() && tempbarrel.IsValidTarget(Q.Range) && KillableBarrel(tempbarrel))
             {
@@ -305,21 +305,21 @@ namespace Gangplank
         {
             List<Vector3> list = new List<Vector3>();
 
-                
-                    if (!pos.IsValid())
-                    {
-                        return new List<Vector3>();
-                    }
-                    
-                    var max = 2 * dist / 2 * Math.PI / width / 2;
-                    var angle = 360f / max * Math.PI / 180.0f;
-                    for (int i = 0; i < max; i+=10)
-                    {
-                        list.Add(
-                            new Vector3(
-                                pos.X + (float)(Math.Cos(angle * i) * dist), pos.Y + (float)(Math.Sin(angle * i) * dist),
-                                pos.Z));
-                    }
+
+            if (!pos.IsValid())
+            {
+                return new List<Vector3>();
+            }
+
+            var max = 2 * dist / 2 * Math.PI / width / 2;
+            var angle = 360f / max * Math.PI / 180.0f;
+            for (int i = 0; i < max; i += 10)
+            {
+                list.Add(
+                    new Vector3(
+                        pos.X + (float)(Math.Cos(angle * i) * dist), pos.Y + (float)(Math.Sin(angle * i) * dist),
+                        pos.Z));
+            }
 
             return list;
         }
@@ -333,7 +333,7 @@ namespace Gangplank
             return savedbarrels.Count(b => b.Distance(position) < range);
         }
 
-        public static bool FindChainBarrels(Vector3 position)
+        public static Obj_AI_Minion FindChainBarrels(Vector3 position)
         {
             foreach (var barrel in savedbarrels)
             {
@@ -342,14 +342,14 @@ namespace Gangplank
                     if (barrel.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
                     {
 
-                        return true;
+                        return barrel;
                     }
                 }
 
 
             }
 
-            return false;
+            return null;
         }
 
 
@@ -383,12 +383,8 @@ namespace Gangplank
                             barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
                         }
 
-                        
 
-                        if (FindChainBarrels(barrel.ServerPosition))
-                        {
-                            FindChainBarrelObject = barrel;
-                        }
+
 
 
                         if (Orbwalking.InAutoAttackRange(barrel) && HeroManager.Enemies.Count(o =>
@@ -397,6 +393,7 @@ namespace Gangplank
                         {
                             meleeRangeBarrel = barrel;
                         }
+
 
                         if (barrel.Distance(targetforq) < BarrelExplosionRange)
                         {
@@ -410,11 +407,12 @@ namespace Gangplank
                     }
                 }
                 barrelpoints.AddRange(GetBarrelPoints(Prediction.GetPrediction(targetfore, 250).UnitPosition).Where(p => !p.IsWall() && player.Distance(p) < E.Range + BarrelExplosionRange));
-                if (barrelpoints.Any() && E.IsReady() && Q.IsReady() && targetfore != null && secondrequired)
-                {
-                    var closest = barrelpoints.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 250).UnitPosition));
+                var closest = barrelpoints.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 100).UnitPosition));
 
-                    if (closest.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
+                if (E.IsReady() && Q.IsReady() && targetfore != null && secondrequired)
+                {
+                   
+                    if (closest != null && closest.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
                     {
                         if (closest != EDelay.position)
                         {
@@ -436,28 +434,30 @@ namespace Gangplank
                             }
                         }
                     }
-                      
+
                 }
                 if (rangedbarrel.IsValidTarget(Q.Range) && Q.IsReady())
                 {
                     Q.Cast(rangedbarrel);
                 }
+
+
                 if (meleeRangeBarrel.IsValidTarget() && !Q.IsReady())
                 {
                     Orbwalker.ForceTarget(meleeRangeBarrel);
                 }
+                var closestbarrel = savedbarrels.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 100).UnitPosition));
 
-
-
+                FindChainBarrelObject = FindChainBarrels(closestbarrel.ServerPosition);
                 if (FindChainBarrelObject.IsValidTarget(Q.Range))
                 {
                     if (Q.IsReady())
                     {
-                        Q.Cast(FindChainBarrelObject);
+                        Q.Cast(closestbarrel);
                     }
-                    else if (Orbwalking.InAutoAttackRange(FindChainBarrelObject))
+                    else if (Orbwalking.InAutoAttackRange(closestbarrel))
                     {
-                        Orbwalker.ForceTarget(FindChainBarrelObject);
+                        Orbwalker.ForceTarget(closestbarrel);
                     }
                 }
                 if (targetforq.IsValidTarget(Q.Range) && (!blockQ || player.GetSpellDamage(targetforq, SpellSlot.Q) > targetforq.Health))
@@ -474,7 +474,7 @@ namespace Gangplank
         }
 
 
-     
+
 
     }
 }
