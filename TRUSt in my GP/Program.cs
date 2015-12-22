@@ -99,7 +99,7 @@ namespace Gangplank
             };
 
 
-            if (Config.Item("AutoDetonate", true).GetValue<bool>())
+            if (Config.Item("AutoDetonate", true).GetValue<bool>() && Q.IsReady())
             {
                 AutoExplode();
 
@@ -313,7 +313,7 @@ namespace Gangplank
                     
                     var max = 2 * dist / 2 * Math.PI / width / 2;
                     var angle = 360f / max * Math.PI / 180.0f;
-                    for (int i = 0; i < max; i++)
+                    for (int i = 0; i < max; i+=10)
                     {
                         list.Add(
                             new Vector3(
@@ -383,7 +383,7 @@ namespace Gangplank
                             barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
                         }
 
-                            barrelpoints.AddRange(newP.Where(p => p.Distance(Prediction.GetPrediction(targetfore, 250).UnitPosition) < E.Range));
+                        
 
                         if (FindChainBarrels(barrel.ServerPosition))
                         {
@@ -409,16 +409,17 @@ namespace Gangplank
                         }
                     }
                 }
-
+                barrelpoints.AddRange(GetBarrelPoints(Prediction.GetPrediction(targetfore, 250).UnitPosition).Where(p => !p.IsWall() && player.Distance(p) < E.Range + BarrelExplosionRange));
                 if (barrelpoints.Any() && E.IsReady() && Q.IsReady() && targetfore != null && secondrequired)
                 {
+                    var closest = barrelpoints.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 250).UnitPosition));
                     foreach (var secondbarrelpoint in barrelpoints)
                     {
                         // DebugWrite("finding second " + secondbarrelpoint.CountEnemiesInRange(BarrelExplosionRange));
                         if (secondbarrelpoint.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
                         {
 
-                            var closest = barrelpoints.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 250).UnitPosition));
+                            
 
                             if (closest != EDelay.position)
                             {
