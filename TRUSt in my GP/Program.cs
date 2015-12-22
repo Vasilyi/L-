@@ -142,9 +142,8 @@ namespace Gangplank
 
                 Config.AddSubMenu(new Menu("Draw", "Draw"));
                 Config.SubMenu("Draw").AddItem(new MenuItem("DrawBarrels", "Barrels range", true)).SetValue(true);
+                Config.SubMenu("Draw").AddItem(new MenuItem("DrawBarrelsExplode", "Barrels range connect explode", true)).SetValue(true);
                 Config.SubMenu("Draw").AddItem(new MenuItem("DrawBarrelsTime", "Barrels ready time", true)).SetValue(true);
-
-
 
                 Config.AddSubMenu(new Menu("Debug", "Debug"));
                 Config.SubMenu("Debug")
@@ -164,7 +163,6 @@ namespace Gangplank
         }
         public static void Farm()
         {
-
             if (Q.IsReady() && Config.Item("FarmActive", true).GetValue<bool>())
             {
 
@@ -179,7 +177,6 @@ namespace Gangplank
                 {
                     Q.CastOnUnit(minion);
                 }
-
             }
         }
         public static void Drawing_OnDraw(EventArgs args)
@@ -192,10 +189,6 @@ namespace Gangplank
             {
                 Render.Circle.DrawCircle(bcoords, 60, System.Drawing.Color.Peru);
             }
-
-
-
-
             if (savedbarrels == null)
             {
                 return;
@@ -205,6 +198,10 @@ namespace Gangplank
                 if (Config.Item("DrawBarrels", true).GetValue<bool>())
                 {
                     Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange, System.Drawing.Color.Aqua);
+                }
+                if (Config.Item("DrawBarrelsExplode", true).GetValue<bool>())
+                {
+                    Render.Circle.DrawCircle(barrels.ServerPosition, BarrelExplosionRange + BarrelConnectionRange, System.Drawing.Color.Aqua);
                 }
                 if (Config.Item("DrawBarrelsTime", true).GetValue<bool>())
                 {
@@ -313,7 +310,7 @@ namespace Gangplank
 
             var max = 2 * dist / 2 * Math.PI / width / 2;
             var angle = 360f / max * Math.PI / 180.0f;
-            for (int i = 0; i < max; i += 10)
+            for (int i = 0; i < max; i += 2)
             {
                 list.Add(
                     new Vector3(
@@ -358,6 +355,7 @@ namespace Gangplank
         {
             try
             {
+                barrelpoints.Clear();
                 var targetfore = TargetSelector.GetTarget(E.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
                 var targetforq = TargetSelector.GetTarget(Q.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
                 bool secondrequired = true;
@@ -365,7 +363,7 @@ namespace Gangplank
                 Obj_AI_Minion meleeRangeBarrel = null;
                 Obj_AI_Minion rangedbarrel = null;
                 bool blockQ = false;
-                if (targetfore == null)
+                if (!targetfore.IsValidTarget())
                 {
                     return;
                 }
@@ -373,46 +371,49 @@ namespace Gangplank
                 {
                     if (KillableBarrel(barrel, true))
                     {
+
                         if (targetfore.Distance(barrel) < BarrelExplosionRange)
                         {
                             secondrequired = false;
                         }
-                        var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall() && player.Distance(p) < E.Range + BarrelExplosionRange);
+                        var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall() && player.Distance(p) < E.Range && barrel.Distance(p) < BarrelConnectionRange);
                         if (newP.Any())
                         {
-                            barrelpoints.AddRange(newP.Where(p => p.Distance(player.Position) < E.Range));
+                            barrelpoints.AddRange(newP);
                         }
-
-
-
-
-
-                        if (Orbwalking.InAutoAttackRange(barrel) && HeroManager.Enemies.Count(o =>
-                             o.IsValidTarget() && o.Distance(barrel) < BarrelExplosionRange &&
-                             barrel.Distance(Prediction.GetPrediction(o, 250).UnitPosition) < BarrelExplosionRange) > 0)
+                        foreach (var enemy1 in HeroManager.Enemies.Where(b => b.IsValidTarget(E.Range + BarrelConnectionRange)))
                         {
-                            meleeRangeBarrel = barrel;
+                                barrelpoints.AddRange(GetBarrelPoints(enemy1.ServerPosition).Where(p => !p.IsWall() && player.Distance(p) < E.Range && barrel.Distance(p) < BarrelConnectionRange));
                         }
-
-
-                        if (barrel.Distance(targetforq) < BarrelExplosionRange)
-                        {
-                            rangedbarrel = barrel;
-                        }
-
                         if (barrel.Distance(targetforq) < BarrelConnectionRange && E.Instance.Ammo > 0)
                         {
                             blockQ = true;
                         }
+
+                        if (KillableBarrel(barrel))
+                        {
+                            if (Orbwalking.InAutoAttackRange(barrel) && HeroManager.Enemies.Count(o =>
+                                         o.IsValidTarget(E.Range + BarrelConnectionRange) && o.Distance(barrel) < BarrelExplosionRange) > 0)
+                            {
+                                meleeRangeBarrel = barrel;
+                            }
+
+
+
+                            if (barrel.Distance(targetforq) < BarrelExplosionRange)
+                            {
+                                rangedbarrel = barrel;
+                            }
+                        }
                     }
                 }
-                barrelpoints.AddRange(GetBarrelPoints(Prediction.GetPrediction(targetfore, 250).UnitPosition).Where(p => !p.IsWall() && player.Distance(p) < E.Range + BarrelExplosionRange));
-                var closest = barrelpoints.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 100).UnitPosition));
 
-                if (E.IsReady() && Q.IsReady() && targetfore != null && secondrequired)
+                var pos = Prediction.GetPrediction(targetfore, 0.5f);
+                var closest = barrelpoints.MinOrDefault(point => point.Distance(pos.UnitPosition));
+                if (E.IsReady() && Q.IsReady() && secondrequired)
                 {
-                   
-                    if (closest != null && closest.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
+
+                    if (closest != null && pos.Hitchance > HitChance.High && closest.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
                     {
                         if (closest != EDelay.position)
                         {
@@ -435,6 +436,7 @@ namespace Gangplank
                         }
                     }
 
+
                 }
                 if (rangedbarrel.IsValidTarget(Q.Range) && Q.IsReady())
                 {
@@ -446,26 +448,32 @@ namespace Gangplank
                 {
                     Orbwalker.ForceTarget(meleeRangeBarrel);
                 }
-                var closestbarrel = savedbarrels.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 100).UnitPosition));
 
-                FindChainBarrelObject = FindChainBarrels(closestbarrel.ServerPosition);
-                if (FindChainBarrelObject.IsValidTarget(Q.Range))
+                var closestbarrel = savedbarrels.Where(barrel => KillableBarrel(barrel) && barrel.IsValidTarget(Q.Range)).MinOrDefault(point => point.Distance(targetfore.ServerPosition));
+
+                if (closestbarrel != null)
                 {
-                    if (Q.IsReady())
+
+                    FindChainBarrelObject = FindChainBarrels(closestbarrel.ServerPosition);
+
+                    if (FindChainBarrelObject.IsValidTarget())
                     {
-                        Q.Cast(closestbarrel);
+
+                        if (Q.IsReady())
+                        {
+                            Q.Cast(closestbarrel);
+                        }
+                        else if (Orbwalking.InAutoAttackRange(closestbarrel))
+                        {
+                            Orbwalker.ForceTarget(closestbarrel);
+                        } 
                     }
-                    else if (Orbwalking.InAutoAttackRange(closestbarrel))
-                    {
-                        Orbwalker.ForceTarget(closestbarrel);
-                    }
+
                 }
-                if (targetforq.IsValidTarget(Q.Range) && (!blockQ || player.GetSpellDamage(targetforq, SpellSlot.Q) > targetforq.Health))
+                if (targetforq.IsValidTarget(Q.Range) && !E.IsReady(2) && (!blockQ  || player.GetSpellDamage(targetforq, SpellSlot.Q) > targetforq.Health))
                 {
                     Q.Cast(targetforq);
                 }
-                barrelpoints = null;
-                barrelpoints = new List<Vector3>();
             }
             catch (Exception e)
             {
