@@ -413,40 +413,30 @@ namespace Gangplank
                 if (barrelpoints.Any() && E.IsReady() && Q.IsReady() && targetfore != null && secondrequired)
                 {
                     var closest = barrelpoints.MinOrDefault(point => point.Distance(Prediction.GetPrediction(targetfore, 250).UnitPosition));
-                    foreach (var secondbarrelpoint in barrelpoints)
+
+                    if (closest.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
                     {
-                        // DebugWrite("finding second " + secondbarrelpoint.CountEnemiesInRange(BarrelExplosionRange));
-                        if (secondbarrelpoint.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
+                        if (closest != EDelay.position)
                         {
+                            EDelay.position = closest;
+                            EDelay.time = Environment.TickCount;
+                            var qtarget = savedbarrels.MinOrDefault(b => b.IsValidTarget(Q.Range) && KillableBarrel(b, true) && b.Distance(closest) < BarrelConnectionRange);
 
-                            
-
-                            if (closest != EDelay.position)
+                            E.Cast(closest);
+                            Utility.DelayAction.Add(100, () => Q.Cast(qtarget));
+                            if (Config.Item("trieplb", true).GetValue<bool>())
                             {
-                                EDelay.position = closest;
-                                EDelay.time = Environment.TickCount;
-                                var qtarget = savedbarrels.MinOrDefault(b => b.IsValidTarget(Q.Range) && KillableBarrel(b, true) && b.Distance(closest) < BarrelConnectionRange);
-
-                                E.Cast(closest);
-                                Utility.DelayAction.Add(100, () => Q.Cast(qtarget));
-                                if (Config.Item("trieplb", true).GetValue<bool>())
+                                foreach (var barrel in savedbarrels)
                                 {
-                                    foreach (var barrel in savedbarrels)
+                                    foreach (var enemy3 in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(E.Range + BarrelExplosionRange) && hero.Distance(barrel) > BarrelExplosionRange && hero.Distance(barrel) < BarrelConnectionRange))
                                     {
-                                        foreach (var enemy3 in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(E.Range + BarrelExplosionRange) && hero.Distance(barrel) > BarrelExplosionRange && hero.Distance(barrel) < BarrelConnectionRange))
-                                        {
-                                            Utility.DelayAction.Add(200, () => E.Cast(enemy3.ServerPosition));
-                                        }
+                                        Utility.DelayAction.Add(200, () => E.Cast(enemy3.ServerPosition));
                                     }
                                 }
-
-
-
-
                             }
                         }
-
                     }
+                      
                 }
                 if (rangedbarrel.IsValidTarget(Q.Range) && Q.IsReady())
                 {
