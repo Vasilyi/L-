@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -130,7 +128,6 @@ namespace Gangplank
                 Config.SubMenu("Barrel")
                     .AddItem(new MenuItem("detoneateTargets", "Blow up enemies with E"))
                     .SetValue(new Slider(2, 1, 5));
-                Config.SubMenu("Barrel").AddItem(new MenuItem("ScanIntense", "Increase if have lags")).SetValue(new Slider(2, 1, 10));
 
                 Config.AddSubMenu(new Menu("Combo", "Combo"));
                 Config.SubMenu("Combo")
@@ -276,7 +273,7 @@ namespace Gangplank
             float adddelay = 0;
             if (ecastinclude)
             {
-                adddelay = 0.25f;
+                adddelay = 0.3f;
             }
             if (targetB.Health == 1)
             {
@@ -383,9 +380,13 @@ namespace Gangplank
                         }
                         foreach (var enemy1 in HeroManager.Enemies.Where(b => b.IsValidTarget(E.Range + BarrelConnectionRange)))
                         {
-                                barrelpoints.AddRange(GetBarrelPoints(enemy1.ServerPosition).Where(p => !p.IsWall() && player.Distance(p) < E.Range && barrel.Distance(p) < BarrelConnectionRange));
+                            barrelpoints.AddRange(GetBarrelPoints(enemy1.ServerPosition).Where(p => !p.IsWall() && player.Distance(p) < E.Range && barrel.Distance(p) < BarrelConnectionRange));
                         }
                         if (barrel.Distance(targetforq) < BarrelConnectionRange && E.Instance.Ammo > 0)
+                        {
+                            blockQ = true;
+                        }
+                        else if (barrel.Distance(targetforq) < BarrelExplosionRange)
                         {
                             blockQ = true;
                         }
@@ -409,16 +410,19 @@ namespace Gangplank
                 }
 
                 var pos = Prediction.GetPrediction(targetfore, 0.5f);
-                var closest = barrelpoints.MinOrDefault(point => point.Distance(pos.UnitPosition));
+                var closest = barrelpoints.OrderBy(point => point.Distance(pos.UnitPosition)).ThenByDescending(point => point.CountEnemiesInRange(BarrelExplosionRange)).FirstOrDefault(point => savedbarrels.Count(b => b.Distance(point) < BarrelConnectionRange - 100) == 0);
                 if (E.IsReady() && Q.IsReady() && secondrequired)
                 {
-
+                    if (savedbarrels.Count(b => b.Distance(closest) <= BarrelConnectionRange) == 0)
+                    {
+                        return;
+                    }
                     if (closest != null && pos.Hitchance > HitChance.High && closest.CountEnemiesInRange(BarrelExplosionRange) >= Config.Item("detoneateTargets").GetValue<Slider>().Value)
                     {
                         if (closest != EDelay.position)
                         {
                             EDelay.position = closest;
-                            EDelay.time = Environment.TickCount;
+                            EDelay.time = Utils.TickCount;
                             var qtarget = savedbarrels.MinOrDefault(b => b.IsValidTarget(Q.Range) && KillableBarrel(b, true) && b.Distance(closest) < BarrelConnectionRange);
 
                             E.Cast(closest);
@@ -466,11 +470,12 @@ namespace Gangplank
                         else if (Orbwalking.InAutoAttackRange(closestbarrel))
                         {
                             Orbwalker.ForceTarget(closestbarrel);
-                        } 
+                        }
                     }
 
                 }
-                if (targetforq.IsValidTarget(Q.Range) && !E.IsReady(2) && (!blockQ  || player.GetSpellDamage(targetforq, SpellSlot.Q) > targetforq.Health))
+                if (targetforq.IsValidTarget(Q.Range)
+                    && (blockQ == false || player.GetSpellDamage(targetforq, SpellSlot.Q) > targetforq.Health))
                 {
                     Q.Cast(targetforq);
                 }
