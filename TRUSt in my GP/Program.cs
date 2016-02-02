@@ -355,7 +355,7 @@ namespace Gangplank
                 barrelpoints.Clear();
                 var targetfore = TargetSelector.GetTarget(E.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
                 var targetforq = TargetSelector.GetTarget(Q.Range + BarrelExplosionRange, TargetSelector.DamageType.Physical);
-                bool secondrequired = true;
+                int secondrequired = 0;
                 Obj_AI_Minion FindChainBarrelObject = null;
                 Obj_AI_Minion meleeRangeBarrel = null;
                 Obj_AI_Minion rangedbarrel = null;
@@ -368,11 +368,11 @@ namespace Gangplank
                 {
                     if (KillableBarrel(barrel, true))
                     {
-
-                        if (targetfore.Distance(barrel) < BarrelExplosionRange)
+                        if (secondrequired == 0)
                         {
-                            secondrequired = false;
+                            secondrequired = 2;
                         }
+
                         var newP = GetBarrelPoints(barrel.Position).Where(p => !p.IsWall() && player.Distance(p) < E.Range && barrel.Distance(p) < BarrelConnectionRange);
                         if (newP.Any())
                         {
@@ -382,14 +382,14 @@ namespace Gangplank
                         {
                             barrelpoints.AddRange(GetBarrelPoints(enemy1.ServerPosition).Where(p => !p.IsWall() && player.Distance(p) < E.Range && barrel.Distance(p) < BarrelConnectionRange));
                         }
-                        if (barrel.Distance(targetforq) < BarrelConnectionRange && E.Instance.Ammo > 0)
+
+                        if ((barrel.Distance(targetforq) < BarrelConnectionRange && E.Instance.Ammo > 0) 
+                            || (barrel.Distance(targetforq) < BarrelExplosionRange))
                         {
                             blockQ = true;
+                            secondrequired = 1;
                         }
-                        else if (barrel.Distance(targetforq) < BarrelExplosionRange)
-                        {
-                            blockQ = true;
-                        }
+
 
                         if (KillableBarrel(barrel))
                         {
@@ -411,7 +411,7 @@ namespace Gangplank
 
                 var pos = Prediction.GetPrediction(targetfore, 0.5f);
                 var closest = barrelpoints.OrderBy(point => point.Distance(pos.UnitPosition)).ThenByDescending(point => point.CountEnemiesInRange(BarrelExplosionRange)).FirstOrDefault(point => savedbarrels.Count(b => b.Distance(point) < BarrelConnectionRange - 100) == 0);
-                if (E.IsReady() && Q.IsReady() && secondrequired)
+                if (E.IsReady() && Q.IsReady() && secondrequired == 2)
                 {
                     if (savedbarrels.Count(b => b.Distance(closest) <= BarrelConnectionRange) == 0)
                     {
