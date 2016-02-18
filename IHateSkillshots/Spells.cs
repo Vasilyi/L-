@@ -1,27 +1,23 @@
 #region
-
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using LeagueSharp;
 using LeagueSharp.Common;
 #endregion
-
 namespace Skillshots
 {
     public static class SpellDatabase
     {
         public static List<SpellData> Spells = new List<SpellData>();
-
         static SpellDatabase()
         {
             //Add spells to the database 
             #region Aatrox
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Aatrox",
+                    ChampionName = "Aatrox",
                     SpellName = "AatroxQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -35,11 +31,10 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Aatrox",
+                    ChampionName = "Aatrox",
                     SpellName = "AatroxE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -53,15 +48,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "AatroxEConeMissile",
                 });
-
             #endregion Aatrox
-
             #region Ahri
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ahri",
+                    ChampionName = "Ahri",
                     SpellName = "AhriOrbofDeception",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -69,18 +61,21 @@ namespace Skillshots
                     Range = 1000,
                     Radius = 100,
                     MissileSpeed = 2500,
+                    MissileAccel = -3200,
+                    MissileMaxSpeed = 2500,
+                    MissileMinSpeed = 400,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "AhriOrbMissile",
                     CanBeRemoved = true,
+                    ForceRemove = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ahri",
+                    ChampionName = "Ahri",
                     SpellName = "AhriOrbReturn",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -88,19 +83,22 @@ namespace Skillshots
                     Range = 1000,
                     Radius = 100,
                     MissileSpeed = 60,
+                    MissileAccel = 1900,
+                    MissileMinSpeed = 60,
+                    MissileMaxSpeed = 2600,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileFollowsUnit = true,
                     CanBeRemoved = true,
+                    ForceRemove = true,
                     MissileSpellName = "AhriOrbReturn",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ahri",
+                    ChampionName = "Ahri",
                     SpellName = "AhriSeduce",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -114,17 +112,13 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "AhriSeduceMissile",
                     CanBeRemoved = true,
-                    
                 });
-
             #endregion Ahri
-
             #region Amumu
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Amumu",
+                    ChampionName = "Amumu",
                     SpellName = "BandageToss",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -138,14 +132,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "SadMummyBandageToss",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Amumu",
+                    ChampionName = "Amumu",
                     SpellName = "CurseoftheSadMummy",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -159,15 +150,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "",
                 });
-
             #endregion Amumu
-
             #region Anivia
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Anivia",
+                    ChampionName = "Anivia",
                     SpellName = "FlashFrost",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -175,22 +163,19 @@ namespace Skillshots
                     Range = 1100,
                     Radius = 110,
                     MissileSpeed = 850,
-                    FixedRange = false,
+                    FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "FlashFrostSpell",
                     CanBeRemoved = true,
                 });
-
             #endregion Anivia
-
             #region Annie
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Annie",
+                    ChampionName = "Annie",
                     SpellName = "Incinerate",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCone,
@@ -204,11 +189,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Annie",
+                    ChampionName = "Annie",
                     SpellName = "InfernalGuardian",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -222,20 +206,17 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "",
                 });
-
             #endregion Annie
-
             #region Ashe
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ashe",
-                    SpellName = "VolleyAttack",
+                    ChampionName = "Ashe",
+                    SpellName = "Volley",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
-                    Range = 1200,
+                    Range = 1250,
                     Radius = 60,
                     MissileSpeed = 1500,
                     FixedRange = true,
@@ -243,15 +224,14 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "VolleyAttack",
-                    MultipleNumber = 7,
-                    MultipleAngle = 9.58f * (float)Math.PI / 180,
-                    CanBeRemoved = false,
+                    MultipleNumber = 9,
+                    MultipleAngle = 4.62f * (float)Math.PI / 180,
+                    CanBeRemoved = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ashe",
+                    ChampionName = "Ashe",
                     SpellName = "EnchantedCrystalArrow",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -264,17 +244,50 @@ namespace Skillshots
                     DangerValue = 5,
                     IsDangerous = true,
                     MissileSpellName = "EnchantedCrystalArrow",
-                    CanBeRemoved = true,
                 });
-
             #endregion Ashe
-
-            #region Blitzcrank
-
+            #region Bard
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Blitzcrank",
+                    ChampionName = "Bard",
+                    SpellName = "BardQ",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 950,
+                    Radius = 60,
+                    MissileSpeed = 1600,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "BardQMissile",
+                    CanBeRemoved = true,
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Bard",
+                    SpellName = "BardR",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotCircle,
+                    Delay = 500,
+                    Range = 3400,
+                    Radius = 350,
+                    MissileSpeed = 2100,
+                    FixedRange = false,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "BardR",
+                });
+            #endregion
+            #region Blatzcrank
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Blitzcrank",
                     SpellName = "RocketGrab",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -288,14 +301,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "RocketGrabMissile",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Blitzcrank",
+                    ChampionName = "Blitzcrank",
                     SpellName = "StaticField",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -309,15 +319,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "",
                 });
-
-            #endregion Blitzcrank
-
+            #endregion Blatzcrink
             #region Brand
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Brand",
+                    ChampionName = "Brand",
                     SpellName = "BrandBlaze",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -331,14 +338,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "BrandBlazeMissile",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Brand",
+                    ChampionName = "Brand",
                     SpellName = "BrandFissure",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -352,15 +356,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "",
                 });
-
             #endregion Brand
-
             #region Braum
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Braum",
+                    ChampionName = "Braum",
                     SpellName = "BraumQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -374,14 +375,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "BraumQMissile",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Braum",
+                    ChampionName = "Braum",
                     SpellName = "BraumRWrapper",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -395,15 +393,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "braumrmissile",
                 });
-
             #endregion Braum
-
             #region Caitlyn
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Caitlyn",
+                    ChampionName = "Caitlyn",
                     SpellName = "CaitlynPiltoverPeacemaker",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -416,42 +411,35 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "CaitlynPiltoverPeacemaker",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Caitlyn",
+                    ChampionName = "Caitlyn",
                     SpellName = "CaitlynEntrapment",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 125,
                     Range = 1000,
-                    Radius = 80,
-                    MissileSpeed = 2000,
+                    Radius = 70,
+                    MissileSpeed = 1600,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 1,
                     IsDangerous = false,
                     MissileSpellName = "CaitlynEntrapmentMissile",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             #endregion Caitlyn
-
             #region Cassiopeia
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Cassiopeia",
+                    ChampionName = "Cassiopeia",
                     SpellName = "CassiopeiaNoxiousBlast",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
-                    Delay = 600,
+                    Delay = 750,
                     Range = 850,
                     Radius = 150,
                     MissileSpeed = int.MaxValue,
@@ -461,11 +449,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "CassiopeiaNoxiousBlast",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Cassiopeia",
+                    ChampionName = "Cassiopeia",
                     SpellName = "CassiopeiaPetrifyingGaze",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCone,
@@ -479,15 +466,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "CassiopeiaPetrifyingGaze",
                 });
-
             #endregion Cassiopeia
-
             #region Chogath
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Chogath",
+                    ChampionName = "Chogath",
                     SpellName = "Rupture",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -501,15 +485,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "Rupture",
                 });
-
             #endregion Chogath
-
             #region Corki
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Corki",
+                    ChampionName = "Corki",
                     SpellName = "PhosphorusBomb",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -522,13 +503,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "PhosphorusBombMissile",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Corki",
+                    ChampionName = "Corki",
                     SpellName = "MissileBarrage",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -542,14 +521,11 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "MissileBarrageMissile",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Corki",
+                    ChampionName = "Corki",
                     SpellName = "MissileBarrage2",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -563,22 +539,34 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "MissileBarrageMissile2",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             #endregion Corki
-
             #region Darius
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Darius",
+                    ChampionName = "Darius",
+                    SpellName = "DariusCleave",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotCircle,
+                    Delay = 750,
+                    Range = 0,
+                    Radius = 425 - 50,
+                    MissileSpeed = int.MaxValue,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = false,
+                    MissileSpellName = "DariusCleave",
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Darius",
                     SpellName = "DariusAxeGrabCone",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCone,
-                    Delay = 300,
+                    Delay = 250,
                     Range = 550,
                     Radius = 80,
                     MissileSpeed = int.MaxValue,
@@ -588,15 +576,32 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "DariusAxeGrabCone",
                 });
-
             #endregion Darius
-
-            #region DrMundo
-
+            #region Diana
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "DrMundo",
+                    ChampionName = "Diana",
+                    SpellName = "DianaArc",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotCircle,
+                    Delay = 250,
+                    Range = 895,
+                    Radius = 195,
+                    MissileSpeed = 1400,
+                    FixedRange = false,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "DianaArcArc",
+                });
+            
+            #endregion Diana
+            #region DrMundo
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "DrMundo",
                     SpellName = "InfectedCleaverMissileCast",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -610,18 +615,13 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "InfectedCleaverMissile",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             #endregion DrMundo
-
             #region Draven
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Draven",
+                    ChampionName = "Draven",
                     SpellName = "DravenDoubleShot",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -635,13 +635,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "DravenDoubleShotMissile",
                     CanBeRemoved = true,
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Draven",
+                    ChampionName = "Draven",
                     SpellName = "DravenRCast",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -654,17 +652,13 @@ namespace Skillshots
                     DangerValue = 5,
                     IsDangerous = true,
                     MissileSpellName = "DravenR",
-
                 });
-
             #endregion Draven
-
             #region Ekko
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ekko",
+                    ChampionName = "Ekko",
                     SpellName = "EkkoQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -678,41 +672,69 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "ekkoqmis",
                     CanBeRemoved = true,
-              });
-
-            #endregion Ekko
-
-            #region Elise
-
+                });
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Elise",
+                    ChampionName = "Ekko",
+                    SpellName = "EkkoW",
+                    Slot = SpellSlot.W,
+                    Type = SkillshotType.SkillshotCircle,
+                    Delay = 3750,
+                    Range = 1600,
+                    Radius = 375,
+                    MissileSpeed = 1650,
+                    FixedRange = false,
+                    AddHitbox = false,
+                    DangerValue = 3,
+                    IsDangerous = false,
+                    MissileSpellName = "EkkoW",
+                    CanBeRemoved = true
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Ekko",
+                    SpellName = "EkkoR",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotCircle,
+                    Delay = 250,
+                    Range = 1600,
+                    Radius = 375,
+                    MissileSpeed = 1650,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = false,
+                    MissileSpellName = "EkkoR",
+                    CanBeRemoved = true,
+                });
+            #endregion Ekko
+            #region Elise
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Elise",
                     SpellName = "EliseHumanE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
                     Range = 1100,
                     Radius = 55,
-                    MissileSpeed = 1450,
+                    MissileSpeed = 1600,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 4,
                     IsDangerous = true,
                     MissileSpellName = "EliseHumanE",
                     CanBeRemoved = true,
-                    
-                        
                 });
-
             #endregion Elise
-
             #region Evelynn
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Evelynn",
+                    ChampionName = "Evelynn",
                     SpellName = "EvelynnR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -726,15 +748,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "EvelynnR",
                 });
-
             #endregion Evelynn
-
             #region Ezreal
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ezreal",
+                    ChampionName = "Ezreal",
                     SpellName = "EzrealMysticShot",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -750,11 +769,10 @@ namespace Skillshots
                     CanBeRemoved = true,
                     Id = 229,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ezreal",
+                    ChampionName = "Ezreal",
                     SpellName = "EzrealEssenceFlux",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -768,11 +786,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "EzrealEssenceFluxMissile",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ezreal",
+                    ChampionName = "Ezreal",
                     SpellName = "EzrealTrueshotBarrage",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -785,22 +802,18 @@ namespace Skillshots
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "EzrealTrueshotBarrage",
+                    Id = 245,
                 });
-
             #endregion Ezreal
-
-
-
             #region Fiora
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Fiora",
+                    ChampionName = "Fiora",
                     SpellName = "FioraW",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
-                    Delay = 700,
+                    Delay = 500,
                     Range = 800,
                     Radius = 70,
                     MissileSpeed = 3200,
@@ -810,15 +823,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "FioraWMissile",
                 });
-
             #endregion Fiora
-
             #region Fizz
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Fizz",
+                    ChampionName = "Fizz",
                     SpellName = "FizzMarinerDoom",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -831,18 +841,14 @@ namespace Skillshots
                     DangerValue = 5,
                     IsDangerous = true,
                     MissileSpellName = "FizzMarinerDoomMissile",
-                     
                     CanBeRemoved = true,
                 });
-
             #endregion Fizz
-
             #region Galio
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Galio",
+                    ChampionName = "Galio",
                     SpellName = "GalioResoluteSmite",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -856,11 +862,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "GalioResoluteSmite",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Galio",
+                    ChampionName = "Galio",
                     SpellName = "GalioRighteousGust",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -873,13 +878,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "GalioRighteousGust",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Galio",
+                    ChampionName = "Galio",
                     SpellName = "GalioIdolOfDurand",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -893,15 +896,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "",
                 });
-
             #endregion Galio
-
             #region Gnar
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gnar",
+                    ChampionName = "Gnar",
                     SpellName = "GnarQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -909,19 +909,21 @@ namespace Skillshots
                     Range = 1125,
                     Radius = 60,
                     MissileSpeed = 2500,
+                    MissileAccel = -3000,
+                    MissileMaxSpeed = 2500,
+                    MissileMinSpeed = 1400,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
                     CanBeRemoved = true,
+                    ForceRemove = true,
                     MissileSpellName = "gnarqmissile",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gnar",
+                    ChampionName = "Gnar",
                     SpellName = "GnarQReturn",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -929,20 +931,22 @@ namespace Skillshots
                     Range = 2500,
                     Radius = 75,
                     MissileSpeed = 60,
+                    MissileAccel = 800,
+                    MissileMaxSpeed = 2600,
+                    MissileMinSpeed = 60,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
                     CanBeRemoved = true,
+                    ForceRemove = true,
                     MissileSpellName = "GnarQMissileReturn",
                     DisableFowDetection = false,
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gnar",
+                    ChampionName = "Gnar",
                     SpellName = "GnarBigQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -955,13 +959,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "GnarBigQMissile",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gnar",
+                    ChampionName = "Gnar",
                     SpellName = "GnarBigW",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -975,11 +977,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "GnarBigW",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gnar",
+                    ChampionName = "Gnar",
                     SpellName = "GnarE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -993,11 +994,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "GnarE",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gnar",
+                    ChampionName = "Gnar",
                     SpellName = "GnarBigE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -1011,11 +1011,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "GnarBigE",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gnar",
+                    ChampionName = "Gnar",
                     SpellName = "GnarR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -1029,15 +1028,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "",
                 });
-
             #endregion
-
             #region Gragas
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gragas",
+                    ChampionName = "Gragas",
                     SpellName = "GragasQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -1051,13 +1047,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "GragasQMissile",
                     ExtraDuration = 4500,
-                    ToggleParticleName = "Gragas_",
+                    ToggleParticleName = "Gragas_.+_Q_(Enemy|Ally)",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gragas",
+                    ChampionName = "Gragas",
                     SpellName = "GragasE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -1072,13 +1067,11 @@ namespace Skillshots
                     MissileSpellName = "GragasE",
                     CanBeRemoved = true,
                     ExtraRange = 300,
-                     
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Gragas",
+                    ChampionName = "Gragas",
                     SpellName = "GragasR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -1091,38 +1084,30 @@ namespace Skillshots
                     DangerValue = 5,
                     IsDangerous = true,
                     MissileSpellName = "GragasRBoom",
-
                 });
-
             #endregion Gragas
-
             #region Graves
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Graves",
-                    SpellName = "GravesClusterShot",
+                    ChampionName = "Graves",
+                    SpellName = "GravesQLineSpell",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
-                    Range = 1000,
-                    Radius = 50,
-                    MissileSpeed = 2000,
+                    Range = 808,
+                    Radius = 40,
+                    MissileSpeed = 3000,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
-                    MissileSpellName = "GravesClusterShotAttack",
-
-                    MultipleNumber = 3,
-                    MultipleAngle = 15 * (float)Math.PI / 180,
+                    MissileSpellName = "GravesQLineMis",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Graves",
+                    ChampionName = "Graves",
                     SpellName = "GravesChargeShot",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -1136,15 +1121,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "GravesChargeShotShot",
                 });
-
             #endregion Graves
-
             #region Heimerdinger
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Heimerdinger",
+                    ChampionName = "Heimerdinger",
                     SpellName = "Heimerdingerwm",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -1157,13 +1139,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "HeimerdingerWAttack2",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Heimerdinger",
+                    ChampionName = "Heimerdinger",
                     SpellName = "HeimerdingerE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -1176,40 +1156,85 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "heimerdingerespell",
-
                 });
-
             #endregion Heimerdinger
-
-            #region Irelia
-
+            #region Illaoi
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Irelia",
-                    SpellName = "IreliaTranscendentBlades",
-                    Slot = SpellSlot.R,
+                    ChampionName = "Illaoi",
+                    SpellName = "IllaoiQ",
+                    Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
-                    Delay = 0,
-                    Range = 1200,
-                    Radius = 65,
-                    MissileSpeed = 1600,
+                    Delay = 750,
+                    Range = 850,
+                    Radius = 100,
+                    MissileSpeed = int.MaxValue,
                     FixedRange = true,
                     AddHitbox = true,
-                    DangerValue = 2,
-                    IsDangerous = false,
-                    MissileSpellName = "IreliaTranscendentBlades",
-
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "illaoiemis",
                 });
-
-            #endregion Irelia
-
-            #region Janna
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Janna",
+                    ChampionName = "Illaoi",
+                    SpellName = "IllaoiE",
+                    Slot = SpellSlot.E,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 950,
+                    Radius = 50,
+                    MissileSpeed = 1900,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "illaoiemis",
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Illaoi",
+                    SpellName = "IllaoiR",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotCircle,
+                    Delay = 500,
+                    Range = 0,
+                    Radius = 450,
+                    MissileSpeed = int.MaxValue,
+                    FixedRange = true,
+                    AddHitbox = false,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "",
+                });
+            #endregion Illaoi
+            #region Irelia
+            Spells.Add(
+            new SpellData
+            {
+                ChampionName = "Irelia",
+                SpellName = "IreliaTranscendentBlades",
+                Slot = SpellSlot.R,
+                Type = SkillshotType.SkillshotLine,
+                Delay = 0,
+                Range = 1200,
+                Radius = 65,
+                MissileSpeed = 1600,
+                FixedRange = true,
+                AddHitbox = true,
+                DangerValue = 2,
+                IsDangerous = false,
+                MissileSpellName = "IreliaTranscendentBlades",
+            });
+            #endregion Irelia
+            #region Janna
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Janna",
                     SpellName = "JannaQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1222,18 +1247,30 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "HowlingGaleSpell",
-
                 });
-
             #endregion Janna
-
             #region JarvanIV
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "JarvanIV",
+                    ChampionName = "JarvanIV",
                     SpellName = "JarvanIVDragonStrike",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 600,
+                    Range = 770,
+                    Radius = 70,
+                    MissileSpeed = int.MaxValue,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = false,
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "JarvanIV",
+                    SpellName = "JarvanIVEQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
@@ -1244,13 +1281,11 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 3,
                     IsDangerous = true,
-                    MissileSpellName = "JarvanIVDragonStrike",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "JarvanIV",
+                    ChampionName = "JarvanIV",
                     SpellName = "JarvanIVDemacianStandard",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -1264,15 +1299,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "JarvanIVDemacianStandard",
                 });
-
             #endregion JarvanIV
-
             #region Jayce
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Jayce",
+                    ChampionName = "Jayce",
                     SpellName = "jayceshockblast",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1287,11 +1319,10 @@ namespace Skillshots
                     MissileSpellName = "JayceShockBlastMis",
                     CanBeRemoved = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Jayce",
+                    ChampionName = "Jayce",
                     SpellName = "JayceQAccel",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1306,16 +1337,51 @@ namespace Skillshots
                     MissileSpellName = "JayceShockBlastWallMis",
                     CanBeRemoved = true,
                 });
-
             #endregion Jayce
-
+            #region Jhin
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Jhin",
+                    SpellName = "JhinW",
+                    Slot = SpellSlot.W,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 750,
+                    Range = 2550,
+                    Radius = 40,
+                    MissileSpeed = 5000,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "JhinWMissile",
+                    CanBeRemoved = true,
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Jhin",
+                    SpellName = "JhinRShot",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 3500,
+                    Radius = 80,
+                    MissileSpeed = 5000,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "JhinRShotMis",
+                    CanBeRemoved = true,
+                });
+            #endregion Jhin
             #region Jinx
-
             //TODO: Detect the animation from fow instead of the missile.
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Jinx",
+                    ChampionName = "Jinx",
                     SpellName = "JinxW",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -1330,11 +1396,10 @@ namespace Skillshots
                     MissileSpellName = "JinxWMissile",
                     CanBeRemoved = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Jinx",
+                    ChampionName = "Jinx",
                     SpellName = "JinxR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -1349,15 +1414,12 @@ namespace Skillshots
                     MissileSpellName = "JinxR",
                     CanBeRemoved = true,
                 });
-
             #endregion Jinx
-
             #region Kalista
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Kalista",
+                    ChampionName = "Kalista",
                     SpellName = "KalistaMysticShot",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1371,18 +1433,13 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "kalistamysticshotmis",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Kalista
-
             #region Karma
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Karma",
+                    ChampionName = "Karma",
                     SpellName = "KarmaQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1396,15 +1453,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "KarmaQMissile",
                     CanBeRemoved = true,
-                    
-
                 });
-
             //TODO: add the circle at the end.
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Karma",
+                    ChampionName = "Karma",
                     SpellName = "KarmaQMantra",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1418,18 +1472,13 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "KarmaQMissileMantra",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Karma
-
             #region Karthus
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Karthus",
+                    ChampionName = "Karthus",
                     SpellName = "KarthusLayWasteA2",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -1443,15 +1492,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "",
                 });
-
             #endregion Karthus
-
             #region Kassadin
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Kassadin",
+                    ChampionName = "Kassadin",
                     SpellName = "RiftWalk",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -1465,15 +1511,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "RiftWalk",
                 });
-
             #endregion Kassadin
-
             #region Kennen
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Kennen",
+                    ChampionName = "Kennen",
                     SpellName = "KennenShurikenHurlMissile1",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1487,18 +1530,13 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "KennenShurikenHurlMissile1",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Kennen
-
             #region Khazix
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Khazix",
+                    ChampionName = "Khazix",
                     SpellName = "KhazixW",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -1514,14 +1552,11 @@ namespace Skillshots
                     CanBeRemoved = true,
                     MultipleNumber = 3,
                     MultipleAngle = 22f * (float)Math.PI / 180,
-                    
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Khazix",
+                    ChampionName = "Khazix",
                     SpellName = "KhazixE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -1535,15 +1570,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "KhazixE",
                 });
-
             #endregion Khazix
-
             #region Kogmaw
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "KogMaw",
+                    ChampionName = "Kogmaw",
                     SpellName = "KogMawQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1555,16 +1587,13 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
-                    MissileSpellName = "KogMawQMis",
+                    MissileSpellName = "KogMawQ",
                     CanBeRemoved = true,
-                    
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "KogMaw",
+                    ChampionName = "Kogmaw",
                     SpellName = "KogMawVoidOoze",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -1577,19 +1606,17 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "KogMawVoidOozeMissile",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "KogMaw",
+                    ChampionName = "Kogmaw",
                     SpellName = "KogMawLivingArtillery",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
                     Delay = 1200,
                     Range = 1800,
-                    Radius = 150,
+                    Radius = 225,
                     MissileSpeed = int.MaxValue,
                     FixedRange = false,
                     AddHitbox = true,
@@ -1597,97 +1624,84 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "KogMawLivingArtillery",
                 });
-
             #endregion Kogmaw
-
             #region Leblanc
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Leblanc",
+                    ChampionName = "Leblanc",
                     SpellName = "LeblancSlide",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
                     Delay = 0,
                     Range = 600,
                     Radius = 220,
-                    MissileSpeed = 1500,
+                    MissileSpeed = 1450,
                     FixedRange = false,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "LeblancSlide",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Leblanc",
+                    ChampionName = "Leblanc",
                     SpellName = "LeblancSlideM",
-                    Slot = SpellSlot.W,
+                    Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
                     Delay = 0,
                     Range = 600,
                     Radius = 220,
-                    MissileSpeed = 1500,
+                    MissileSpeed = 1450,
                     FixedRange = false,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "LeblancSlideM",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Leblanc",
+                    ChampionName = "Leblanc",
                     SpellName = "LeblancSoulShackle",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
                     Range = 950,
                     Radius = 70,
-                    MissileSpeed = 1600,
+                    MissileSpeed = 1750,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "LeblancSoulShackle",
                     CanBeRemoved = true,
-                    
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Leblanc",
+                    ChampionName = "Leblanc",
                     SpellName = "LeblancSoulShackleM",
-                    Slot = SpellSlot.E,
+                    Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
                     Range = 950,
                     Radius = 70,
-                    MissileSpeed = 1600,
+                    MissileSpeed = 1750,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "LeblancSoulShackleM",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Leblanc
-
             #region LeeSin
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "LeeSin",
+                    ChampionName = "LeeSin",
                     SpellName = "BlindMonkQOne",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1701,37 +1715,30 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "BlindMonkQOne",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion LeeSin
-
             #region Leona
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Leona",
+                    ChampionName = "Leona",
                     SpellName = "LeonaZenithBlade",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
                     Range = 905,
-                    Radius = 100,
+                    Radius = 70,
                     MissileSpeed = 2000,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "LeonaZenithBladeMissile",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Leona",
+                    ChampionName = "Leona",
                     SpellName = "LeonaSolarFlare",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -1745,15 +1752,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "LeonaSolarFlare",
                 });
-
             #endregion Leona
-
             #region Lissandra
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lissandra",
+                    ChampionName = "Lissandra",
                     SpellName = "LissandraQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1766,13 +1770,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "LissandraQMissile",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lissandra",
+                    ChampionName = "Lissandra",
                     SpellName = "LissandraQShards",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1785,13 +1787,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "lissandraqshards",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lissandra",
+                    ChampionName = "Lissandra",
                     SpellName = "LissandraE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -1804,16 +1804,13 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "LissandraEMissile",
-
                 });
             #endregion Lulu
-
             #region Lucian
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lucian",
+                    ChampionName = "Lucian",
                     SpellName = "LucianQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1827,15 +1824,46 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "LucianQ",
                 });
-
-            #endregion Lucian
-
-            #region Lulu
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lulu",
+                    ChampionName = "Lucian",
+                    SpellName = "LucianW",
+                    Slot = SpellSlot.W,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 1000,
+                    Radius = 55,
+                    MissileSpeed = 1600,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "lucianwmissile",
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Lucian",
+                    SpellName = "LucianRMis",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 500,
+                    Range = 1400,
+                    Radius = 110,
+                    MissileSpeed = 2800,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "lucianrmissileoffhand",
+                });
+            #endregion Lucian
+            #region Lulu
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Lulu",
                     SpellName = "LuluQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1849,15 +1877,29 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "LuluQMissile",
                 });
-
-            #endregion Lulu
-
-            #region Lux
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lux",
+                    ChampionName = "Lulu",
+                    SpellName = "LuluQPix",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 950,
+                    Radius = 60,
+                    MissileSpeed = 1450,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "LuluQMissileTwo",
+                });
+            #endregion Lulu
+            #region Lux
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Lux",
                     SpellName = "LuxLightBinding",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1871,13 +1913,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "LuxLightBindingMis",
                     //CanBeRemoved = true,
-                    // new[] { CollisionObjectTypes.Champions, CollisionObjectTypes.Minion, CollisionObjectTypes.YasuoWall, },
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lux",
+                    ChampionName = "Lux",
                     SpellName = "LuxLightStrikeKugel",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -1891,15 +1931,13 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "LuxLightStrikeKugel",
                     ExtraDuration = 5500,
-                    ToggleParticleName = "LuxLightstrike_tar",
+                    ToggleParticleName = "Lux_.+_E_tar_aoe_",
                     CanBeRemoved = true,
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Lux",
+                    ChampionName = "Lux",
                     SpellName = "LuxMaliceCannon",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -1913,15 +1951,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "LuxMaliceCannon",
                 });
-
             #endregion Lux
-
             #region Malphite
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Malphite",
+                    ChampionName = "Malphite",
                     SpellName = "UFSlash",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -1935,15 +1970,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "UFSlash",
                 });
-
             #endregion Malphite
-
             #region Malzahar
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Malzahar",
+                    ChampionName = "Malzahar",
                     SpellName = "AlZaharCalloftheVoid",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1955,18 +1987,14 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
-                    
                     MissileSpellName = "AlZaharCalloftheVoid",
                 });
-
             #endregion Malzahar
-
             #region Morgana
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Morgana",
+                    ChampionName = "Morgana",
                     SpellName = "DarkBindingMissile",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -1980,22 +2008,17 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "DarkBindingMissile",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Morgana
-
             #region Nami
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Nami",
+                    ChampionName = "Nami",
                     SpellName = "NamiQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
-                    Delay = 1000,
+                    Delay = 950,
                     Range = 1625,
                     Radius = 150,
                     MissileSpeed = int.MaxValue,
@@ -2005,11 +2028,10 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "namiqmissile",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Nami",
+                    ChampionName = "Nami",
                     SpellName = "NamiR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -2022,22 +2044,18 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "NamiRMissile",
-
                 });
-
             #endregion Nami
-
             #region Nautilus
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Nautilus",
+                    ChampionName = "Nautilus",
                     SpellName = "NautilusAnchorDrag",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
-                    Range = 1100,
+                    Range = 1250,
                     Radius = 90,
                     MissileSpeed = 2000,
                     FixedRange = true,
@@ -2046,19 +2064,14 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "NautilusAnchorDragMissile",
                     CanBeRemoved = true,
-                    
-
                     //walls?
                 });
-
             #endregion Nautilus
-
             #region Nocturne
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Nocturne",
+                    ChampionName = "Nocturne",
                     SpellName = "NocturneDuskbringer",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2071,18 +2084,15 @@ namespace Skillshots
                     MissileSpellName = "NocturneDuskbringer",
                 });
             #endregion Nocturne
-
-
             #region Nidalee
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Nidalee",
+                    ChampionName = "Nidalee",
                     SpellName = "JavelinToss",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
-                    Delay = 125,
+                    Delay = 250,
                     Range = 1500,
                     Radius = 40,
                     MissileSpeed = 1300,
@@ -2092,18 +2102,13 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "JavelinToss",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Nidalee
-
             #region Olaf
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Olaf",
+                    ChampionName = "Olaf",
                     SpellName = "OlafAxeThrowCast",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2118,18 +2123,13 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "olafaxethrow",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Olaf
-
             #region Orianna
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Orianna",
+                    ChampionName = "Orianna",
                     SpellName = "OriannasQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2142,13 +2142,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "orianaizuna",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Orianna",
+                    ChampionName = "Orianna",
                     SpellName = "OriannaQend",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -2161,14 +2159,12 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Orianna",
-                    SpellName = "OrianaDissonanceCommand",
+                    ChampionName = "Orianna",
+                    SpellName = "OrianaDissonanceCommand-",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
                     Delay = 250,
@@ -2179,14 +2175,13 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
-                    MissileSpellName = "OrianaDissonanceCommand",
+                    MissileSpellName = "OrianaDissonanceCommand-",
                     FromObject = "yomu_ring_",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Orianna",
+                    ChampionName = "Orianna",
                     SpellName = "OriannasE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2199,14 +2194,12 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "orianaredact",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Orianna",
-                    SpellName = "OrianaDetonateCommand",
+                    ChampionName = "Orianna",
+                    SpellName = "OrianaDetonateCommand-",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
                     Delay = 700,
@@ -2217,43 +2210,72 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 5,
                     IsDangerous = true,
-                    MissileSpellName = "OrianaDetonateCommand",
+                    MissileSpellName = "OrianaDetonateCommand-",
                     FromObject = "yomu_ring_",
                 });
-
             #endregion Orianna
-
             #region Quinn
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Quinn",
+                    ChampionName = "Quinn",
                     SpellName = "QuinnQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
-                    Delay = 250,
+                    Delay = 313,
                     Range = 1050,
-                    Radius = 80,
+                    Radius = 60,
                     MissileSpeed = 1550,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
-                    MissileSpellName = "QuinnQMissile",
+                    MissileSpellName = "QuinnQ",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Quinn
-
-            #region Rengar
-
+            #region Poppy
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Rengar",
+                    ChampionName = "Poppy",
+                    SpellName = "PoppyQ",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 500,
+                    Range = 430,
+                    Radius = 100,
+                    MissileSpeed = int.MaxValue,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "PoppyQ",
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Poppy",
+                    SpellName = "PoppyRSpell",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 300,
+                    Range = 1200,
+                    Radius = 100,
+                    MissileSpeed = 1600,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "PoppyRMissile",
+                    CanBeRemoved = true,
+                });
+            #endregion Poppy
+            #region Rengar
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Rengar",
                     SpellName = "RengarE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2267,18 +2289,13 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "RengarEFinal",
                     CanBeRemoved = true,
-                    
-
                 });
-
             #endregion Rengar
-
             #region RekSai
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "RekSai",
+                    ChampionName = "RekSai",
                     SpellName = "reksaiqburrowed",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2291,25 +2308,20 @@ namespace Skillshots
                     DangerValue = 3,
                     IsDangerous = false,
                     MissileSpellName = "RekSaiQBurrowedMis",
-                    
-
                 });
-
             #endregion RekSai
-
             #region Riven
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Riven",
+                    ChampionName = "Riven",
                     SpellName = "rivenizunablade",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
                     Range = 1100,
                     Radius = 125,
-                    MissileSpeed = 2200,
+                    MissileSpeed = 1600,
                     FixedRange = false,
                     AddHitbox = false,
                     DangerValue = 5,
@@ -2318,15 +2330,12 @@ namespace Skillshots
                     MultipleAngle = 15 * (float)Math.PI / 180,
                     MissileSpellName = "RivenLightsaberMissile",
                 });
-
             #endregion Riven
-
             #region Rumble
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Rumble",
+                    ChampionName = "Rumble",
                     SpellName = "RumbleGrenade",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2340,14 +2349,11 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "RumbleGrenade",
                     CanBeRemoved = true,
-                    
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Rumble",
+                    ChampionName = "Rumble",
                     SpellName = "RumbleCarpetBombM",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -2362,15 +2368,50 @@ namespace Skillshots
                     MissileSpellName = "RumbleCarpetBombMissile",
                     CanBeRemoved = false,
                 });
-
             #endregion Rumble
-
-            #region Sejuani
-
+            #region Ryze
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Sejuani",
+                    ChampionName = "Ryze",
+                    SpellName = "RyzeQ",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 900,
+                    Radius = 50,
+                    MissileSpeed = 1700,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "RyzeQ",
+                    CanBeRemoved = true,
+                });
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Ryze",
+                    SpellName = "ryzerq",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 900,
+                    Radius = 50,
+                    MissileSpeed = 1700,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "ryzerq",
+                    CanBeRemoved = true,
+                });
+            #endregion
+            #region Sejuani
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Sejuani",
                     SpellName = "SejuaniArcticAssault",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2384,14 +2425,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "",
                     ExtraRange = 200,
-                    
-
                 });
             //TODO: fix?
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Sejuani",
+                    ChampionName = "Sejuani",
                     SpellName = "SejuaniGlacialPrisonStart",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -2406,15 +2445,12 @@ namespace Skillshots
                     MissileSpellName = "sejuaniglacialprison",
                     CanBeRemoved = true,
                 });
-
             #endregion Sejuani
-
             #region Sion
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Sion",
+                    ChampionName = "Sion",
                     SpellName = "SionE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2427,18 +2463,29 @@ namespace Skillshots
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "SionEMissile",
-                    
-
                 });
-
-            #endregion Sion
-
-            #region Soraka
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Soraka",
+                    ChampionName = "Sion",
+                    SpellName = "SionR",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 500,
+                    Range = 800,
+                    Radius = 120,
+                    MissileSpeed = 1000,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                });
+            #endregion Sion
+            #region Soraka
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Soraka",
                     SpellName = "SorakaQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -2451,18 +2498,14 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "",
-
                 });
-
             #endregion Soraka
-
             #region Shen
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Shen",
-                    SpellName = "ShenShadowDash",
+                    ChampionName = "Shen",
+                    SpellName = "ShenE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 0,
@@ -2473,18 +2516,15 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 3,
                     IsDangerous = true,
-                    MissileSpellName = "ShenShadowDash",
+                    MissileSpellName = "ShenE",
                     ExtraRange = 200,
                 });
-
             #endregion Shen
-
             #region Shyvana
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Shyvana",
+                    ChampionName = "Shyvana",
                     SpellName = "ShyvanaFireball",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2497,13 +2537,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "ShyvanaFireballMissile",
-                    
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Shyvana",
+                    ChampionName = "Shyvana",
                     SpellName = "ShyvanaTransformCast",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -2518,15 +2556,32 @@ namespace Skillshots
                     MissileSpellName = "ShyvanaTransformCast",
                     ExtraRange = 200,
                 });
-
-            #endregion Shyvana
-
-            #region Sivir
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Sivir",
+                    ChampionName = "Shyvana",
+                    SpellName = "shyvanafireballdragon2",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 850,
+                    Radius = 70,
+                    MissileSpeed = 2000,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = false,
+                    MissileSpellName = "ShyvanaFireballDragonFxMissile",
+                    ExtraRange = 200,
+                    MultipleNumber = 5,
+                    MultipleAngle = 10 * (float)Math.PI / 180
+                });
+            #endregion Shyvana
+            #region Sivir
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Sivir",
                     SpellName = "SivirQReturn",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2541,13 +2596,11 @@ namespace Skillshots
                     MissileSpellName = "SivirQMissileReturn",
                     DisableFowDetection = false,
                     MissileFollowsUnit = true,
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Sivir",
+                    ChampionName = "Sivir",
                     SpellName = "SivirQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2560,17 +2613,13 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "SivirQMissile",
-
                 });
-
             #endregion Sivir
-
             #region Skarner
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Skarner",
+                    ChampionName = "Skarner",
                     SpellName = "SkarnerFracture",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2583,17 +2632,13 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "SkarnerFractureMissile",
-
                 });
-
             #endregion Skarner
-
             #region Sona
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Sona",
+                    ChampionName = "Sona",
                     SpellName = "SonaR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -2606,17 +2651,13 @@ namespace Skillshots
                     DangerValue = 5,
                     IsDangerous = true,
                     MissileSpellName = "SonaR",
-
                 });
-
             #endregion Sona
-
             #region Swain
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Swain",
+                    ChampionName = "Swain",
                     SpellName = "SwainShadowGrasp",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -2630,15 +2671,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "SwainShadowGrasp",
                 });
-
             #endregion Swain
-
             #region Syndra
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Syndra",
+                    ChampionName = "Syndra",
                     SpellName = "SyndraQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -2652,11 +2690,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "SyndraQ",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Syndra",
+                    ChampionName = "Syndra",
                     SpellName = "syndrawcast",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -2670,18 +2707,17 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "syndrawcast",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Syndra",
+                    ChampionName = "Syndra",
                     SpellName = "syndrae5",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
-                    Delay = 300,
+                    Delay = 0,
                     Range = 950,
-                    Radius = 90,
-                    MissileSpeed = 1601,
+                    Radius = 100,
+                    MissileSpeed = 2000,
                     FixedRange = false,
                     AddHitbox = true,
                     DangerValue = 2,
@@ -2689,18 +2725,17 @@ namespace Skillshots
                     MissileSpellName = "syndrae5",
                     DisableFowDetection = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Syndra",
+                    ChampionName = "Syndra",
                     SpellName = "SyndraE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
-                    Delay = 300,
+                    Delay = 0,
                     Range = 950,
-                    Radius = 90,
-                    MissileSpeed = 1601,
+                    Radius = 100,
+                    MissileSpeed = 2000,
                     FixedRange = false,
                     AddHitbox = true,
                     DangerValue = 2,
@@ -2708,15 +2743,12 @@ namespace Skillshots
                     DisableFowDetection = true,
                     MissileSpellName = "SyndraE",
                 });
-
             #endregion Syndra
-
             #region Talon
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Talon",
+                    ChampionName = "Talon",
                     SpellName = "TalonRake",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -2732,11 +2764,10 @@ namespace Skillshots
                     MultipleAngle = 20 * (float)Math.PI / 180,
                     MissileSpellName = "talonrakemissileone",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Talon",
+                    ChampionName = "Talon",
                     SpellName = "TalonRakeReturn",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -2752,15 +2783,32 @@ namespace Skillshots
                     MultipleAngle = 20 * (float)Math.PI / 180,
                     MissileSpellName = "talonrakemissiletwo",
                 });
-
             #endregion Riven
-
-            #region Thresh
-
+            #region Tahm Kench
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Thresh",
+                    ChampionName = "TahmKench",
+                    SpellName = "TahmKenchQ",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 951,
+                    Radius = 90,
+                    MissileSpeed = 2800,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "tahmkenchqmissile",
+                    CanBeRemoved = true,
+                });
+            #endregion Tahm Kench
+            #region Thresh
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Thresh",
                     SpellName = "ThreshQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2774,13 +2822,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "ThreshQMissile",
                     CanBeRemoved = true,
-                    
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Thresh",
+                    ChampionName = "Thresh",
                     SpellName = "ThreshEFlay",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2795,15 +2841,12 @@ namespace Skillshots
                     Centered = true,
                     MissileSpellName = "ThreshEMissile1",
                 });
-
             #endregion Thresh
-
             #region Tristana
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Tristana",
+                    ChampionName = "Tristana",
                     SpellName = "RocketJump",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -2817,15 +2860,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "RocketJump",
                 });
-
             #endregion Tristana
-
             #region Tryndamere
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Tryndamere",
+                    ChampionName = "Tryndamere",
                     SpellName = "slashCast",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -2839,15 +2879,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "slashCast",
                 });
-
             #endregion Tryndamere
-
             #region TwistedFate
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "TwistedFate",
+                    ChampionName = "TwistedFate",
                     SpellName = "WildCards",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2862,17 +2899,13 @@ namespace Skillshots
                     MissileSpellName = "SealFateMissile",
                     MultipleNumber = 3,
                     MultipleAngle = 28 * (float)Math.PI / 180,
-
                 });
-
             #endregion TwistedFate
-
             #region Twitch
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Twitch",
+                    ChampionName = "Twitch",
                     SpellName = "TwitchVenomCask",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -2885,17 +2918,13 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "TwitchVenomCaskMissile",
-
                 });
-
             #endregion Twitch
-
             #region Urgot
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Urgot",
+                    ChampionName = "Urgot",
                     SpellName = "UrgotHeatseekingLineMissile",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2910,11 +2939,10 @@ namespace Skillshots
                     MissileSpellName = "UrgotHeatseekingLineMissile",
                     CanBeRemoved = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Urgot",
+                    ChampionName = "Urgot",
                     SpellName = "UrgotPlasmaGrenade",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -2928,15 +2956,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "UrgotPlasmaGrenadeBoom",
                 });
-
             #endregion Urgot
-
             #region Varus
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Varus",
+                    ChampionName = "Varus",
                     SpellName = "VarusQMissilee",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -2949,13 +2974,11 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "VarusQMissile",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Varus",
+                    ChampionName = "Varus",
                     SpellName = "VarusE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -2969,11 +2992,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "VarusE",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Varus",
+                    ChampionName = "Varus",
                     SpellName = "VarusR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotLine,
@@ -2987,36 +3009,30 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "VarusRMissile",
                     CanBeRemoved = true,
-                    
                 });
-
             #endregion Varus
-
             #region Veigar
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Veigar",
+                    ChampionName = "Veigar",
                     SpellName = "VeigarBalefulStrike",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
-                    Range = 850,
+                    Range = 950,
                     Radius = 70,
-                    MissileSpeed = 1750,
+                    MissileSpeed = 2000,
                     FixedRange = true,
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "VeigarBalefulStrikeMis",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Veigar",
+                    ChampionName = "Veigar",
                     SpellName = "VeigarDarkMatter",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -3030,15 +3046,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "",
                 });
-
             #endregion Veigar
-
             #region Velkoz
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Velkoz",
+                    ChampionName = "Velkoz",
                     SpellName = "VelkozQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -3052,18 +3065,16 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "VelkozQMissile",
                     CanBeRemoved = true,
-                    
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Velkoz",
+                    ChampionName = "Velkoz",
                     SpellName = "VelkozQSplit",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
-                    Range = 900,
+                    Range = 1100,
                     Radius = 55,
                     MissileSpeed = 2100,
                     FixedRange = true,
@@ -3072,13 +3083,11 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "VelkozQMissileSplit",
                     CanBeRemoved = true,
-                    
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Velkoz",
+                    ChampionName = "Velkoz",
                     SpellName = "VelkozW",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotLine,
@@ -3092,11 +3101,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "VelkozWMissile",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Velkoz",
+                    ChampionName = "Velkoz",
                     SpellName = "VelkozE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -3110,15 +3118,12 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "VelkozEMissile",
                 });
-
             #endregion Velkoz
-
             #region Vi
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Vi",
+                    ChampionName = "Vi",
                     SpellName = "Vi-q",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -3132,15 +3137,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "ViQMissile",
                 });
-
             #endregion Vi
-
             #region Viktor
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Viktor",
+                    ChampionName = "Viktor",
                     SpellName = "Laser",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -3152,18 +3154,14 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
-                    MissileSpellName = "ViktorDeathRayFixMissile",
-
+                    MissileSpellName = "ViktorDeathRayMissile",
                 });
-
             #endregion Viktor
-
             #region Xerath
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Xerath",
+                    ChampionName = "Xerath",
                     SpellName = "xeratharcanopulse2",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -3177,11 +3175,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "xeratharcanopulse2",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Xerath",
+                    ChampionName = "Xerath",
                     SpellName = "XerathArcaneBarrage2",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -3195,11 +3192,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "XerathArcaneBarrage2",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Xerath",
+                    ChampionName = "Xerath",
                     SpellName = "XerathMageSpear",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -3213,13 +3209,11 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "XerathMageSpearMissile",
                     CanBeRemoved = true,
-                    
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Xerath",
+                    ChampionName = "Xerath",
                     SpellName = "xerathrmissilewrapper",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -3233,15 +3227,12 @@ namespace Skillshots
                     IsDangerous = true,
                     MissileSpellName = "xerathrmissilewrapper",
                 });
-
             #endregion Xerath
-
-            #region Yasuo
-
+            #region Yasuo 
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Yasuo",
+                    ChampionName = "Yasuo",
                     SpellName = "yasuoq2",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -3256,11 +3247,10 @@ namespace Skillshots
                     MissileSpellName = "yasuoq2",
                     Invert = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Yasuo",
+                    ChampionName = "Yasuo",
                     SpellName = "yasuoq3w",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -3273,13 +3263,11 @@ namespace Skillshots
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "yasuoq3w",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Yasuo",
+                    ChampionName = "Yasuo",
                     SpellName = "yasuoq",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -3294,15 +3282,12 @@ namespace Skillshots
                     MissileSpellName = "yasuoq",
                     Invert = true,
                 });
-
             #endregion Yasuo
-
             #region Zac
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Zac",
+                    ChampionName = "Zac",
                     SpellName = "ZacQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
@@ -3316,16 +3301,13 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "ZacQ",
                 });
-
             #endregion Zac
-
             #region Zed
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Zed",
-                    SpellName = "ZedShuriken",
+                    ChampionName = "Zed",
+                    SpellName = "ZedQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
@@ -3336,18 +3318,14 @@ namespace Skillshots
                     AddHitbox = true,
                     DangerValue = 2,
                     IsDangerous = false,
-                    MissileSpellName = "zedshurikenmisone",
-                   
+                    MissileSpellName = "ZedQMissile",
                 });
-
             #endregion Zed
-
             #region Ziggs
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ziggs",
+                    ChampionName = "Ziggs",
                     SpellName = "ZiggsQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -3363,11 +3341,10 @@ namespace Skillshots
                     CanBeRemoved = false,
                     DisableFowDetection = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ziggs",
+                    ChampionName = "Ziggs",
                     SpellName = "ZiggsQBounce1",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -3383,11 +3360,10 @@ namespace Skillshots
                     CanBeRemoved = false,
                     DisableFowDetection = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ziggs",
+                    ChampionName = "Ziggs",
                     SpellName = "ZiggsQBounce2",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -3403,11 +3379,10 @@ namespace Skillshots
                     CanBeRemoved = false,
                     DisableFowDetection = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ziggs",
+                    ChampionName = "Ziggs",
                     SpellName = "ZiggsW",
                     Slot = SpellSlot.W,
                     Type = SkillshotType.SkillshotCircle,
@@ -3421,13 +3396,11 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "ZiggsW",
                     DisableFowDetection = true,
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ziggs",
+                    ChampionName = "Ziggs",
                     SpellName = "ZiggsE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -3442,11 +3415,10 @@ namespace Skillshots
                     MissileSpellName = "ZiggsE",
                     DisableFowDetection = true,
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Ziggs",
+                    ChampionName = "Ziggs",
                     SpellName = "ZiggsR",
                     Slot = SpellSlot.R,
                     Type = SkillshotType.SkillshotCircle,
@@ -3461,15 +3433,12 @@ namespace Skillshots
                     MissileSpellName = "ZiggsR",
                     DisableFowDetection = true,
                 });
-
             #endregion Ziggs
-
             #region Zilean
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Zilean",
+                    ChampionName = "Zilean",
                     SpellName = "ZileanQ",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
@@ -3482,21 +3451,17 @@ namespace Skillshots
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "ZileanQMissile",
-
                 });
-
             #endregion Zilean
-
             #region Zyra
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Zyra",
+                    ChampionName = "Zyra",
                     SpellName = "ZyraQFissure",
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotCircle,
-                    Delay = 600,
+                    Delay = 850,
                     Range = 800,
                     Radius = 220,
                     MissileSpeed = int.MaxValue,
@@ -3506,11 +3471,10 @@ namespace Skillshots
                     IsDangerous = false,
                     MissileSpellName = "ZyraQFissure",
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Zyra",
+                    ChampionName = "Zyra",
                     SpellName = "ZyraGraspingRoots",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
@@ -3523,17 +3487,15 @@ namespace Skillshots
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "ZyraGraspingRoots",
-
                 });
-
             Spells.Add(
                 new SpellData
                 {
-                    BaseSkinName = "Zyra",
+                    ChampionName = "Zyra",
                     SpellName = "zyrapassivedeathmanager",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
-                    Delay = 700,
+                    Delay = 500,
                     Range = 1474,
                     Radius = 70,
                     MissileSpeed = 2000,
@@ -3542,14 +3504,10 @@ namespace Skillshots
                     DangerValue = 3,
                     IsDangerous = true,
                     MissileSpellName = "zyrapassivedeathmanager",
-
                 });
-
             #endregion Zyra
-
             Game.PrintChat("Added " + Spells.Count + " spells.");//138
         }
-
         public static SpellData GetByName(string spellName)
         {
             foreach (var spellData in Spells)
@@ -3557,31 +3515,15 @@ namespace Skillshots
                 if (spellData.SpellName.ToLower() == spellName.ToLower())
                     return spellData;
             }
-
             return null;
         }
-
         public static SpellData GetByMissileName(string missileSpellName)
         {
-
             foreach (var spellData in Spells)
             {
                 if (spellData.MissileSpellName.ToLower() == missileSpellName.ToLower())
                     return spellData;
             }
-
-            return null;
-        }
-
-        public static SpellData GetBySpeed(string baseSkinName, int speed, int id = -1)
-        {
-            foreach (var spellData in Spells)
-            {
-                if (spellData.BaseSkinName == baseSkinName && spellData.MissileSpeed == speed &&
-                    (spellData.Id == -1 || id == spellData.Id))
-                    return spellData;
-            }
-
             return null;
         }
     }

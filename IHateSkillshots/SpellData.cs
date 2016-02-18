@@ -10,7 +10,7 @@ namespace Skillshots
     public class SpellData
     {
         public bool AddHitbox;
-        public string BaseSkinName;
+        public string ChampionName;
         public bool CanBeRemoved = false;
         public float Delay;
         public bool DonCross = false;
@@ -32,9 +32,12 @@ namespace Skillshots
         public bool Invert;
         public int MultipleNumber = -1;
         public float MultipleAngle;
+        public bool ForceRemove = false;
         public int ExtraRange = -1;
         public bool MissileFollowsUnit;
-
+        public int MissileAccel = 0;
+        public int MissileMaxSpeed;
+        public int MissileMinSpeed;
         public bool DisableFowDetection = false;
         public bool IsDangerous = false;
 
@@ -44,10 +47,9 @@ namespace Skillshots
 
         }
 
-        public SpellData(string baseSkinName, string spellName, SpellSlot slot, SkillshotType type, float delay, float range,
+        public SpellData(string ChampionName, string spellName, SpellSlot slot, SkillshotType type, float delay, float range,
             float radius, float missileSpeed, bool addHitbox, bool fixedRange, int defaultDangerValue)
         {
-            BaseSkinName = baseSkinName;
             SpellName = spellName;
             Slot = slot;
             Type = type;
@@ -62,7 +64,7 @@ namespace Skillshots
 
         public string MenuItemName
         {
-            get { return BaseSkinName + " - " + SpellName; }
+            get { return ChampionName + " - " + SpellName; }
         }
 
         public float Radius

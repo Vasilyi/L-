@@ -31,7 +31,7 @@ namespace Skillshots
                 TargetSelector.AddToMenu(targetSelectorMenu);
                 Config.AddSubMenu(targetSelectorMenu);
                 foreach (var spell in SpellDatabase.Spells)
-                    if (spell.BaseSkinName == ObjectManager.Player.BaseSkinName)
+                    if (spell.ChampionName == ObjectManager.Player.ChampionName)
                     {
                         Game.PrintChat(spell.Slot + " LOADED");
                         if (spell.Slot == SpellSlot.Q)
