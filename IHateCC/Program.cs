@@ -32,35 +32,35 @@ namespace IHateCC
         }
 
 
-        private static void Checks(string Type)
+        private static void Checks(BuffType Type)
         {
           //  Console.WriteLine(Type);
             try
             {
                 if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<bool>()))
                 {
-                    if ((Type == "Stun" || Type == "Taunt" || Type == "Fear" || Type == "Charm") && Config.Item("HardCC").GetValue<bool>())
+                    if ((Type == BuffType.Stun || Type == BuffType.Taunt || Type == BuffType.Fear || Type == BuffType.Charm) && Config.Item("HardCC").GetValue<bool>())
                     {
                         Console.WriteLine("CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : ");
                         CleanseChecks(false);
                     }
-                    if (Type == "Silence" && Config.Item("silence").GetValue<bool>())
+                    if (Type == BuffType.Silence && Config.Item("silence").GetValue<bool>())
                     {
                         CleanseChecks(false);
                     }
-                    if (Type == "Suppression" && Config.Item("supress").GetValue<bool>())
+                    if (Type == BuffType.Suppression && Config.Item("supress").GetValue<bool>())
                     {
                         CleanseChecks(true);
                     }
-                    if (Type == "Disarm" && Config.Item("disarm").GetValue<bool>())
+                    if (Type == BuffType.Disarm && Config.Item("disarm").GetValue<bool>())
                     {
                         CleanseChecks(false);
                     }
-                    if (Type == "Blind" && Config.Item("blind").GetValue<bool>())
+                    if (Type == BuffType.Blind && Config.Item("blind").GetValue<bool>())
                     {
                         CleanseChecks(false);
                     }
-                    if ((Type == "Snare" || Type == "Root") && Config.Item("root").GetValue<bool>())
+                    if ((Type == BuffType.Snare || Type == BuffType.Snare) && Config.Item("root").GetValue<bool>())
                     {
                         CleanseChecks(false);
                     }
@@ -89,9 +89,10 @@ namespace IHateCC
 
             //Create the menu
             Config = new Menu("I Hate CC", "IHateCC", true);
-            
+
             Config.AddSubMenu(new Menu("Types", "Types"));
             Config.SubMenu("Types").AddItem(new MenuItem("minimaltime", "Min CC time (10 = 1second)")).SetValue(new Slider(0, 20, 0));
+            Config.SubMenu("Types").AddItem(new MenuItem("delaycleanse", "Cleanse delay (10 = 1second)")).SetValue(new Slider(0, 20, 0));
             Config.SubMenu("Types").AddItem(new MenuItem("HardCC", "Cleanse HARD CC").SetValue(true));
             Config.SubMenu("Types").AddItem(new MenuItem("silence", "Cleanse Silence").SetValue(true));
             Config.SubMenu("Types").AddItem(new MenuItem("supress", "Cleanse supress").SetValue(true));
@@ -108,7 +109,7 @@ namespace IHateCC
             {
                 Config.SubMenu("Types").AddItem(new MenuItem("vladR", "Vladimir ulti").SetValue(true));
             }
-        Config.AddSubMenu(new Menu("HotKey", "HotKey"));
+            Config.AddSubMenu(new Menu("HotKey", "HotKey"));
             Config.SubMenu("HotKey")
                 .AddItem(new MenuItem("ccactive", "Auto Cleanse").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("HotKey")
@@ -119,7 +120,7 @@ namespace IHateCC
             Game.OnUpdate += Game_OnGameUpdate;
             itemslots.CleanseSlot = Utility.GetSpellSlot(Player, "SummonerBoost");
             Console.WriteLine(Utility.GetSpellSlot(Player, "SummonerBoost") + " found cleanse");
-            if (Player.BaseSkinName == "Gangplank")
+            if (Player.ChampionName == "Gangplank")
             {
                 itemslots.spellslot = SpellSlot.W;
                 Console.WriteLine("Found Gankplank");
@@ -130,6 +131,7 @@ namespace IHateCC
         {
             if (Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
             {
+        
                 foreach (var buff in ObjectManager.Player.Buffs)
                 {
                     var buffend = buff.EndTime - Game.Time;
@@ -144,47 +146,52 @@ namespace IHateCC
                     if (!buff.Caster.IsMe && buffend > Config.Item("minimaltime").GetValue<Slider>().Value / 10)
                     {
                         Console.WriteLine(buff.Name + " : " + buffend + " : " + Config.Item("minimaltime").GetValue<Slider>().Value / 10);
-                        Checks(buff.Type.ToString());
+                            Checks(buff.Type);
                     }
                 };
             };
         }
+
 
         private static void CleanseChecks(bool supress)
         {
             CleanseSLot();
             try
             {
-                if (itemslots.lastcleanse + 100 > Environment.TickCount)
+                var delaycleanse = Config.Item("minimaltime").GetValue<Slider>().Value / 10;
+                if (itemslots.lastcleanse + 100 + delaycleanse > Environment.TickCount)
                 {
                     return;
-                };
-                Console.WriteLine(ObjectManager.Player.Spellbook.CanUseSpell(itemslots.spellslot));
+                }
+             
                 if (supress && itemslots.QSSslot != 0 && Items.CanUseItem(itemslots.QSSslot))
                 {
                     Console.WriteLine("Supress " + itemslots.QSSslot + " : " + itemslots.CleanseSlot + " : " + itemslots.spellslot);
-                    Items.UseItem(itemslots.QSSslot);
-                    itemslots.lastcleanse = Environment.TickCount;
-                };
+                    //Items.UseItem(itemslots.QSSslot);
+                    Utility.DelayAction.Add(delaycleanse, delegate {Items.UseItem(itemslots.QSSslot);});
+                }
                 if (!supress)
                 {
                     Console.WriteLine("Not supress " + itemslots.QSSslot + " : " + itemslots.CleanseSlot + " : " + itemslots.spellslot);
                     if (itemslots.QSSslot != 0 && Items.CanUseItem(itemslots.QSSslot))
                     {
                         Console.WriteLine("Found QSS");
-                        Items.UseItem(itemslots.QSSslot);
+                        //Items.UseItem(itemslots.QSSslot);
+                        Utility.DelayAction.Add(delaycleanse, delegate { Items.UseItem(itemslots.QSSslot); });
                         itemslots.lastcleanse = Environment.TickCount;
                     }
                     else if (ObjectManager.Player.Spellbook.CanUseSpell(itemslots.CleanseSlot) == SpellState.Ready)
                     {
-                        ObjectManager.Player.Spellbook.CastSpell(itemslots.CleanseSlot);
+                        //ObjectManager.Player.Spellbook.CastSpell(itemslots.CleanseSlot);
+                        Utility.DelayAction.Add(delaycleanse, delegate { ObjectManager.Player.Spellbook.CastSpell(itemslots.CleanseSlot); });
                         Console.WriteLine("Found Summoner");
                         itemslots.lastcleanse = Environment.TickCount;
                     }
                     else if (itemslots.spellslot != 0 && ObjectManager.Player.Spellbook.CanUseSpell(itemslots.spellslot) == SpellState.Ready)
                     {
                         Console.WriteLine("Found Spell");
-                        ObjectManager.Player.Spellbook.CastSpell(itemslots.spellslot);
+                        //ObjectManager.Player.Spellbook.CastSpell(itemslots.spellslot);
+                        Utility.DelayAction.Add(delaycleanse, delegate { ObjectManager.Player.Spellbook.CastSpell(itemslots.spellslot); });
                         itemslots.lastcleanse = Environment.TickCount;
                     };
                 }
