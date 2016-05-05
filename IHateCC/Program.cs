@@ -20,7 +20,7 @@ namespace IHateCC
             public static bool mikaelslot;
             public static SpellSlot CleanseSlot;
             public static SpellSlot spellslot = 0;
-            public static float lastcleanse;
+            public static float lastcleanse = 0;
 
         }
         public static Menu Config;
@@ -34,14 +34,13 @@ namespace IHateCC
 
         private static void Checks(BuffType Type)
         {
+            
           //  Console.WriteLine(Type);
-            try
-            {
                 if ((Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<bool>()))
                 {
                     if ((Type == BuffType.Stun || Type == BuffType.Taunt || Type == BuffType.Fear || Type == BuffType.Charm) && Config.Item("HardCC").GetValue<bool>())
                     {
-                        Console.WriteLine("CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : ");
+                        //Console.WriteLine("CC ACTIVET : " + Config.Item("ccactiveT").GetValue<KeyBind>().Active + " CC ACTIVE : " + Config.Item("ccactive").GetValue<KeyBind>().Active + " TARGET ME : ");
                         CleanseChecks(false);
                     }
                     if (Type == BuffType.Silence && Config.Item("silence").GetValue<bool>())
@@ -70,11 +69,7 @@ namespace IHateCC
                     //    CleanseChecks(false, args.Duration);
                     //};
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("s" + e);
-            }
+
         }
 
         private static bool ChampIngame(string champname)
@@ -132,7 +127,7 @@ namespace IHateCC
             if (Config.Item("ccactive").GetValue<KeyBind>().Active || Config.Item("ccactiveT").GetValue<KeyBind>().Active)
             {
         
-                foreach (var buff in ObjectManager.Player.Buffs)
+                foreach (var buff in ObjectManager.Player.Buffs.Where(b => b.IsValidBuff() && b.Caster.IsValid))
                 {
                     var buffend = buff.EndTime - Game.Time;
                     if (Config.Item("zedR") != null && Config.Item("zedR").GetValue<bool>() && buff.Name == "zedulttargetmark")
@@ -145,8 +140,18 @@ namespace IHateCC
                     }
                     if (!buff.Caster.IsMe && buffend > Config.Item("minimaltime").GetValue<Slider>().Value / 10)
                     {
-                        Console.WriteLine(buff.Name + " : " + buffend + " : " + Config.Item("minimaltime").GetValue<Slider>().Value / 10);
+
+                        if (buff.Type == BuffType.Stun
+                    || buff.Type == BuffType.Taunt ||
+                    buff.Type == BuffType.Fear ||
+                    buff.Type == BuffType.Charm ||
+                    buff.Type == BuffType.Silence ||
+                    buff.Type == BuffType.Suppression ||
+                    buff.Type == BuffType.Disarm)
+                        {
+                            //Console.WriteLine(buff.Name + " : " + buffend + " : " + Config.Item("minimaltime").GetValue<Slider>().Value / 10);
                             Checks(buff.Type);
+                        }
                     }
                 };
             };

@@ -63,7 +63,7 @@ namespace ResetsAllTheWay
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
-            if (Player.BaseSkinName != ChampionName) return;
+            if (Player.CharData.BaseSkinName != ChampionName) return;
             Console.WriteLine("ResetsAllTheWay loaded");
 
             //Create the spells
@@ -210,15 +210,18 @@ namespace ResetsAllTheWay
             {
                 Q.Cast(target, false);
                 tSpells.qlastuse = Environment.TickCount;
+                return;
             }
             if (E.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < E.Range)
             {
                 E.Cast(target);
+                return;
             }
             if (W.IsReady() && !Q.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < W.Range && Environment.TickCount > tSpells.wLastUse + 250 && (!Config.Item("wDelay").GetValue<bool>() || checkformark(target) || Environment.TickCount > tSpells.qlastuse + 100 || R.IsReady()))
             {
                 W.Cast();
                 tSpells.wLastUse = Environment.TickCount;
+                return;
                 //Console.WriteLine("CAST W");
             }
             if (R.IsReady() && Config.Item("useR").GetValue<bool>() && !W.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) < R.Range && !tSpells.ulting && Environment.TickCount > tSpells.rStartTick + 300)
@@ -227,10 +230,12 @@ namespace ResetsAllTheWay
                 R.Cast();
                 tSpells.rStartTick = Utils.TickCount;
                 Console.WriteLine("CAST ULT");
+                return;
             }
             if (Config.Item("ignite").GetValue<bool>() && tSpells.useignite)
             {
                 ObjectManager.Player.Spellbook.CastSpell(IgniteSlot, target);
+                return;
             }
         }
 
@@ -265,7 +270,7 @@ namespace ResetsAllTheWay
             }
             if ((ObjectManager.Player.Distance(target.ServerPosition) < R.Range || ObjectManager.Player.Distance(target.ServerPosition) < E.Range && E.IsReady()) && R.IsReady())
             {
-                totaldamage += Player.GetSpellDamage(target, SpellSlot.R)*3;
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.R)*4;
             }
             if (!Q.IsReady() && marked)
             {
@@ -311,7 +316,7 @@ namespace ResetsAllTheWay
             }
             if (R.IsReady())
             {
-                totaldamage += Player.GetSpellDamage(target, SpellSlot.R) * 3;
+                totaldamage += Player.GetSpellDamage(target, SpellSlot.R,2);
             }
 
 

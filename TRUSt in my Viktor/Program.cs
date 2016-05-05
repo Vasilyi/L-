@@ -22,7 +22,7 @@ namespace Viktor
         private static Spell Q, W, E, R;
         private static readonly int maxRangeE = 1225;
         private static readonly int lengthE = 700;
-        private static readonly int speedE = 1200;
+        private static readonly int speedE = 1050;
         private static readonly int rangeE = 525;
         private static int lasttick = 0;
         private static Vector3 GapCloserPos;
@@ -136,19 +136,7 @@ namespace Viktor
                 }
             }
         }
-        private static bool KillableWithAA(Obj_AI_Base target)
-        {
-            var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
-            if (player.HasBuff("viktorpowertransferreturn") && Orbwalking.CanAttack() && (player.CalcDamage(target, Damage.DamageType.Magical,
-                    qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] +
-                    (player.TotalMagicalDamage * .5) + player.TotalAttackDamage()) > target.Health))
-            {
-                Console.WriteLine("killable with aa");
-                return true;
-            }
-            else
-                return false;
-        }
+
         private static void OnCombo()
         {
             bool useQ = boolLinks["comboUseQ"].Value && Q.IsReady();
@@ -255,7 +243,7 @@ namespace Viktor
             {
                 foreach (var minion in MinionManager.GetMinions(player.Position, player.AttackRange))
                 {
-                    if (Q.IsKillable(minion) && minion.BaseSkinName.Contains("Siege"))
+                    if (Q.IsKillable(minion) && minion.CharData.BaseSkinName.Contains("Siege"))
                     {
                         QLastHit(minion);
                         break;
@@ -658,7 +646,7 @@ namespace Viktor
         }
         private static float TotalDmg(Obj_AI_Base enemy, bool useQ, bool useE, bool useR, bool qRange)
         {
-            var qaaDmg = new Double[] { 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 110, 130, 150, 170, 190, 210 };
+            var qaaDmg = new Double[] { 20, 40, 60, 80, 100 };
             var damage = 0d;
             var rTicks = sliderLinks["rTicks"].Value.Value;
             bool inQRange = ((qRange && Orbwalking.InAutoAttackRange(enemy)) || qRange == false);
@@ -666,15 +654,13 @@ namespace Viktor
             if (useQ && Q.IsReady() && inQRange)
             {
                 damage += player.GetSpellDamage(enemy, SpellSlot.Q);
-                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] + (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
             }
 
             // Q damage on AA
             if (useQ && !Q.IsReady() && player.HasBuff("viktorpowertransferreturn") && inQRange)
             {
-                damage += player.CalcDamage(enemy, Damage.DamageType.Magical,
-                    qaaDmg[player.Level >= 18 ? 18 - 1 : player.Level - 1] +
-                    (player.TotalMagicalDamage * .5) + player.TotalAttackDamage());
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
             }
 
             //E damage
