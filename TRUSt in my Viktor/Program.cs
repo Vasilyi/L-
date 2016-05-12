@@ -44,7 +44,7 @@ namespace Viktor
         public static Dictionary<string, MenuWrapper.CircleLink> circleLinks = new Dictionary<string, MenuWrapper.CircleLink>();
         public static Dictionary<string, MenuWrapper.KeyBindLink> keyLinks = new Dictionary<string, MenuWrapper.KeyBindLink>();
         public static Dictionary<string, MenuWrapper.SliderLink> sliderLinks = new Dictionary<string, MenuWrapper.SliderLink>();
-
+        public static Dictionary<string, MenuWrapper.StringListLink> stringLinks = new Dictionary<string, MenuWrapper.StringListLink>();
         public static void Main(string[] args)
         {
             // Register events
@@ -127,7 +127,24 @@ namespace Viktor
 
             if (keyLinks["jungleActive"].Value.Active)
                 OnJungleClear();
+            if (keyLinks["forceR"].Value.Active)
+            {
+                if (R.IsReady())
+                {
+                    List<Obj_AI_Hero> ignoredchamps = new List<Obj_AI_Hero>();
 
+                    foreach (var hero in HeroManager.Enemies)
+                    {
+                        if (!boolLinks["RU" + hero.ChampionName].Value)
+                        {
+                            ignoredchamps.Add(hero);
+                        }
+                    }
+                    Obj_AI_Hero RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical, true, ignoredchamps);
+                    R.Cast(RTarget);
+                }
+
+            }
             // Ultimate follow
             if (R.Instance.Name != "ViktorChaosStorm" && boolLinks["AutoFollowR"].Value && Environment.TickCount - lasttick > 0)
             {
@@ -142,7 +159,7 @@ namespace Viktor
 
         private static void OnCombo()
         {
-      
+     
             try {
 
 
@@ -150,6 +167,7 @@ namespace Viktor
                 bool useW = boolLinks["comboUseW"].Value && W.IsReady();
                 bool useE = boolLinks["comboUseE"].Value && E.IsReady();
                 bool useR = boolLinks["comboUseR"].Value && R.IsReady();
+
                 bool killpriority = boolLinks["spPriority"].Value && R.IsReady();
                 bool rKillSteal = boolLinks["rLastHit"].Value;
                 Obj_AI_Hero Etarget = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
@@ -160,7 +178,7 @@ namespace Viktor
                     Etarget = Qtarget;
                 }
 
-                if (RTarget != null && rKillSteal && useR)
+                if (RTarget != null && rKillSteal && useR && boolLinks["RU" + RTarget.ChampionName].Value)
                 {
                     if (TotalDmg(RTarget, true, true, false, false) < RTarget.Health && TotalDmg(RTarget, true, true, true, true) > RTarget.Health)
                     {
@@ -208,7 +226,7 @@ namespace Viktor
 
                     foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                     {
-                        R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
+                        R.CastIfWillHit(unit, stringLinks["HitR"].Value.SelectedIndex+1);
 
                     }
                 }
@@ -654,6 +672,8 @@ namespace Viktor
                 keyLinks.Add(key, value as MenuWrapper.KeyBindLink);
             else if (value is MenuWrapper.SliderLink)
                 sliderLinks.Add(key, value as MenuWrapper.SliderLink);
+            else if (value is MenuWrapper.StringListLink)
+                stringLinks.Add(key, value as MenuWrapper.StringListLink);
         }
         private static float TotalDmg(Obj_AI_Base enemy, bool useQ, bool useE, bool useR, bool qRange)
         {
@@ -719,11 +739,21 @@ namespace Viktor
             ProcessLink("comboUseW", subMenu.AddLinkedBool("Use W"));
             ProcessLink("comboUseE", subMenu.AddLinkedBool("Use E"));
             ProcessLink("comboUseR", subMenu.AddLinkedBool("Use R"));
-            ProcessLink("HitR", subMenu.AddLinkedSlider("Ultimate to hit", 3, 1, 5));
-            ProcessLink("rLastHit", subMenu.AddLinkedBool("1 target ulti"));
-            ProcessLink("AutoFollowR", subMenu.AddLinkedBool("Auto Follow R"));
             ProcessLink("comboActive", subMenu.AddLinkedKeyBind("Combo active", 32, KeyBindType.Press));
+
+            subMenu = menu.MainMenu.AddSubMenu("R config");
+            ProcessLink("HitR", subMenu.AddLinkedStringList("Auto R if: ",new string[] { "1 target", "2 targets", "3 targets", "4 targets", "5 targets" },3));
+            ProcessLink("AutoFollowR", subMenu.AddLinkedBool("Auto Follow R"));
             ProcessLink("rTicks", subMenu.AddLinkedSlider("Ultimate ticks to count", 2, 1, 14));
+            
+
+            subMenu = subMenu.AddSubMenu("R one target");
+            ProcessLink("forceR", subMenu.AddLinkedKeyBind("Force R on target", 84, KeyBindType.Press));
+            ProcessLink("rLastHit", subMenu.AddLinkedBool("1 target ulti"));
+            foreach (var hero in HeroManager.Enemies)
+            {
+                ProcessLink("RU" + hero.ChampionName, subMenu.AddLinkedBool("Use R on: " + hero.ChampionName));
+            }
 
 
             subMenu = menu.MainMenu.AddSubMenu("Test features");
