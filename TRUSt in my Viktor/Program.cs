@@ -68,6 +68,9 @@ namespace Viktor
             if (player.ChampionName != CHAMP_NAME)
                 return;
 
+
+       
+
             // Define spells
             Q = new Spell(SpellSlot.Q, 600);
             W = new Spell(SpellSlot.W, 700);
@@ -103,7 +106,7 @@ namespace Viktor
                 var distance = Geometry.Distance(player, minion);
                 var t = 250 + (int)distance / 2;
                 var predHealth = HealthPrediction.GetHealthPrediction(minion, t, 0);
-                Console.WriteLine(" Distance: " + distance + " timer : " + t + " health: " + predHealth);
+               // Console.WriteLine(" Distance: " + distance + " timer : " + t + " health: " + predHealth);
                 if (predHealth > 0 && Q.IsKillable(minion))
                 {
                     Q.Cast(minion);
@@ -139,74 +142,82 @@ namespace Viktor
 
         private static void OnCombo()
         {
-            bool useQ = boolLinks["comboUseQ"].Value && Q.IsReady();
-            bool useW = boolLinks["comboUseW"].Value && W.IsReady();
-            bool useE = boolLinks["comboUseE"].Value && E.IsReady();
-            bool useR = boolLinks["comboUseR"].Value && R.IsReady();
-            bool killpriority = boolLinks["spPriority"].Value && R.IsReady();
-            bool rKillSteal = boolLinks["rLastHit"].Value;
-            var Etarget = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
-            var Qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-            var RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
-            if (killpriority && Qtarget!= null & Etarget != null && Etarget != Qtarget && ((Etarget.Health > TotalDmg(Etarget, false, true, false, false)) || (Etarget.Health > TotalDmg(Etarget, false, true, true, false) && Etarget == RTarget)) && Qtarget.Health < TotalDmg(Qtarget, true, true, false, false))
-            {
-                Etarget = Qtarget;
-            }
+      
+            try {
 
-            if (RTarget != null && rKillSteal && useR)
-            {
-                if (TotalDmg(RTarget, true, true, false, false) < RTarget.Health && TotalDmg(RTarget, true, true, true, true) > RTarget.Health)
+
+                bool useQ = boolLinks["comboUseQ"].Value && Q.IsReady();
+                bool useW = boolLinks["comboUseW"].Value && W.IsReady();
+                bool useE = boolLinks["comboUseE"].Value && E.IsReady();
+                bool useR = boolLinks["comboUseR"].Value && R.IsReady();
+                bool killpriority = boolLinks["spPriority"].Value && R.IsReady();
+                bool rKillSteal = boolLinks["rLastHit"].Value;
+                Obj_AI_Hero Etarget = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
+                Obj_AI_Hero Qtarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+                Obj_AI_Hero RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
+                if (killpriority && Qtarget != null & Etarget != null && Etarget != Qtarget && ((Etarget.Health > TotalDmg(Etarget, false, true, false, false)) || (Etarget.Health > TotalDmg(Etarget, false, true, true, false) && Etarget == RTarget)) && Qtarget.Health < TotalDmg(Qtarget, true, true, false, false))
                 {
-                    R.Cast(RTarget.ServerPosition);
+                    Etarget = Qtarget;
                 }
-            }
 
-
-            if (useE)
-            {
-                if (Etarget != null)
-                    PredictCastE(Etarget);
-            }
-            if (useQ)
-            {
-
-                if (Qtarget != null)
-                    Q.Cast(Qtarget);
-            }
-            if (useW)
-            {
-                var t = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
-
-                if (t != null)
+                if (RTarget != null && rKillSteal && useR)
                 {
-                    if (t.Path.Count() < 2)
+                    if (TotalDmg(RTarget, true, true, false, false) < RTarget.Health && TotalDmg(RTarget, true, true, true, true) > RTarget.Health)
                     {
-                        if (t.HasBuffOfType(BuffType.Slow))
+                        R.Cast(RTarget.ServerPosition);
+                    }
+                }
+
+
+                if (useE)
+                {
+                    if (Etarget != null)
+                        PredictCastE(Etarget);
+                }
+                if (useQ)
+                {
+
+                    if (Qtarget != null)
+                        Q.Cast(Qtarget);
+                }
+                if (useW)
+                {
+                    var t = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
+
+                    if (t != null)
+                    {
+                        if (t.Path.Count() < 2)
                         {
-                            if (W.GetPrediction(t).Hitchance >= HitChance.VeryHigh)
-                                if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
-                                    return;
-                        }
-                        if (t.CountEnemiesInRange(250) > 2)
-                        {
-                            if (W.GetPrediction(t).Hitchance >= HitChance.VeryHigh)
-                                if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
-                                    return;
+                            if (t.HasBuffOfType(BuffType.Slow))
+                            {
+                                if (W.GetPrediction(t).Hitchance >= HitChance.VeryHigh)
+                                    if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
+                                        return;
+                            }
+                            if (t.CountEnemiesInRange(250) > 2)
+                            {
+                                if (W.GetPrediction(t).Hitchance >= HitChance.VeryHigh)
+                                    if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
+                                        return;
+                            }
                         }
                     }
                 }
-            }
-            if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast && !player.Spellbook.IsCastingSpell)
-            {
-
-                foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
+                if (useR && R.Instance.Name == "ViktorChaosStorm" && player.CanCast && !player.Spellbook.IsCastingSpell)
                 {
-                    R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
 
+                    foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
+                    {
+                        R.CastIfWillHit(unit, sliderLinks["HitR"].Value.Value);
+
+                    }
                 }
             }
-
-        }
+            catch (Exception error)
+            {
+                Console.WriteLine(error.ToString());
+            }
+            }
 
         private static void OnHarass()
         {
@@ -601,7 +612,7 @@ namespace Viktor
             {
                 if (enemy.HasBuff("rocketgrab2"))
                 {
-                    var t = HeroManager.Allies.Find(h => h.BaseSkinName.ToLower() == "blitzcrank" && h.Distance((AttackableUnit)player) < W.Range);
+                    var t = HeroManager.Allies.Find(h => h.ChampionName.ToLower() == "blitzcrank" && h.Distance((AttackableUnit)player) < W.Range);
                     if (t != null)
                     {
                         if (W.Cast(t) == Spell.CastStates.SuccessfullyCasted)
@@ -654,13 +665,13 @@ namespace Viktor
             if (useQ && Q.IsReady() && inQRange)
             {
                 damage += player.GetSpellDamage(enemy, SpellSlot.Q);
-                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level-1] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
             }
 
             // Q damage on AA
             if (useQ && !Q.IsReady() && player.HasBuff("viktorpowertransferreturn") && inQRange)
             {
-                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level-1] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
             }
 
             //E damage
@@ -669,7 +680,7 @@ namespace Viktor
                 if (player.HasBuff("viktoreaug") || player.HasBuff("viktorqeaug") || player.HasBuff("viktorqweaug"))
                     damage += player.GetSpellDamage(enemy, SpellSlot.E, 1);
                 else
-                    damage += player.GetSpellDamage(enemy, SpellSlot.E, 0);
+                    damage += player.GetSpellDamage(enemy, SpellSlot.E);
             }
 
             //R damage + 2 ticks
