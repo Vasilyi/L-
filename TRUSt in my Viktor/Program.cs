@@ -253,7 +253,7 @@ namespace Viktor
             {
                 return;
             }
-                var closestminion = MinionManager.GetMinions(Q.Range).MinOrDefault(m => player.Distance(m));
+            var closestminion = MinionManager.GetMinions(Q.Range,MinionTypes.All, MinionTeam.NotAlly).MinOrDefault(m => player.Distance(m));
             var closesthero = HeroManager.Enemies.MinOrDefault(m => player.Distance(m) < Q.Range);
             if (closestminion.IsValidTarget(Q.Range))
             {
@@ -406,13 +406,13 @@ namespace Viktor
                     }
                 }
             }
-
+            var storedminions = MinionManager.GetMinions(rangeE); 
             foreach (var pos in minionPositions)
             {
                 if (pos.Distance(startPos, true) <= range * range)
                 {
                     var endPos = startPos + range * (pos - startPos).Normalized();
-                    var count =  MinionManager.GetMinions(rangeE).Where(m => m.ServerPosition.To2D().Distance(startPos, endPos, true, true) <= width * width).Count();
+                    var count = storedminions.Where(m => m.ServerPosition.To2D().Distance(startPos, endPos, true, true) <= width * width).Count();
                     if (count >= minionCount)
                     {
                         result = endPos;
