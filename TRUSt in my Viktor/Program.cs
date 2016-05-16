@@ -1,14 +1,9 @@
-﻿using System;
+﻿using LeagueSharp;
+using LeagueSharp.Common;
+using SharpDX;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using LeagueSharp;
-using LeagueSharp.Common;
-
-using SharpDX;
-
 using Color = System.Drawing.Color;
 
 namespace Viktor
@@ -24,7 +19,6 @@ namespace Viktor
         private static readonly int lengthE = 700;
         private static readonly int speedE = 1050;
         private static readonly int rangeE = 525;
-        private static List<Obj_AI_Base> storedminions;
         private static int lasttick = 0;
         private static Vector3 GapCloserPos;
         private static bool AttacksEnabled
@@ -170,7 +164,8 @@ namespace Viktor
         private static void OnCombo()
         {
 
-            try {
+            try
+            {
 
 
                 bool useQ = boolLinks["comboUseQ"].Value && Q.IsReady();
@@ -351,7 +346,7 @@ namespace Viktor
             }
             else
             {
-                allminions = MinionManager.GetMinions(maxRangeE,MinionTypes.All,MinionTeam.Neutral);
+                allminions = MinionManager.GetMinions(maxRangeE, MinionTypes.All, MinionTeam.Neutral);
             }
             var minionslist = (from mnion in allminions select mnion.Position.To2D()).ToList<Vector2>();
             var posiblePositions = new List<Vector2>();
@@ -367,11 +362,11 @@ namespace Viktor
                     }
                 }
             }
-           
+
             foreach (var startposminion in allminions.Where(m => player.Distance(m) < rangeE))
             {
                 var startPos = startposminion.Position.To2D();
-                
+
                 foreach (var pos in posiblePositions)
                 {
                     if (pos.Distance(startPos, true) <= lengthE * lengthE)
@@ -380,14 +375,14 @@ namespace Viktor
 
                         var count =
                             minionslist.Count(pos2 => pos2.Distance(startPos, endPos, true, true) <= 140 * 140);
-                        
+
                         if (count >= minionCount)
                         {
                             bestendpos = endPos;
                             minionCount = count;
                             beststartpos = startPos;
                         }
-             
+
                     }
                 }
             }
@@ -407,7 +402,7 @@ namespace Viktor
         private static bool PredictCastMinionEJungle()
         {
             var farmLocation = GetBestLaserFarmLocation(true);
-          
+
             if (farmLocation.MinionsHit > 0)
             {
                 CastE(farmLocation.Position1, farmLocation.Position2);
@@ -450,7 +445,7 @@ namespace Viktor
         private static bool PredictCastMinionE()
         {
             var farmLoc = GetBestLaserFarmLocation(false);
-              if (farmLoc.MinionsHit > 0)
+            if (farmLoc.MinionsHit > 0)
             {
                 Console.WriteLine("Minion amount: " + farmLoc.MinionsHit + "\n Startpos: " + farmLoc.Position1 + "\n EndPos: " + farmLoc.Position2);
 
@@ -620,7 +615,7 @@ namespace Viktor
             }
 
         }
-       
+
 
 
         private static void CastE(Vector3 source, Vector3 destination)
@@ -736,13 +731,13 @@ namespace Viktor
             if (useQ && Q.IsReady() && inQRange)
             {
                 damage += player.GetSpellDamage(enemy, SpellSlot.Q);
-                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level-1] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level - 1] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
             }
 
             // Q damage on AA
             if (useQ && !Q.IsReady() && player.HasBuff("viktorpowertransferreturn") && inQRange)
             {
-                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level-1] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
+                damage += player.CalcDamage(enemy, Damage.DamageType.Magical, qaaDmg[Q.Level - 1] + 0.5 * player.TotalMagicalDamage + player.TotalAttackDamage);
             }
 
             //E damage
@@ -794,10 +789,10 @@ namespace Viktor
             ProcessLink("comboActive", subMenu.AddLinkedKeyBind("Combo active", 32, KeyBindType.Press));
 
             subMenu = menu.MainMenu.AddSubMenu("R config");
-            ProcessLink("HitR", subMenu.AddLinkedStringList("Auto R if: ",new string[] { "1 target", "2 targets", "3 targets", "4 targets", "5 targets" },3));
+            ProcessLink("HitR", subMenu.AddLinkedStringList("Auto R if: ", new string[] { "1 target", "2 targets", "3 targets", "4 targets", "5 targets" }, 3));
             ProcessLink("AutoFollowR", subMenu.AddLinkedBool("Auto Follow R"));
             ProcessLink("rTicks", subMenu.AddLinkedSlider("Ultimate ticks to count", 2, 1, 14));
-            
+
 
             subMenu = subMenu.AddSubMenu("R one target");
             ProcessLink("forceR", subMenu.AddLinkedKeyBind("Force R on target", 84, KeyBindType.Press));
@@ -817,7 +812,7 @@ namespace Viktor
             ProcessLink("harassUseQ", subMenu.AddLinkedBool("Use Q"));
             ProcessLink("harassUseE", subMenu.AddLinkedBool("Use E"));
             ProcessLink("harassMana", subMenu.AddLinkedSlider("Mana usage in percent (%)", 30));
-            ProcessLink("eDistance", subMenu.AddLinkedSlider("Harass range with E", maxRangeE,rangeE,maxRangeE));
+            ProcessLink("eDistance", subMenu.AddLinkedSlider("Harass range with E", maxRangeE, rangeE, maxRangeE));
             ProcessLink("harassActive", subMenu.AddLinkedKeyBind("Harass active", 'C', KeyBindType.Press));
 
             // WaveClear
@@ -854,7 +849,7 @@ namespace Viktor
             var dmgAfterComboItem = menu.MainMenu.MenuHandle.SubMenu("Dmg Drawing").AddItem(new MenuItem("dmgdraw", "Draw dmg on healthbar").SetValue(true));
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
             Utility.HpBarDamageIndicator.Enabled = boolLinks["dmgdraw"].Value;
-            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
+            dmgAfterComboItem.ValueChanged += delegate (object sender, OnValueChangeEventArgs eventArgs)
             {
                 Console.WriteLine("menu changed");
                 Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
