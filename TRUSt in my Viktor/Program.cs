@@ -24,6 +24,7 @@ namespace Viktor
         private static readonly int lengthE = 700;
         private static readonly int speedE = 1050;
         private static readonly int rangeE = 525;
+        private static List<Obj_AI_Base> storedminions;
         private static int lasttick = 0;
         private static Vector3 GapCloserPos;
         private static bool AttacksEnabled
@@ -74,7 +75,7 @@ namespace Viktor
                 return;
 
 
-       
+
 
             // Define spells
             Q = new Spell(SpellSlot.Q, 600);
@@ -111,7 +112,7 @@ namespace Viktor
                 var distance = Geometry.Distance(player, minion);
                 var t = 250 + (int)distance / 2;
                 var predHealth = HealthPrediction.GetHealthPrediction(minion, t, 0);
-               // Console.WriteLine(" Distance: " + distance + " timer : " + t + " health: " + predHealth);
+                // Console.WriteLine(" Distance: " + distance + " timer : " + t + " health: " + predHealth);
                 if (predHealth > 0 && Q.IsKillable(minion))
                 {
                     Q.Cast(minion);
@@ -168,7 +169,7 @@ namespace Viktor
 
         private static void OnCombo()
         {
-     
+
             try {
 
 
@@ -235,7 +236,7 @@ namespace Viktor
 
                     foreach (var unit in HeroManager.Enemies.Where(h => h.IsValidTarget(R.Range)))
                     {
-                        R.CastIfWillHit(unit, stringLinks["HitR"].Value.SelectedIndex+1);
+                        R.CastIfWillHit(unit, stringLinks["HitR"].Value.SelectedIndex + 1);
 
                     }
                 }
@@ -244,7 +245,7 @@ namespace Viktor
             {
                 Console.WriteLine(error.ToString());
             }
-            }
+        }
 
         private static void Flee()
         {
@@ -253,7 +254,7 @@ namespace Viktor
             {
                 return;
             }
-            var closestminion = MinionManager.GetMinions(Q.Range,MinionTypes.All, MinionTeam.NotAlly).MinOrDefault(m => player.Distance(m));
+            var closestminion = MinionManager.GetMinions(Q.Range, MinionTypes.All, MinionTeam.NotAlly).MinOrDefault(m => player.Distance(m));
             var closesthero = HeroManager.Enemies.MinOrDefault(m => player.Distance(m) < Q.Range);
             if (closestminion.IsValidTarget(Q.Range))
             {
@@ -262,7 +263,7 @@ namespace Viktor
             else if (closesthero.IsValidTarget(Q.Range))
             {
                 Q.Cast(closesthero);
-                
+
             }
         }
 
@@ -282,7 +283,8 @@ namespace Viktor
             }
             if (useE)
             {
-                var target = TargetSelector.GetTarget(maxRangeE, TargetSelector.DamageType.Magical);
+                var harassrange = sliderLinks["eDistance"].Value.Value;
+                var target = TargetSelector.GetTarget(harassrange, TargetSelector.DamageType.Magical);
 
                 if (target != null)
                     PredictCastE(target);
@@ -311,7 +313,7 @@ namespace Viktor
             }
 
             if (useE)
-                PredictCastMinionE(sliderLinks["waveNumE"].Value.Value);
+                PredictCastMinionE();
         }
 
         private static void OnJungleClear()
@@ -335,120 +337,130 @@ namespace Viktor
                 PredictCastMinionEJungle();
         }
 
-
-        private static bool PredictCastMinionEJungle()
+        public static FarmLocation GetBestLaserFarmLocation(bool jungle)
         {
-            int requiredHitNumber = 1;
-            int hitNum = 0;
-            Vector2 startPos = new Vector2(0, 0);
-            Vector2 endPos = new Vector2(0, 0);
-            foreach (var minion in MinionManager.GetMinions(player.Position, rangeE, MinionTypes.All, MinionTeam.Neutral))
-            {
-                var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE, MinionTypes.All, MinionTeam.Neutral) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE, requiredHitNumber);
-                if (farmLocation.MinionsHit > hitNum)
-                {
-                    hitNum = farmLocation.MinionsHit;
-                    startPos = minion.Position.To2D();
-                    endPos = farmLocation.Position;
-                }
-            }
-
-            if (startPos.X != 0 && startPos.Y != 0)
-                return PredictCastMinionEJungle(startPos, requiredHitNumber);
-            return false;
-        }
-
-        private static bool PredictCastMinionE(int requiredHitNumber = -1)
-        {
-           
-            int hitNum = 0;
-            Vector2 startPos = new Vector2(0, 0);
-            Vector2 endPos = new Vector2(0, 0);
-            foreach (var minion in MinionManager.GetMinions(player.Position, rangeE))
-            {
-                var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE, requiredHitNumber);
- 
-                if (farmLocation.MinionsHit >= requiredHitNumber && farmLocation.MinionsHit >= hitNum)
-                {
-                    hitNum = farmLocation.MinionsHit;
-                    startPos = minion.Position.To2D();
-                    endPos = farmLocation.Position;
-                    //Console.WriteLine("Will hit: " + hitNum);
-                }
-            }
-
-            if (startPos.X != 0 && startPos.Y != 0)
-                return PredictCastMinionE(startPos, requiredHitNumber);
-            return false;
-        }
-        public static MinionManager.FarmLocation GetBestLaserFarmLocation(Vector2 sourcepos, List<Vector2> minionPositions, float width, float range, int requiredHitNumber)
-        {
-            var result = new Vector2();
+            var bestendpos = new Vector2();
+            var beststartpos = new Vector2();
             var minionCount = 0;
-            var startPos = sourcepos;
-
-            var max = minionPositions.Count;
-            
-            if (requiredHitNumber > max)
+            List<Obj_AI_Base> allminions;
+            var minimalhit = sliderLinks["waveNumE"].Value.Value;
+            if (!jungle)
             {
-                return new MinionManager.FarmLocation(result, 0);
+                allminions = MinionManager.GetMinions(maxRangeE);
+
             }
-
-           
-
+            else
+            {
+                allminions = MinionManager.GetMinions(maxRangeE,MinionTypes.All,MinionTeam.Neutral);
+            }
+            var minionslist = (from mnion in allminions select mnion.Position.To2D()).ToList<Vector2>();
+            var posiblePositions = new List<Vector2>();
+            posiblePositions.AddRange(minionslist);
+            var max = posiblePositions.Count;
             for (var i = 0; i < max; i++)
             {
                 for (var j = 0; j < max; j++)
                 {
-                    if (minionPositions[j] != minionPositions[i])
+                    if (posiblePositions[j] != posiblePositions[i])
                     {
-                        minionPositions.Add((minionPositions[j] + minionPositions[i]) / 2);
+                        posiblePositions.Add((posiblePositions[j] + posiblePositions[i]) / 2);
                     }
                 }
             }
-            var storedminions = MinionManager.GetMinions(rangeE); 
-            foreach (var pos in minionPositions)
+           
+            foreach (var startposminion in allminions.Where(m => player.Distance(m) < rangeE))
             {
-                if (pos.Distance(startPos, true) <= range * range)
+                var startPos = startposminion.Position.To2D();
+                
+                foreach (var pos in posiblePositions)
                 {
-                    var endPos = startPos + range * (pos - startPos).Normalized();
-                    var count = storedminions.Where(m => m.ServerPosition.To2D().Distance(startPos, endPos, true, true) <= width * width).Count();
-                    if (count >= minionCount)
+                    if (pos.Distance(startPos, true) <= lengthE * lengthE)
                     {
-                        result = endPos;
-                        minionCount = count;
+                        var endPos = startPos + lengthE * (pos - startPos).Normalized();
+
+                        var count =
+                            minionslist.Count(pos2 => pos2.Distance(startPos, endPos, true, true) <= 140 * 140);
+                        
+                        if (count >= minionCount)
+                        {
+                            bestendpos = endPos;
+                            minionCount = count;
+                            beststartpos = startPos;
+                        }
+             
                     }
                 }
             }
-           // Console.WriteLine("FarmLocation: " + max + " required hit: " + requiredHitNumber + " minion count: " + minionCount);
-            return new MinionManager.FarmLocation(result, minionCount);
+            if ((!jungle && minimalhit < minionCount) || (jungle && minionCount > 0))
+            {
+                //Console.WriteLine("MinimalHits: " + minimalhit + "\n Startpos: " + beststartpos + "\n Count : " + minionCount);
+                return new FarmLocation(beststartpos, bestendpos, minionCount);
+            }
+            else
+            {
+                return new FarmLocation(beststartpos, bestendpos, 0);
+            }
         }
 
 
-        private static bool PredictCastMinionEJungle(Vector2 fromPosition, int requiredHitNumber = 1)
-        {
-            var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE, MinionTypes.All, MinionTeam.Neutral), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE, requiredHitNumber);
 
-            if (farmLocation.MinionsHit >= requiredHitNumber)
+        private static bool PredictCastMinionEJungle()
+        {
+            var farmLocation = GetBestLaserFarmLocation(true);
+          
+            if (farmLocation.MinionsHit > 0)
             {
-                CastE(fromPosition, farmLocation.Position);
+                CastE(farmLocation.Position1, farmLocation.Position2);
                 return true;
             }
 
             return false;
         }
-        private static bool PredictCastMinionE(Vector2 fromPosition, int requiredHitNumber = 1)
-        {
-            var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE, requiredHitNumber);
 
-            if (farmLocation.MinionsHit >= requiredHitNumber)
+        public struct FarmLocation
+        {
+            /// <summary>
+            /// The minions hit
+            /// </summary>
+            public int MinionsHit;
+
+            /// <summary>
+            /// The start position
+            /// </summary>
+            public Vector2 Position1;
+
+
+            /// <summary>
+            /// The end position
+            /// </summary>
+            public Vector2 Position2;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="FarmLocation"/> struct.
+            /// </summary>
+            /// <param name="position">The position.</param>
+            /// <param name="minionsHit">The minions hit.</param>
+            public FarmLocation(Vector2 startpos, Vector2 endpos, int minionsHit)
             {
-                CastE(fromPosition, farmLocation.Position);
+                Position1 = startpos;
+                Position2 = endpos;
+                MinionsHit = minionsHit;
+            }
+        }
+        private static bool PredictCastMinionE()
+        {
+            var farmLoc = GetBestLaserFarmLocation(false);
+              if (farmLoc.MinionsHit > 0)
+            {
+                Console.WriteLine("Minion amount: " + farmLoc.MinionsHit + "\n Startpos: " + farmLoc.Position1 + "\n EndPos: " + farmLoc.Position2);
+
+                CastE(farmLoc.Position1, farmLoc.Position2);
                 return true;
             }
 
             return false;
         }
+
 
         private static void PredictCastE(Obj_AI_Hero target)
         {
@@ -543,10 +555,9 @@ namespace Viktor
 
                 // Spell not casted
                 if (!spellCasted)
-                    // Try casting on minion
-                    if (!PredictCastMinionE(pos1.To2D()))
-                        // Cast it directly
-                        CastE(pos1, E.GetPrediction(target).CastPosition);
+                {
+                    CastE(pos1, E.GetPrediction(target).CastPosition);
+                }
 
                 // Reset spell
                 E.Speed = speedE;
@@ -609,6 +620,8 @@ namespace Viktor
             }
 
         }
+       
+
 
         private static void CastE(Vector3 source, Vector3 destination)
         {
@@ -804,6 +817,7 @@ namespace Viktor
             ProcessLink("harassUseQ", subMenu.AddLinkedBool("Use Q"));
             ProcessLink("harassUseE", subMenu.AddLinkedBool("Use E"));
             ProcessLink("harassMana", subMenu.AddLinkedSlider("Mana usage in percent (%)", 30));
+            ProcessLink("eDistance", subMenu.AddLinkedSlider("Harass range with E", maxRangeE,rangeE,maxRangeE));
             ProcessLink("harassActive", subMenu.AddLinkedKeyBind("Harass active", 'C', KeyBindType.Press));
 
             // WaveClear
