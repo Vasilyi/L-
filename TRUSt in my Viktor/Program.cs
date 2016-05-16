@@ -30,9 +30,14 @@ namespace Viktor
         {
             get
             {
-                if ((keyLinks["comboActive"].Value.Active) || (keyLinks["harassActive"].Value.Active))
+                if (keyLinks["comboActive"].Value.Active)
+                {
+                    return ((!Q.IsReady() || player.Mana < Q.Instance.ManaCost) && (!E.IsReady() || player.Mana < E.Instance.ManaCost) && (!boolLinks["qAuto"].Value || player.HasBuff("viktorpowertransferreturn")));
+                }
+                else if (keyLinks["harassActive"].Value.Active)
+                {
                     return ((!Q.IsReady() || player.Mana < Q.Instance.ManaCost) && (!E.IsReady() || player.Mana < E.Instance.ManaCost));
-
+                }
                 return true;
             }
         }
@@ -127,6 +132,10 @@ namespace Viktor
 
             if (keyLinks["jungleActive"].Value.Active)
                 OnJungleClear();
+
+            if (keyLinks["FleeActive"].Value.Active)
+                Flee();
+
             if (keyLinks["forceR"].Value.Active)
             {
                 if (R.IsReady())
@@ -237,6 +246,27 @@ namespace Viktor
             }
             }
 
+        private static void Flee()
+        {
+            Orbwalking.MoveTo(Game.CursorPos);
+            if (!Q.IsReady() || !(player.HasBuff("viktorqaug") || player.HasBuff("viktorqeaug") || player.HasBuff("viktorqwaug") || player.HasBuff("viktorqweaug")))
+            {
+                return;
+            }
+                var closestminion = MinionManager.GetMinions(Q.Range).MinOrDefault(m => player.Distance(m));
+            var closesthero = HeroManager.Enemies.MinOrDefault(m => player.Distance(m) < Q.Range);
+            if (closestminion.IsValidTarget(Q.Range))
+            {
+                Q.Cast(closestminion);
+            }
+            else if (closesthero.IsValidTarget(Q.Range))
+            {
+                Q.Cast(closesthero);
+                
+            }
+        }
+
+
         private static void OnHarass()
         {
             // Mana check
@@ -281,7 +311,7 @@ namespace Viktor
             }
 
             if (useE)
-                PredictCastMinionE(sliderLinks["waveNumE"].Value.Value + 1);
+                PredictCastMinionE(sliderLinks["waveNumE"].Value.Value);
         }
 
         private static void OnJungleClear()
@@ -314,7 +344,7 @@ namespace Viktor
             Vector2 endPos = new Vector2(0, 0);
             foreach (var minion in MinionManager.GetMinions(player.Position, rangeE, MinionTypes.All, MinionTeam.Neutral))
             {
-                var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE, MinionTypes.All, MinionTeam.Neutral) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE);
+                var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE, MinionTypes.All, MinionTeam.Neutral) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE, requiredHitNumber);
                 if (farmLocation.MinionsHit > hitNum)
                 {
                     hitNum = farmLocation.MinionsHit;
@@ -330,17 +360,20 @@ namespace Viktor
 
         private static bool PredictCastMinionE(int requiredHitNumber = -1)
         {
+           
             int hitNum = 0;
             Vector2 startPos = new Vector2(0, 0);
             Vector2 endPos = new Vector2(0, 0);
             foreach (var minion in MinionManager.GetMinions(player.Position, rangeE))
             {
-                var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE);
-                if (farmLocation.MinionsHit > hitNum)
+                var farmLocation = GetBestLaserFarmLocation(minion.Position.To2D(), (from mnion in MinionManager.GetMinions(minion.Position, lengthE) select mnion.Position.To2D()).ToList<Vector2>(), E.Width, lengthE, requiredHitNumber);
+ 
+                if (farmLocation.MinionsHit >= requiredHitNumber && farmLocation.MinionsHit >= hitNum)
                 {
                     hitNum = farmLocation.MinionsHit;
                     startPos = minion.Position.To2D();
                     endPos = farmLocation.Position;
+                    //Console.WriteLine("Will hit: " + hitNum);
                 }
             }
 
@@ -348,13 +381,21 @@ namespace Viktor
                 return PredictCastMinionE(startPos, requiredHitNumber);
             return false;
         }
-        public static MinionManager.FarmLocation GetBestLaserFarmLocation(Vector2 sourcepos, List<Vector2> minionPositions, float width, float range)
+        public static MinionManager.FarmLocation GetBestLaserFarmLocation(Vector2 sourcepos, List<Vector2> minionPositions, float width, float range, int requiredHitNumber)
         {
             var result = new Vector2();
             var minionCount = 0;
             var startPos = sourcepos;
 
             var max = minionPositions.Count;
+            
+            if (requiredHitNumber > max)
+            {
+                return new MinionManager.FarmLocation(result, 0);
+            }
+
+           
+
             for (var i = 0; i < max; i++)
             {
                 for (var j = 0; j < max; j++)
@@ -371,10 +412,7 @@ namespace Viktor
                 if (pos.Distance(startPos, true) <= range * range)
                 {
                     var endPos = startPos + range * (pos - startPos).Normalized();
-
-                    var count =
-                        minionPositions.Count(pos2 => pos2.Distance(startPos, endPos, true, true) <= width * width);
-
+                    var count =  MinionManager.GetMinions(rangeE).Where(m => m.ServerPosition.To2D().Distance(startPos, endPos, true, true) <= width * width).Count();
                     if (count >= minionCount)
                     {
                         result = endPos;
@@ -382,14 +420,14 @@ namespace Viktor
                     }
                 }
             }
-
+           // Console.WriteLine("FarmLocation: " + max + " required hit: " + requiredHitNumber + " minion count: " + minionCount);
             return new MinionManager.FarmLocation(result, minionCount);
         }
 
 
         private static bool PredictCastMinionEJungle(Vector2 fromPosition, int requiredHitNumber = 1)
         {
-            var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE, MinionTypes.All, MinionTeam.Neutral), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE);
+            var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE, MinionTypes.All, MinionTeam.Neutral), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE, requiredHitNumber);
 
             if (farmLocation.MinionsHit >= requiredHitNumber)
             {
@@ -401,7 +439,7 @@ namespace Viktor
         }
         private static bool PredictCastMinionE(Vector2 fromPosition, int requiredHitNumber = 1)
         {
-            var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE);
+            var farmLocation = GetBestLaserFarmLocation(fromPosition, MinionManager.GetMinionsPredictedPositions(MinionManager.GetMinions(fromPosition.To3D(), lengthE), E.Delay, E.Width, speedE, fromPosition.To3D(), lengthE, false, SkillshotType.SkillshotLine), E.Width, lengthE, requiredHitNumber);
 
             if (farmLocation.MinionsHit >= requiredHitNumber)
             {
@@ -739,6 +777,7 @@ namespace Viktor
             ProcessLink("comboUseW", subMenu.AddLinkedBool("Use W"));
             ProcessLink("comboUseE", subMenu.AddLinkedBool("Use E"));
             ProcessLink("comboUseR", subMenu.AddLinkedBool("Use R"));
+            ProcessLink("qAuto", subMenu.AddLinkedBool("Dont autoattack without passive"));
             ProcessLink("comboActive", subMenu.AddLinkedKeyBind("Combo active", 32, KeyBindType.Press));
 
             subMenu = menu.MainMenu.AddSubMenu("R config");
@@ -778,6 +817,10 @@ namespace Viktor
 
             subMenu = menu.MainMenu.AddSubMenu("LastHit");
             ProcessLink("waveUseQLH", subMenu.AddLinkedKeyBind("Use Q", 'A', KeyBindType.Press));
+
+            // Harass
+            subMenu = menu.MainMenu.AddSubMenu("Flee");
+            ProcessLink("FleeActive", subMenu.AddLinkedKeyBind("Flee mode", 'Z', KeyBindType.Press));
 
             // Misc
             subMenu = menu.MainMenu.AddSubMenu("Misc");
