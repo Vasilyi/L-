@@ -81,7 +81,7 @@ namespace Viktor
             Q.SetTargetted(0.25f, 2000);
             W.SetSkillshot(0.5f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0, 80, speedE, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.25f, 450f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.25f, 300f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             // Create menu
             SetupMenu();
@@ -145,7 +145,10 @@ namespace Viktor
                         }
                     }
                     Obj_AI_Hero RTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical, true, ignoredchamps);
-                    R.Cast(RTarget);
+                    if (RTarget.IsValidTarget())
+                    {
+                        R.Cast(RTarget);
+                    }
                 }
 
             }
