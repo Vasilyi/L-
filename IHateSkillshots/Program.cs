@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using LeagueSharp;
-using LeagueSharp.Common;
+using LeagueSharp.SDK;
+using LeagueSharp.SDK.UI;
+using LeagueSharp.SDK.Enumerations;
 using Color = System.Drawing.Color;
+using LeagueSharp.SDK.Utils;
 
 namespace Skillshots
 {
@@ -13,23 +16,27 @@ namespace Skillshots
         public static Spell W;
         public static Spell E;
         public static Spell R;
-        public static Menu Config;
+
         static void Main(string[] args)
         {
-            CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+            Bootstrap.Init(args);
+            Events.OnLoad += Game_OnGameLoad;
         }
+        private const string MenuName = "IHateSkillshots";
+        public static Menu MainMenu { get; set; } = new Menu(MenuName, MenuName, true);
+        public static MenuList<string> HitChanceList;
+        public static Menu DrawMenu;
 
-        private static void Game_OnGameLoad(EventArgs args)
+
+
+        private static void Game_OnGameLoad(object sender, EventArgs e)
         {
             try
             {
-                Config = new Menu("Skillshots", "Skillshots", true);
-                Config.AddSubMenu(new Menu("Combo", "Combo"));
-                Config.SubMenu("Combo").AddItem(new MenuItem("HitChance", "Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "VeryHigh" })));
-                Config.AddSubMenu(new Menu("Drawings", "Drawings"));
-                var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-                TargetSelector.AddToMenu(targetSelectorMenu);
-                Config.AddSubMenu(targetSelectorMenu);
+                MainMenu = new Menu("IHateSkillshots", "IHateSkillshots", true).Attach();
+                HitChanceList = MainMenu.Add(new MenuList<string>("HitChance", "Hitchance", new[] { "Low", "Medium", "High", "VeryHigh" }));
+                DrawMenu = MainMenu.Add(new Menu("Drawings", "Drawings Settings"));
+
                 foreach (var spell in SpellDatabase.Spells)
                     if (spell.ChampionName == ObjectManager.Player.ChampionName)
                     {
@@ -38,32 +45,37 @@ namespace Skillshots
                         {
                             Q = new Spell(spell.Slot, spell.Range);
                             Q.SetSkillshot(spell.Delay / 1000, spell.Radius, spell.MissileSpeed, spell.CanBeRemoved, spell.Type);
-                            Config.SubMenu("Combo").AddItem(new MenuItem("Spell1", "Q").SetValue(new KeyBind(90, KeyBindType.Press)));
-                            Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(true, Color.FromArgb(255, 255, 255, 255))));
+
+                            MainMenu.Add(new MenuKeyBind("Spell1", "Use Q", System.Windows.Forms.Keys.Z, KeyBindType.Press));
+                            DrawMenu.Add(new MenuBool("QRange", "Q range"));
+                            DrawMenu.Add(new MenuColor("QRangeC", "Q range", SharpDX.Color.Aqua));
                             SpellList.Add(Q);
                         }
                         if (spell.Slot == SpellSlot.W)
                         {
                             W = new Spell(spell.Slot, spell.Range);
                             W.SetSkillshot(spell.Delay / 1000, spell.Radius, spell.MissileSpeed, spell.CanBeRemoved, spell.Type);
-                            Config.SubMenu("Drawings").AddItem(new MenuItem("WRange", "W range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
-                            Config.SubMenu("Combo").AddItem(new MenuItem("Spell2", "W").SetValue(new KeyBind(88, KeyBindType.Press)));
+                            MainMenu.Add(new MenuKeyBind("Spell2", "Use W", System.Windows.Forms.Keys.Z, KeyBindType.Press));
+                            DrawMenu.Add(new MenuBool("WRange", "W range"));
+                            DrawMenu.Add(new MenuColor("WRangeC", "W range", SharpDX.Color.Black));
                             SpellList.Add(W);
                         }
                         if (spell.Slot == SpellSlot.E)
                         {
                             E = new Spell(spell.Slot, spell.Range);
                             E.SetSkillshot(spell.Delay / 1000, spell.Radius, spell.MissileSpeed, spell.CanBeRemoved, spell.Type);
-                            Config.SubMenu("Drawings").AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
-                            Config.SubMenu("Combo").AddItem(new MenuItem("Spell3", "E").SetValue(new KeyBind(67, KeyBindType.Press)));
+                            MainMenu.Add(new MenuKeyBind("Spell3", "Use E", System.Windows.Forms.Keys.Z, KeyBindType.Press));
+                            DrawMenu.Add(new MenuBool("ERange", "E range"));
+                            DrawMenu.Add(new MenuColor("ERangeC", "E range", SharpDX.Color.Coral));
                             SpellList.Add(E);
                         }
                         if (spell.Slot == SpellSlot.R)
                         {
                             R = new Spell(spell.Slot, spell.Range);
                             R.SetSkillshot(spell.Delay / 1000, spell.Radius, spell.MissileSpeed, spell.CanBeRemoved, spell.Type);
-                            Config.SubMenu("Drawings").AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(255, 255, 255, 255))));
-                            Config.SubMenu("Combo").AddItem(new MenuItem("Spell4", "R").SetValue(new KeyBind(86, KeyBindType.Press)));
+                            MainMenu.Add(new MenuKeyBind("Spell4", "Use R", System.Windows.Forms.Keys.Z, KeyBindType.Press));
+                            DrawMenu.Add(new MenuBool("RRange", "R range"));
+                            DrawMenu.Add(new MenuColor("RRangeC", "R range", SharpDX.ColorBGRA.FromRgba(0)));
                             SpellList.Add(R);
                         }
 
@@ -73,11 +85,11 @@ namespace Skillshots
             {
                 Game.PrintChat("Error found in skillshots. Refused to load.");
             }
-            Config.AddToMainMenu();
-
-            Drawing.OnDraw += Drawing_OnDraw;
-            Game.OnUpdate += Game_OnGameUpdate;
+             Drawing.OnDraw += Drawing_OnDraw;
+             Game.OnUpdate += Game_OnGameUpdate;
         }
+
+
 
         private static void Drawing_OnDraw(EventArgs args)
         {
@@ -85,49 +97,55 @@ namespace Skillshots
 
             foreach (Spell spell in SpellList)
             {
-                var menuItem = Config.Item(spell.Slot + "Range").GetValue<Circle>();
 
-                if (menuItem.Active)
-                    Render.Circle.DrawCircle(ObjectManager.Player.Position, spell.Range, menuItem.Color);
+                var menuItem = DrawMenu[spell.Slot + "Range"].GetValue<MenuBool>();
+
+                if (menuItem == true)
+                {
+                    var SpellColor = DrawMenu[spell.Slot + "RangeC"].GetValue<MenuColor>();
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, spell.Range, SpellColor.Color.ToSystemColor());
+                }
             }
+
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-
-            if (Config.Item("Spell1") != null && Config.Item("Spell1").GetValue<KeyBind>().Active)
+            
+            if (MainMenu["Spell1"] != null && MainMenu["Spell1"].GetValue<MenuKeyBind>().Active)
                 ExecuteQ();
-            if (Config.Item("Spell2") != null && Config.Item("Spell2").GetValue<KeyBind>().Active)
+            if (MainMenu["Spell2"] != null && MainMenu["Spell2"].GetValue<MenuKeyBind>().Active)
                 ExecuteW();
-            if (Config.Item("Spell3") != null && Config.Item("Spell3").GetValue<KeyBind>().Active)
+            if (MainMenu["Spell3"] != null && MainMenu["Spell3"].GetValue<MenuKeyBind>().Active)
                 ExecuteE();
-            if (Config.Item("Spell4") != null && Config.Item("Spell4").GetValue<KeyBind>().Active)
+            if (MainMenu["Spell4"] != null && MainMenu["Spell4"].GetValue<MenuKeyBind>().Active)
                 ExecuteR();
         }
 
 
         private static void ExecuteQ()
         {
-            Obj_AI_Base target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-
+            
+            var target = Q.GetTarget();
             if (target == null) return;
-            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
+            var rMode = MainMenu["HitChance"].GetValue<MenuList>().Index;
             Console.WriteLine(rMode);
-            if (Q.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= Q.Range)
+            if (Q.IsReady())
             {
                 switch (rMode)
                 {
                     case 0://Low
-                        Q.Cast(target);
+                        Q.Cast();
                         break;
                     case 1://Medium
-                        Q.CastIfHitchanceEquals(target, HitChance.Medium);
+                        Q.CastIfHitchanceMinimum(target, HitChance.Medium);
                         break;
                     case 2://High
-                        Q.CastIfHitchanceEquals(target, HitChance.High);
+                      
+                        Q.CastIfHitchanceMinimum(target, HitChance.High);
                         break;
                     case 3://Very High
-                        Q.CastIfHitchanceEquals(target, HitChance.VeryHigh);
+                        Q.CastIfHitchanceMinimum(target, HitChance.VeryHigh);
                         break;
                 }
             }
@@ -136,10 +154,10 @@ namespace Skillshots
         }
         private static void ExecuteW()
         {
-            Obj_AI_Hero target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
-
+            var target = W.GetTarget();
             if (target == null) return;
-            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
+            var rMode = MainMenu["HitChance"].GetValue<MenuList>().Index;
+            Console.WriteLine(rMode);
             if (W.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= W.Range)
             {
                 switch (rMode)
@@ -148,22 +166,23 @@ namespace Skillshots
                         W.Cast(target);
                         break;
                     case 1://Medium
-                        W.CastIfHitchanceEquals(target, HitChance.Medium);
+                        W.CastIfHitchanceMinimum(target, HitChance.Medium);
                         break;
                     case 2://High
-                        W.CastIfHitchanceEquals(target, HitChance.High);
+                        W.CastIfHitchanceMinimum(target, HitChance.High);
                         break;
                     case 3://Very High
-                        W.CastIfHitchanceEquals(target, HitChance.VeryHigh);
+                        W.CastIfHitchanceMinimum(target, HitChance.VeryHigh);
                         break;
                 }
             }
         }
         private static void ExecuteE()
         {
-            Obj_AI_Hero target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
+            var target = E.GetTarget();
             if (target == null) return;
-            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
+            var rMode = MainMenu["HitChance"].GetValue<MenuList>().Index;
+            Console.WriteLine(rMode);
             if (E.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= E.Range)
             {
                 switch (rMode)
@@ -172,22 +191,23 @@ namespace Skillshots
                         E.Cast(target);
                         break;
                     case 1://Medium
-                        E.CastIfHitchanceEquals(target, HitChance.Medium);
+                        E.CastIfHitchanceMinimum(target, HitChance.Medium);
                         break;
                     case 2://High
-                        E.CastIfHitchanceEquals(target, HitChance.High);
+                        E.CastIfHitchanceMinimum(target, HitChance.High);
                         break;
                     case 3://Very High
-                        E.CastIfHitchanceEquals(target, HitChance.VeryHigh);
+                        E.CastIfHitchanceMinimum(target, HitChance.VeryHigh);
                         break;
                 }
             }
         }
         private static void ExecuteR()
         {
-            Obj_AI_Hero target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
+            var target = R.GetTarget();
             if (target == null) return;
-            var rMode = Config.Item("HitChance").GetValue<StringList>().SelectedIndex;
+            var rMode = MainMenu["HitChance"].GetValue<MenuList>().Index;
+            Console.WriteLine(rMode);
             if (R.IsReady() && ObjectManager.Player.Distance(target.ServerPosition) <= R.Range)
             {
                 switch (rMode)
@@ -196,13 +216,13 @@ namespace Skillshots
                         R.Cast(target);
                         break;
                     case 1://Medium
-                        R.CastIfHitchanceEquals(target, HitChance.Medium);
+                        R.CastIfHitchanceMinimum(target, HitChance.Medium);
                         break;
                     case 2://High
-                        R.CastIfHitchanceEquals(target, HitChance.High);
+                        R.CastIfHitchanceMinimum(target, HitChance.High);
                         break;
                     case 3://Very High
-                        R.CastIfHitchanceEquals(target, HitChance.VeryHigh);
+                        R.CastIfHitchanceMinimum(target, HitChance.VeryHigh);
                         break;
                 }
             }

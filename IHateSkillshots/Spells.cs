@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using LeagueSharp;
-using LeagueSharp.Common;
+using LeagueSharp.SDK.Enumerations;
 #endregion
 namespace Skillshots
 {
@@ -2578,25 +2578,7 @@ namespace Skillshots
                 });
             #endregion Shyvana
             #region Sivir
-            Spells.Add(
-                new SpellData
-                {
-                    ChampionName = "Sivir",
-                    SpellName = "SivirQReturn",
-                    Slot = SpellSlot.Q,
-                    Type = SkillshotType.SkillshotLine,
-                    Delay = 0,
-                    Range = 1250,
-                    Radius = 100,
-                    MissileSpeed = 1350,
-                    FixedRange = true,
-                    AddHitbox = true,
-                    DangerValue = 2,
-                    IsDangerous = false,
-                    MissileSpellName = "SivirQMissileReturn",
-                    DisableFowDetection = false,
-                    MissileFollowsUnit = true,
-                });
+            
             Spells.Add(
                 new SpellData
                 {

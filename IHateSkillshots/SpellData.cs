@@ -2,13 +2,14 @@
 
 using System.Net.Configuration;
 using LeagueSharp;
-using LeagueSharp.Common;
+using LeagueSharp.SDK.Enumerations;
 #endregion
 
 namespace Skillshots
 {
     public class SpellData
     {
+
         public bool AddHitbox;
         public string ChampionName;
         public bool CanBeRemoved = false;
