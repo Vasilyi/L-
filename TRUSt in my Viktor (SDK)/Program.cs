@@ -15,7 +15,7 @@ namespace Viktor
     public class Program
     {
         public const string CHAMP_NAME = "Viktor";
-        private static readonly Obj_AI_Hero player = ObjectManager.Player;
+        public static Obj_AI_Hero player;
         public static List<Spell> SpellList = new List<Spell>();
         // Spells
         private static Spell Q, W, E, R;
@@ -64,6 +64,7 @@ namespace Viktor
         private static void Game_OnGameLoad(object sender, EventArgs e)
         {
             // Champ validation
+            player = ObjectManager.Player;
             if (player.ChampionName != CHAMP_NAME)
                 return;
 
@@ -744,13 +745,23 @@ namespace Viktor
         private static void Drawing_OnDraw(EventArgs args)
         {
             // All circles
+            var menuItem2 = DrawMenu["drawRangeEMax"].GetValue<MenuBool>();
+            if (menuItem2 == true)
+            {
+
+                var SpellColor2 = DrawMenu["ERangeC2"].GetValue<MenuColor>();
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, maxRangeE, SpellColor2.Color.ToSystemColor());
+            }
             foreach (Spell spell in SpellList)
             {
-                var menuItem = DrawMenu["drawRange" + spell.Slot].GetValue<MenuBool>();
 
+                var menuItem = DrawMenu["drawRange" + spell.Slot].GetValue<MenuBool>();
+             
                 if (menuItem == true)
                 {
+                    
                     var SpellColor = DrawMenu[spell.Slot + "RangeC"].GetValue<MenuColor>();
+                   
                     Render.Circle.DrawCircle(ObjectManager.Player.Position, spell.Range, SpellColor.Color.ToSystemColor());
                 }
             }
@@ -884,15 +895,15 @@ namespace Viktor
             DrawMenu = MainMenu.Add(new Menu("Drawings", "Drawings"));
 
             DrawMenu.Add(new MenuBool("drawRangeQ", "Q range", true));
-            DrawMenu.Add(new MenuColor("QRangeC", "Q range", SharpDX.ColorBGRA.FromRgba(0)));
+            DrawMenu.Add(new MenuColor("QRangeC", "Q range", SharpDX.ColorBGRA.FromRgba(0xBF3F3FFF)));
             DrawMenu.Add(new MenuBool("drawRangeW", "W range", true));
-            DrawMenu.Add(new MenuColor("WRangeC", "W range", SharpDX.ColorBGRA.FromRgba(0)));
+            DrawMenu.Add(new MenuColor("WRangeC", "W range", SharpDX.ColorBGRA.FromRgba(0xBFBF3FFF)));
             DrawMenu.Add(new MenuBool("drawRangeE", "E range", true));
-            DrawMenu.Add(new MenuColor("ERangeC", "E range", SharpDX.ColorBGRA.FromRgba(0)));
+            DrawMenu.Add(new MenuColor("ERangeC", "E range", SharpDX.ColorBGRA.FromRgba(0x3FBFBFFF)));
             DrawMenu.Add(new MenuBool("drawRangeEMax", "E max range", true));
-            DrawMenu.Add(new MenuColor("ERangeC2", "E max range", SharpDX.ColorBGRA.FromRgba(0)));
+            DrawMenu.Add(new MenuColor("ERangeC2", "E max range", SharpDX.ColorBGRA.FromRgba(0xBF7F3FFF)));
             DrawMenu.Add(new MenuBool("drawRangeR", "R range", true));
-            DrawMenu.Add(new MenuColor("RRangeC", "R range", SharpDX.ColorBGRA.FromRgba(0)));
+            DrawMenu.Add(new MenuColor("RRangeC", "R range", SharpDX.ColorBGRA.FromRgba(0xBF3FBFFF)));
             DrawMenu.Add(new MenuBool("dmgdraw", "Draw dmg on healthbar"));
             SpellList.Add(Q);
             SpellList.Add(W);
