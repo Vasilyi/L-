@@ -67,9 +67,9 @@ namespace Viktor
             player = ObjectManager.Player;
             if (player.ChampionName != CHAMP_NAME)
                 return;
-
+            
             // Define spells
-            Q = new Spell(SpellSlot.Q, 600);
+            Q = new Spell(SpellSlot.Q, 665);
             W = new Spell(SpellSlot.W, 700);
             E = new Spell(SpellSlot.E, rangeE);
             R = new Spell(SpellSlot.R, 700);
@@ -207,7 +207,7 @@ namespace Viktor
 
             try
             {
-
+               // Console.WriteLine(Q.Instance.SData.CastRange);
 
 
                 bool useQ = ComboMenu["comboUseQ"].GetValue<MenuBool>() && Q.IsReady();
@@ -358,12 +358,18 @@ namespace Viktor
 
             bool useE = WaveClear["waveUseE"].GetValue<MenuBool>() && E.IsReady();
             bool useQ = WaveClear["waveUseQ"].GetValue<MenuBool>() && Q.IsReady();
-
+       
             if (useQ)
             {
-                var minion = GameObjects.EnemyMinions.Where(m => m.Team == GameObjectTeam.Neutral && m.IsValidTarget(player.AttackRange)).MaxOrDefault(min => min.MaxHealth);
+           
+      
+
+                var minion = GameObjects.Jungle.Where(m => m.IsValidTarget(Q.Range)).MaxOrDefault(min => min.MaxHealth);
+                //Console.WriteLine(minion.FirstOrDefault());
+                if (minion != null)
                 {
-                    Q.Cast(minion);
+
+                     Q.Cast(minion);
                 }
             }
 
@@ -385,7 +391,7 @@ namespace Viktor
             }
             else
             {
-                allminions = GameObjects.EnemyMinions.Where(m => m.IsValidTarget(maxRangeE) && m.Team == GameObjectTeam.Neutral).ToList();
+                allminions = GameObjects.Jungle.Where(m => m.IsValidTarget(maxRangeE)).ToList();
             }
 
             var minionslist = (from mnion in allminions select mnion.Position.ToVector2()).ToList();
@@ -487,7 +493,7 @@ namespace Viktor
             var farmLoc = GetBestLaserFarmLocation(false);
             if (farmLoc.MinionsHit > 0)
             {
-                Console.WriteLine("Minion amount: " + farmLoc.MinionsHit + "\n Startpos: " + farmLoc.Position1 + "\n EndPos: " + farmLoc.Position2);
+               // Console.WriteLine("Minion amount: " + farmLoc.MinionsHit + "\n Startpos: " + farmLoc.Position1 + "\n EndPos: " + farmLoc.Position2);
 
                 CastE(farmLoc.Position1, farmLoc.Position2);
                 return true;
