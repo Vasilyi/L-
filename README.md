@@ -10,3 +10,5 @@ Assemblies
 <br><b>Humanizer:</b> : Assembly which adds a ms delay based on distance to previous spell cast location between casts and/or delay between movements.
 
 [![PayPayl donate button](http://img.shields.io/paypal/donate.png?color=blue)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BVTNXZ6JWDZES "Im hungry little boy, donate me so ill buy food:(")
+
+Feretorix <3
